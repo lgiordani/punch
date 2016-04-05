@@ -1,6 +1,6 @@
-===============================
+=====
 Punch
-===============================
+=====
 
 .. image:: https://img.shields.io/pypi/v/punch.svg
         :target: https://pypi.python.org/pypi/punch
@@ -15,7 +15,6 @@ Punch
 
 Update your version while having a drink
 
-* Free software: ISC license
 * Documentation: https://punch.readthedocs.org.
 
 Features
@@ -24,7 +23,7 @@ Features
 * TODO
 
 Credits
----------
+-------
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
