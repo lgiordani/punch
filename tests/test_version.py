@@ -2,7 +2,7 @@
 
 import pytest
 
-from punch import version as ver, version_part as vpart
+from punch import version as ver
 
 
 @pytest.fixture
