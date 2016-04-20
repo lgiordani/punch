@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+import argparse
+import sys
+
+parser = argparse.ArgumentParser(description="Manages file content with versions.")
+parser.add_argument('-c', '--config', action='store',
+                    help="Config file", default="punch_config.py")
+parser.add_argument('-v', '--verbose', action='store_true',
+                    help="Be verbose")
+
+args = parser.parse_args()
+
+print("## Punch")
+print(args.config)
+
+if sys.version_info < (3, 0):
+    import imp
+
+    config = imp.load_source("punch_config", args.config)
+
+elif sys.version_info < (3, 5):
+    from importlib.machinery import SourceFileLoader
+
+    try:
+        config = SourceFileLoader("punch_config", args.config).load_module()
+        print(config)
+    except FileNotFoundError:
+        print("The configuration file {} cannot be found.".format(args.config))
+    except ImportError:
+        print("The configuration file {} cannot imported due to an error.".format(args.config))
+
+else:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("punch_config", args.config)
+    config = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(config)
+
+print(config.__config_version__)
+print(config.current_version)
+print(config.parser)
