@@ -47,3 +47,8 @@ def test_run_with_errors(temp_empty_uninitialized_dir):
 
         assert str(exc.value) == "An error occurred executing '{} --help': stderr\nProcess output was: stdout".format(
             repo.command)
+
+def test_initialize_repo_with_global_configuration_object(temp_empty_uninitialized_dir):
+    global_config = mock.Mock()
+    repo = vr.VCSRepo(temp_empty_uninitialized_dir, config_obj=global_config)
+    assert repo.config_obj == global_config

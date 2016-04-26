@@ -3,8 +3,9 @@ from punch.vcs_repositories.exceptions import RepositorySystemError
 
 
 class VCSRepo:
-    def __init__(self, working_path):
+    def __init__(self, working_path, config_obj=None):
         self.working_path = working_path
+        self.config_obj = config_obj
 
         self._set_command()
         self._check_system()

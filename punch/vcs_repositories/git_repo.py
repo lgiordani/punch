@@ -3,8 +3,8 @@ from punch.vcs_repositories.exceptions import RepositoryStatusError
 
 
 class GitRepo(vr.VCSRepo):
-    def __init__(self, working_path):
-        super().__init__(working_path)
+    def __init__(self, working_path, config_obj=None):
+        super().__init__(working_path, config_obj)
 
     def _set_command(self):
         self.commands = ['git']
@@ -35,17 +35,20 @@ class GitRepo(vr.VCSRepo):
     def start_release(self, release_name):
         self._run([self.command, "checkout", "-b", release_name])
 
-    def finish_release(self, release_name):
+    def finish_release(self, release_name, custom_message=None):
         branch = self.get_current_branch()
 
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
-            message = ["-m", "Created release {}".format(release_name)]
+            if custom_message is not None:
+                message = custom_message.format(release_name)
+            else:
+                message = "Created release {}".format(release_name)
 
             command_line = [self.command, "commit"]
-            command_line.extend(message)
+            command_line.extend(["-m", message])
 
             self._run(command_line)
 
