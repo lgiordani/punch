@@ -7,12 +7,12 @@ class Version():
         self.keys = []
         self.parts = {}
 
-    def add_part(self, name, value):
+    def add_part(self, name, value, cls=vpart.IntegerVersionPart, *args, **kwds):
         self.keys.append(name)
-        self.parts[name] = vpart.IntegerVersionPart(value)
+        self.parts[name] = cls(value, *args, **kwds)
 
     def get_part(self, name):
-        return self.parts[name].value
+        return self.parts[name]
 
     def inc(self, name):
         self.parts[name].inc()
