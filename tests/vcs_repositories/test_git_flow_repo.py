@@ -9,6 +9,8 @@ from punch.vcs_repositories import git_flow_repo as gfr, exceptions as re
 @pytest.fixture
 def temp_empty_git_dir(temp_empty_uninitialized_dir):
     subprocess.check_call(["git", "init", "-q", temp_empty_uninitialized_dir])
+    subprocess.Popen(["git", "config", "user.email", "py.test@email.com"], cwd=temp_empty_uninitialized_dir)
+    subprocess.Popen(["git", "config", "user.name", "PyTest"], cwd=temp_empty_uninitialized_dir)
 
     command_line = ["git", "flow", "init", "-d"]
     p = subprocess.Popen(command_line, cwd=temp_empty_uninitialized_dir, stdout=subprocess.PIPE,
@@ -27,13 +29,13 @@ def temp_empty_git_dir(temp_empty_uninitialized_dir):
 
 
 @pytest.fixture
-def temp_git_dir(temp_empty_git_dir):
+def temp_git_dir(temp_empty_git_dir, safe_devnull):
     with open(os.path.join(temp_empty_git_dir, "README.md"), "w") as f:
         f.writelines(["# Test file", "This is just a test file for punch"])
 
-    subprocess.Popen(["git", "add", "README.md"], cwd=temp_empty_git_dir, stdout=subprocess.DEVNULL)
+    subprocess.Popen(["git", "add", "README.md"], cwd=temp_empty_git_dir, stdout=safe_devnull)
     subprocess.Popen(["git", "commit", "-m", "Initial addition"], cwd=temp_empty_git_dir,
-                     stdout=subprocess.DEVNULL)
+                     stdout=safe_devnull)
 
     return temp_empty_git_dir
 
@@ -65,9 +67,9 @@ def test_pre_start_release(temp_git_dir):
     repo.pre_start_release()
 
 
-def test_pre_start_release_starting_from_different_branch(temp_git_dir):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL)
+def test_pre_start_release_starting_from_different_branch(temp_git_dir, safe_devnull):
+    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+                     stderr=safe_devnull)
 
     repo = gfr.GitFlowRepo(temp_git_dir)
     repo.pre_start_release()
@@ -75,9 +77,9 @@ def test_pre_start_release_starting_from_different_branch(temp_git_dir):
     assert repo.get_current_branch() == 'develop'
 
 
-def test_pre_start_release_starting_from_different_branch_with_unstaged_changes(temp_git_dir):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL)
+def test_pre_start_release_starting_from_different_branch_with_unstaged_changes(temp_git_dir, safe_devnull):
+    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+                     stderr=safe_devnull)
     with open(os.path.join(temp_git_dir, "README.md"), "w") as f:
         f.writelines(["Unstaged lines"])
 
@@ -88,13 +90,13 @@ def test_pre_start_release_starting_from_different_branch_with_unstaged_changes(
     assert repo.get_current_branch() == 'develop'
 
 
-def test_pre_start_release_starting_from_different_branch_with_uncommitted_changes(temp_git_dir):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL)
+def test_pre_start_release_starting_from_different_branch_with_uncommitted_changes(temp_git_dir, safe_devnull):
+    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+                     stderr=safe_devnull)
     with open(os.path.join(temp_git_dir, "README.md"), "w") as f:
         f.writelines(["Unstaged lines"])
-    subprocess.Popen(["git", "add", "README.md"], cwd=temp_git_dir, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL)
+    subprocess.Popen(["git", "add", "README.md"], cwd=temp_git_dir, stdout=safe_devnull,
+                     stderr=safe_devnull)
 
     repo = gfr.GitFlowRepo(temp_git_dir)
     with pytest.raises(gfr.RepositoryStatusError):

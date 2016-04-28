@@ -1,3 +1,5 @@
+import six
+
 import pytest
 import mock
 import io
@@ -15,7 +17,10 @@ __version__ = "1.0.1"
 
 @pytest.fixture
 def file_like():
-    return io.StringIO(file_content)
+    if six.PY2:
+        return io.StringIO(unicode(file_content))
+    else:
+        return io.StringIO(file_content)
 
 
 def test_replace_content_without_config():

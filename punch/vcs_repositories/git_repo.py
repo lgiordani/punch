@@ -1,10 +1,15 @@
+import six
+
 from punch.vcs_repositories import vcs_repo as vr
 from punch.vcs_repositories.exceptions import RepositoryStatusError
 
 
 class GitRepo(vr.VCSRepo):
     def __init__(self, working_path, config_obj=None):
-        super().__init__(working_path, config_obj)
+        if six.PY2:
+            super(GitRepo, self).__init__(working_path, config_obj)
+        else:
+            super().__init__(working_path, config_obj)
 
     def _set_command(self):
         self.commands = ['git']

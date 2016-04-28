@@ -1,4 +1,4 @@
-from unittest import mock
+import mock
 from punch.vcs_use_cases import release as rel
 
 

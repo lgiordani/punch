@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -31,11 +27,7 @@ setup(
     author="Leonardo Giordani",
     author_email='giordani.leonardo@gmail.com',
     url='https://github.com/lgiordani/punch',
-    packages=[
-        'punch',
-    ],
-    package_dir={'punch':
-                 'punch'},
+    packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
     license="ISCL",

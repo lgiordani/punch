@@ -1,5 +1,5 @@
 import os
-from unittest import mock
+import mock
 from punch import global_config as gc
 
 

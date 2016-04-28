@@ -1,6 +1,11 @@
+import six
+
 import pytest
+
 import tempfile
 import shutil
+import os
+import subprocess
 
 @pytest.fixture
 def temp_empty_uninitialized_dir(request):
@@ -11,3 +16,16 @@ def temp_empty_uninitialized_dir(request):
 
     request.addfinalizer(fin)
     return tempdir
+
+@pytest.fixture
+def safe_devnull():
+    if six.PY2:
+        devnull = open(os.devnull, 'w')
+
+        def fin():
+            devnull.close()
+
+    else:
+        devnull = subprocess.DEVNULL
+
+    return devnull

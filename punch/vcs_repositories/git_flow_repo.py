@@ -1,3 +1,4 @@
+import six
 import subprocess
 
 from punch.vcs_repositories import git_repo as gr
@@ -6,7 +7,10 @@ from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositoryS
 
 class GitFlowRepo(gr.GitRepo):
     def __init__(self, working_path, config_obj=None):
-        super().__init__(working_path, config_obj)
+        if six.PY2:
+            super(GitFlowRepo, self).__init__(working_path, config_obj)
+        else:
+            super().__init__(working_path, config_obj)
 
     def _set_command(self):
         self.commands = ['git', 'flow']

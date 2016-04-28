@@ -1,4 +1,6 @@
-from unittest import mock
+import six
+
+import mock
 import pytest
 
 from punch.vcs_repositories import vcs_repo as vr, exceptions as re
@@ -10,7 +12,10 @@ def _test_set_command(self):
 
 def test_init_without_program_installed(temp_empty_uninitialized_dir):
     with mock.patch("subprocess.Popen") as mock_popen:
-        mock_popen.side_effect = FileNotFoundError
+        if six.PY2:
+            mock_popen.side_effect = IOError
+        else:
+            mock_popen.side_effect = FileNotFoundError
 
         with pytest.raises(re.RepositorySystemError):
             vr.VCSRepo._set_command = _test_set_command

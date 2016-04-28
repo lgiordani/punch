@@ -1,8 +1,10 @@
+import six
+
+import os
 import subprocess
 from punch.vcs_repositories.exceptions import RepositorySystemError
 
-
-class VCSRepo:
+class VCSRepo(object):
     def __init__(self, working_path, config_obj=None):
         self.working_path = working_path
         self.config_obj = config_obj
@@ -17,9 +19,18 @@ class VCSRepo:
     def _check_system(self):
         null_commands = self.commands + ["--help"]
 
+        if six.PY2:
+            not_found_exception = IOError
+        else:
+            not_found_exception = FileNotFoundError
+
         try:
-            subprocess.check_call(null_commands, stdout=subprocess.DEVNULL)
-        except FileNotFoundError:
+            if six.PY2:
+                out = subprocess.check_output(null_commands)
+            else:
+                subprocess.check_call(null_commands, stdout=subprocess.DEVNULL)
+
+        except not_found_exception:
             raise RepositorySystemError("Cannot run {}".format(self.command))
         except subprocess.CalledProcessError:
             raise RepositorySystemError("Error running {}".format(self.command))
