@@ -1,6 +1,6 @@
 import sys
 
-class ConfigFile:
+class ConfigFile(object):
     def __init__(self, filepath):
         if sys.version_info < (3, 0):
             import imp
@@ -22,3 +22,6 @@ class ConfigFile:
             spec = importlib.util.spec_from_file_location("punch_config", filepath)
             self.configuration = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(self.configuration)
+
+        if self.configuration.__config_version__ > 1:
+            raise ValueError("Unsupported configuration file version {}".format(self.configuration.__config_version__))

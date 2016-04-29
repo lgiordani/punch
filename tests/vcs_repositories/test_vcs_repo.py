@@ -5,6 +5,8 @@ import pytest
 
 from punch.vcs_repositories import vcs_repo as vr, exceptions as re
 
+pytestmark = pytest.mark.slow
+
 def _test_set_command(self):
     self.commands = ['ls']
     self.command = 'ls'

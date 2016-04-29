@@ -5,6 +5,7 @@ import pytest
 
 from punch.vcs_repositories import git_flow_repo as gfr, exceptions as re
 
+pytestmark = pytest.mark.slow
 
 @pytest.fixture
 def temp_empty_git_dir(temp_empty_uninitialized_dir):
