@@ -1,7 +1,25 @@
 # -*- coding: utf-8 -*-
 
-class IntegerVersionPart:
-    def __init__(self, value):
+import sys
+
+class VersionPart(object):
+    @classmethod
+    def from_dict(cls, dic):
+        try:
+            part_type = dic.pop('type')
+        except KeyError:
+            part_type = 'integer'
+
+        class_name = part_type.title().replace("_", "") + 'VersionPart'
+        part_class = getattr(sys.modules[__name__], class_name)
+
+        return part_class(**dic)
+
+
+class IntegerVersionPart(VersionPart):
+    def __init__(self, name, value):
+        self.name = name
+
         if value is None:
             self.value = 0
         else:
@@ -14,8 +32,10 @@ class IntegerVersionPart:
         self.value = 0
 
 
-class ValueListVersionPart:
-    def __init__(self, value, allowed_values):
+class ValueListVersionPart(VersionPart):
+    def __init__(self, name, value, allowed_values):
+        self.name = name
+
         if value is None:
             self.value = allowed_values[0]
         else:
