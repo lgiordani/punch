@@ -71,6 +71,13 @@ def version_file_name():
     return 'punch_version.py'
 
 
+def clean_previous_imports():
+    import sys
+
+    for i in ['punch_config', 'punch_version']:
+        if i in sys.modules:
+            sys.modules.pop(i)
+
 def write_file(dir, content, config_file_name):
     with open(os.path.join(dir, config_file_name), 'w') as f:
         f.write(content)
@@ -78,6 +85,9 @@ def write_file(dir, content, config_file_name):
 
 def test_read_empty_config_file(temp_empty_uninitialized_dir, empty_file_content, config_file_name,
                                 version_file_content, version_file_name):
+
+    clean_previous_imports()
+
     write_file(temp_empty_uninitialized_dir, empty_file_content, config_file_name)
     write_file(temp_empty_uninitialized_dir, version_file_content, version_file_name)
 
@@ -90,6 +100,9 @@ def test_read_empty_config_file(temp_empty_uninitialized_dir, empty_file_content
 
 def test_read_empty_version_file(temp_empty_uninitialized_dir, semver_config_file_content, config_file_name,
                                  empty_file_content, version_file_name):
+
+    clean_previous_imports()
+
     write_file(temp_empty_uninitialized_dir, semver_config_file_content, config_file_name)
     write_file(temp_empty_uninitialized_dir, empty_file_content, version_file_name)
 
@@ -102,6 +115,9 @@ def test_read_empty_version_file(temp_empty_uninitialized_dir, semver_config_fil
 
 def test_read_illegal_config_file(temp_empty_uninitialized_dir, illegal_config_file_content, config_file_name,
                                   version_file_content, version_file_name):
+
+    clean_previous_imports()
+
     write_file(temp_empty_uninitialized_dir, illegal_config_file_content, config_file_name)
     write_file(temp_empty_uninitialized_dir, version_file_content, version_file_name)
 
@@ -113,6 +129,9 @@ def test_read_illegal_config_file(temp_empty_uninitialized_dir, illegal_config_f
 
 def test_read_plain_variables(temp_empty_uninitialized_dir, semver_config_file_content, config_file_name,
                               version_file_content, version_file_name):
+
+    clean_previous_imports()
+
     write_file(temp_empty_uninitialized_dir, semver_config_file_content, config_file_name)
     write_file(temp_empty_uninitialized_dir, version_file_content, version_file_name)
 
@@ -133,6 +152,7 @@ def test_read_plain_variables(temp_empty_uninitialized_dir, semver_config_file_c
 #     }
 #
 #     assert cf.globals == expected_dict
+#
 #
 #
 # def test_read_version(temp_empty_uninitialized_dir, semver_config_file_content, config_file_name,

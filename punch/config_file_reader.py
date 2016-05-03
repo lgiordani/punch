@@ -23,8 +23,9 @@ class ConfigFile(object):
 
             try:
                 version_module = SourceFileLoader("punch_version", version_filepath).load_module()
+                print('=========', version_module, dir(version_module))
             except FileNotFoundError:
-                raise ValueError("The version file {} cannot be found.".format(config_filepath))
+                raise ValueError("The version file {} cannot be found.".format(version_filepath))
             except ImportError:
                 raise ValueError("The version file {} cannot imported due to an error.".format(version_filepath))
 
@@ -37,7 +38,7 @@ class ConfigFile(object):
 
             spec = importlib.util.spec_from_file_location("punch_version", version_filepath)
             version_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(version)
+            spec.loader.exec_module(version_module)
 
         try:
             self.__config_version__ = configuration_module.__config_version__
@@ -71,8 +72,9 @@ class ConfigFile(object):
         for version_part in version:
             try:
                 value = getattr(version_module, version_part['name'])
+                print("#######", value)
+                version_part['value'] = value
             except AttributeError:
-                print(dir(version))
                 raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
 
             self.version.add_part_from_dict(version_part)
