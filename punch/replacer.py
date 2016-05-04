@@ -2,11 +2,11 @@ import mock
 
 
 class Replacer:
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, serializer):
+        self.serializer = serializer
 
-    def replace(self, text, search_pattern, replace_pattern):
-        _search_pattern = search_pattern.format(**self._config.GLOBALS)
-        _replace_pattern = replace_pattern.format(**self._config.GLOBALS)
+    def replace(self, text, current_version, new_version):
+        _search_pattern = self.serializer.format(**current_version)
+        _replace_pattern = self.serializer.format(**new_version)
 
         return text.replace(_search_pattern, _replace_pattern)

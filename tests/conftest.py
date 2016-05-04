@@ -18,7 +18,7 @@ def pytest_runtest_setup(item):
 
 
 @pytest.fixture
-def temp_empty_uninitialized_dir(request):
+def temp_empty_dir(request):
     tempdir = tempfile.mkdtemp()
 
     def fin():

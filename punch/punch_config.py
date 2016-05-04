@@ -1,9 +1,12 @@
 import sys
 
+import collections
+
 from punch import version as ver
+from punch import file_configuration as fc
 
 
-class ConfigFile(object):
+class PunchConfig(object):
     def __init__(self, config_filepath, version_filepath):
         if sys.version_info < (3, 0):
             import imp
@@ -19,11 +22,11 @@ class ConfigFile(object):
             except FileNotFoundError:
                 raise ValueError("The configuration_module file {} cannot be found.".format(config_filepath))
             except ImportError:
-                raise ValueError("The configuration_module file {} cannot imported due to an error.".format(config_filepath))
+                raise ValueError(
+                    "The configuration_module file {} cannot imported due to an error.".format(config_filepath))
 
             try:
                 version_module = SourceFileLoader("punch_version", version_filepath).load_module()
-                print('=========', version_module, dir(version_module))
             except FileNotFoundError:
                 raise ValueError("The version file {} cannot be found.".format(version_filepath))
             except ImportError:
@@ -46,21 +49,25 @@ class ConfigFile(object):
             raise ValueError("Given config file is invalid: missing '__config_version__' variable")
 
         if configuration_module.__config_version__ > 1:
-            raise ValueError("Unsupported configuration file version {}".format(configuration_module.__config_version__))
+            raise ValueError(
+                "Unsupported configuration file version {}".format(configuration_module.__config_version__))
 
         try:
             files = configuration_module.FILES
         except AttributeError:
             raise ValueError("Given config file is invalid: missing 'FILES' attribute")
 
-        self.files = []
-        for file_configuration in files:
-            pass
-
         try:
             self.globals = configuration_module.GLOBALS
         except AttributeError:
             self.globals = {}
+
+        self.files = []
+        for file_configuration in files:
+            if isinstance(file_configuration, collections.Mapping):
+                self.files.append(fc.FileConfiguration.from_dict(file_configuration, self.globals))
+            else:
+                self.files.append(fc.FileConfiguration(file_configuration, {}, self.globals))
 
         try:
             version = configuration_module.VERSION
@@ -72,7 +79,6 @@ class ConfigFile(object):
         for version_part in version:
             try:
                 value = getattr(version_module, version_part['name'])
-                print("#######", value)
                 version_part['value'] = value
             except AttributeError:
                 raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))

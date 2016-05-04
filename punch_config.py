@@ -2,13 +2,28 @@ __config_version__ = 1
 
 # http://semver.org/
 GLOBALS = {
-    'parser': '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)',
-    'current_version': "1.0.0"
+    'serializer': '{major}.{minor}.{patch}'
 }
 
 FILES = [
+    'pkg/__init__.py',
     {
-        # A dict for each file
+        'path': 'version.txt',
+        'serializer': '{major}.{minor}'
+    }
+]
+
+VERSION = [
+    {
+        'name': 'major',
+        'type': 'integer'
     },
-    {}
+    {
+        'name': 'minor',
+        'type': 'integer'
+    },
+    {
+        'name': 'patch',
+        'type': 'integer'
+    }
 ]

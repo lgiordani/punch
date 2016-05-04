@@ -1,22 +1,12 @@
 import six
 
 import pytest
-import mock
 import io
 
 from punch import replacer
 
-file_content = """# Just a comment
-__version__ = "1.0.0"
-"""
 
-updated_file_content = """# Just a comment
-__version__ = "1.0.1"
-"""
-
-
-@pytest.fixture
-def file_like():
+def file_like(file_content):
     if six.PY2:
         return io.StringIO(unicode(file_content))
     else:
@@ -28,33 +18,59 @@ def test_replace_content_without_config():
         replacer.Replacer()
 
 
-def test_replace_content_without_formatting(file_like):
-    config = mock.Mock()
-    config.GLOBALS = {}
+def test_replace_content():
+    current_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 0
+    }
+    new_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 1
+    }
 
-    search_pattern = "__version__ = \"1.0.0\""
-    replace_pattern = "__version__ = \"1.0.1\""
-    old_file_content = file_like.read()
-    rep = replacer.Replacer(config)
+    file_content = """# Just a comment
+    __version__ = "1.0.0"
+    """
 
-    new_file_content = rep.replace(old_file_content, search_pattern, replace_pattern)
+    updated_file_content = """# Just a comment
+    __version__ = "1.0.1"
+    """
+
+    serializer = "__version__ = \"{major}.{minor}.{patch}\""
+    old_file_content = file_like(file_content).read()
+    rep = replacer.Replacer(serializer)
+
+    new_file_content = rep.replace(old_file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content
 
 
-def test_replace_content_with_formatting(file_like):
-    config = mock.Mock()
-
-    config.GLOBALS = {
-        'current_version': "\"1.0.0\"",
-        'new_version': "\"1.0.1\""
+def test_replace_content_without_using_all_parts():
+    current_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 0
+    }
+    new_version = {
+        'major': 1,
+        'minor': 1,
+        'patch': 0
     }
 
-    search_pattern = "__version__ = {current_version}"
-    replace_pattern = "__version__ = {new_version}"
-    old_file_content = file_like.read()
-    rep = replacer.Replacer(config)
+    file_content = """# Just a comment
+    __version__ = "1.0"
+    """
 
-    new_file_content = rep.replace(old_file_content, search_pattern, replace_pattern)
+    updated_file_content = """# Just a comment
+    __version__ = "1.1"
+    """
+
+    serializer = "__version__ = \"{major}.{minor}\""
+    old_file_content = file_like(file_content).read()
+    rep = replacer.Replacer(serializer)
+
+    new_file_content = rep.replace(old_file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content

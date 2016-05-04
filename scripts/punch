@@ -2,21 +2,23 @@
 
 import argparse
 
-from punch import config_file_reader as cfr
+from punch import punch_config as cfr
 
 parser = argparse.ArgumentParser(description="Manages file content with versions.")
-parser.add_argument('-c', '--config', action='store',
+parser.add_argument('-c', '--config-file', action='store',
                     help="Config file", default="punch_config.py")
-parser.add_argument('-v', '--verbose', action='store_true',
+parser.add_argument('-v', '--version-file', action='store',
+                    help="Version file", default="punch_version.py")
+parser.add_argument('--verbose', action='store_true',
                     help="Be verbose")
 
 args = parser.parse_args()
 
 print("## Punch")
-print(args.config)
 
-config = cfr.ConfigFile(args.config)
+config = cfr.PunchConfig(args.config_file, args.version_file)
 
 print(config.__config_version__)
-print(config.current_version)
-print(config.parser)
+print(config.globals)
+print(config.files)
+print(config.version)

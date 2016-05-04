@@ -8,13 +8,13 @@ from punch.vcs_repositories import git_flow_repo as gfr, exceptions as re
 pytestmark = pytest.mark.slow
 
 @pytest.fixture
-def temp_empty_git_dir(temp_empty_uninitialized_dir):
-    subprocess.check_call(["git", "init", "-q", temp_empty_uninitialized_dir])
-    subprocess.Popen(["git", "config", "user.email", "py.test@email.com"], cwd=temp_empty_uninitialized_dir)
-    subprocess.Popen(["git", "config", "user.name", "PyTest"], cwd=temp_empty_uninitialized_dir)
+def temp_empty_git_dir(temp_empty_dir):
+    subprocess.check_call(["git", "init", "-q", temp_empty_dir])
+    subprocess.Popen(["git", "config", "user.email", "py.test@email.com"], cwd=temp_empty_dir)
+    subprocess.Popen(["git", "config", "user.name", "PyTest"], cwd=temp_empty_dir)
 
     command_line = ["git", "flow", "init", "-d"]
-    p = subprocess.Popen(command_line, cwd=temp_empty_uninitialized_dir, stdout=subprocess.PIPE,
+    p = subprocess.Popen(command_line, cwd=temp_empty_dir, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
 
     stdout, stderr = p.communicate()
@@ -26,7 +26,7 @@ def temp_empty_git_dir(temp_empty_uninitialized_dir):
 
         raise ValueError(_error_message)
 
-    return temp_empty_uninitialized_dir
+    return temp_empty_dir
 
 
 @pytest.fixture
@@ -57,8 +57,8 @@ def test_get_tags(temp_git_dir):
     assert repo.get_tags() == ''
 
 
-def test_pre_start_release_with_uninitialized_directory(temp_empty_uninitialized_dir):
-    repo = gfr.GitFlowRepo(temp_empty_uninitialized_dir)
+def test_pre_start_release_with_uninitialized_directory(temp_empty_dir):
+    repo = gfr.GitFlowRepo(temp_empty_dir)
     with pytest.raises(re.RepositorySystemError):
         repo.pre_start_release()
 
