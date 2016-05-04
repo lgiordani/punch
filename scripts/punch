@@ -3,6 +3,7 @@
 import argparse
 
 from punch import punch_config as cfr
+from punch import file_updater as fu
 
 parser = argparse.ArgumentParser(description="Manages file content with versions.")
 parser.add_argument('-c', '--config-file', action='store',
@@ -18,7 +19,12 @@ print("## Punch")
 
 config = cfr.PunchConfig(args.config_file, args.version_file)
 
+
 print(config.__config_version__)
 print(config.globals)
 print(config.files)
 print(config.version)
+
+# for file_configuration in config.files:
+#     updater = fu.FileUpdater(file_configuration)
+#     updater.update(current_version, new_version)
