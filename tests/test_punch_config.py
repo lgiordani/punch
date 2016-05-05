@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from punch import punch_config as cfr
+from punch import punch_config as pc
 
 
 @pytest.fixture
@@ -92,8 +92,8 @@ def test_read_empty_config_file(temp_empty_dir, empty_file_content, config_file_
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
     with pytest.raises(ValueError) as exc:
-        cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                        os.path.join(temp_empty_dir, version_file_name))
+        pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                       os.path.join(temp_empty_dir, version_file_name))
 
     assert str(exc.value) == "Given config file is invalid: missing '__config_version__' variable"
 
@@ -106,8 +106,8 @@ def test_read_empty_version_file(temp_empty_dir, semver_config_file_content, con
     write_file(temp_empty_dir, empty_file_content, version_file_name)
 
     with pytest.raises(ValueError) as exc:
-        cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                        os.path.join(temp_empty_dir, version_file_name))
+        pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                       os.path.join(temp_empty_dir, version_file_name))
 
     assert str(exc.value) == "Given version file is invalid: missing 'major' variable"
 
@@ -120,8 +120,8 @@ def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content, c
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
     with pytest.raises(ValueError) as exc:
-        cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                        os.path.join(temp_empty_dir, version_file_name))
+        pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                       os.path.join(temp_empty_dir, version_file_name))
 
     assert str(exc.value) == "Unsupported configuration file version 2"
 
@@ -133,8 +133,8 @@ def test_read_plain_variables(temp_empty_dir, semver_config_file_content, config
     write_file(temp_empty_dir, semver_config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
-    cf = cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                         os.path.join(temp_empty_dir, version_file_name))
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                        os.path.join(temp_empty_dir, version_file_name))
 
     assert cf.__config_version__ == 1
 
@@ -146,8 +146,8 @@ def test_read_global_variables(temp_empty_dir, semver_config_file_content, confi
     write_file(temp_empty_dir, semver_config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
-    cf = cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                         os.path.join(temp_empty_dir, version_file_name))
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                        os.path.join(temp_empty_dir, version_file_name))
 
     expected_dict = {
         'serializer': '{major}.{minor}.{patch}'
@@ -163,23 +163,10 @@ def test_read_version(temp_empty_dir, semver_config_file_content, config_file_na
     write_file(temp_empty_dir, semver_config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
-    cf = cfr.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
-                         os.path.join(temp_empty_dir, version_file_name))
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name),
+                        os.path.join(temp_empty_dir, version_file_name))
 
     assert len(cf.version.parts) == 3
     assert cf.version.parts['major'].value == 1
     assert cf.version.parts['minor'].value == 5
     assert cf.version.parts['patch'].value == 0
-
-
-# def test_read_files(temp_empty_dir, semver_config_file_content, config_file_name,
-#                     version_file_content, version_file_name):
-#     clean_previous_imports()
-#
-#     write_file(temp_empty_dir, semver_config_file_content, config_file_name)
-#     write_file(temp_empty_dir, version_file_content, version_file_name)
-#
-#     cf = cfr.ConfigFile(os.path.join(temp_empty_dir, config_file_name),
-#                         os.path.join(temp_empty_dir, version_file_name))
-#
-#     assert len(cf.files) == 2

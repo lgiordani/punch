@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import os
 import pytest
 
 from punch import version as ver
 from punch import version_part as vp
+
+
+def clean_previous_imports():
+    import sys
+
+    for i in ['punch_config', 'punch_version']:
+        if i in sys.modules:
+            sys.modules.pop(i)
 
 
 @pytest.fixture
@@ -49,3 +58,32 @@ def test_version_increment_major_part(version_mmp):
     assert version_mmp.get_part('major').value == 5
     assert version_mmp.get_part('minor').value == 0
     assert version_mmp.get_part('patch').value == 0
+
+
+def test_version_as_dict(version_mmp):
+    expected_dict = {
+        'major': 4,
+        'minor': 3,
+        'patch': 1
+    }
+
+    assert version_mmp.as_dict() == expected_dict
+
+
+def test_write_version_file(temp_empty_dir, version_mmp):
+    clean_previous_imports()
+
+    version_filepath = os.path.join(temp_empty_dir, 'punch_version.py')
+
+    version_mmp.to_file(version_filepath)
+
+    with open(version_filepath, 'r') as f:
+        content = sorted(f.readlines())
+
+    expected_content = [
+        "major = 4\n",
+        "minor = 3\n",
+        "patch = 1\n"
+    ]
+
+    assert content == expected_content
