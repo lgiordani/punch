@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import collections
+
 from punch.helpers import import_file
 from punch import version_part as vpart
 
@@ -52,12 +54,20 @@ class Version():
         version = Version()
 
         for version_part in version_description:
-            try:
-                value = getattr(version_module, version_part['name'])
-                version_part['value'] = value
-            except AttributeError:
-                raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
-
-            version.add_part_from_dict(version_part)
+            if isinstance(version_part, collections.Mapping):
+                version_part_name = version_part['name']
+                version_part['value'] = cls._get_version_part(version_module, version_part, version_part_name)
+                version.add_part_from_dict(version_part)
+            else:
+                version_part_name = version_part
+                version_part_value = cls._get_version_part(version_module, version_part, version_part_name)
+                version.create_part(version_part_name, version_part_value)
 
         return version
+
+    @classmethod
+    def _get_version_part(cls, version_module, version_part, version_part_name):
+        try:
+            return getattr(version_module, version_part_name)
+        except AttributeError:
+            raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part_name))

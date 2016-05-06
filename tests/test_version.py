@@ -106,7 +106,7 @@ def test_write_version_file(temp_empty_dir, version_mmp):
     assert content == expected_content
 
 
-def test_read_version_from_file(temp_empty_dir, version_mmp):
+def test_read_complete_version_from_file(temp_empty_dir, version_mmp):
     clean_previous_imports()
 
     version_filepath = os.path.join(temp_empty_dir, 'punch_version.py')
@@ -128,6 +128,24 @@ def test_read_version_from_file(temp_empty_dir, version_mmp):
             'type': 'integer'
         }
     ]
+
+    version = ver.Version.from_file(version_filepath, version_description)
+
+    assert version.keys == ['major', 'minor', 'patch']
+    assert len(version.parts) == 3
+    assert version.parts['major'].value == 4
+    assert version.parts['minor'].value == 3
+    assert version.parts['patch'].value == 1
+
+def test_read_simplified_version_from_file(temp_empty_dir, version_mmp):
+    clean_previous_imports()
+
+    version_filepath = os.path.join(temp_empty_dir, 'punch_version.py')
+
+    with open(version_filepath, 'w') as f:
+        f.writelines(["major = 4\n", "minor = 3\n", "patch = 1\n"])
+
+    version_description = ['major', 'minor', 'patch']
 
     version = ver.Version.from_file(version_filepath, version_description)
 

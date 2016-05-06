@@ -41,13 +41,3 @@ class PunchConfig(object):
         except AttributeError:
             raise ValueError("Given config file is invalid: missing 'VERSION' attribute")
 
-        # self.version = ver.Version()
-        #
-        # for version_part in version:
-        #     try:
-        #         value = getattr(version_module, version_part['name'])
-        #         version_part['value'] = value
-        #     except AttributeError:
-        #         raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
-        #
-        #     self.version.add_part_from_dict(version_part)

@@ -41,6 +41,6 @@ print()
 for i in new_version.keys:
     print(new_version.parts[i].name, new_version.parts[i].value)
 
-# for file_configuration in config.files:
-#     updater = fu.FileUpdater(file_configuration)
-#     updater.update(current_version, new_version)
+for file_configuration in config.files:
+    updater = fu.FileUpdater(file_configuration)
+    updater.update(current_version.as_dict(), new_version.as_dict())

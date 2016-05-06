@@ -2,28 +2,16 @@ __config_version__ = 1
 
 # http://semver.org/
 GLOBALS = {
-    'serializer': '{major}.{minor}.{patch}'
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
+#    'serializer': "{{major}}.{{minor}}.{{patch}}{{ '-%s' % build if build}}"
 }
 
 FILES = [
-    'pkg/__init__.py',
     {
         'path': 'version.txt',
-        'serializer': '{major}.{minor}'
+        'serializer': '{{major}}.{{minor}}'
     }
 ]
 
-VERSION = [
-    {
-        'name': 'major',
-        'type': 'integer'
-    },
-    {
-        'name': 'minor',
-        'type': 'integer'
-    },
-    {
-        'name': 'patch',
-        'type': 'integer'
-    }
-]
+VERSION = ['major', 'minor', 'patch']
+#VERSION = ['major', 'minor', 'patch', 'build']

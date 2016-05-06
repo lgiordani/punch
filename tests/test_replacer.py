@@ -38,7 +38,7 @@ def test_replace_content():
     __version__ = "1.0.1"
     """
 
-    serializer = "__version__ = \"{major}.{minor}.{patch}\""
+    serializer = "__version__ = \"{{major}}.{{minor}}.{{patch}}\""
     old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializer)
 
@@ -67,7 +67,7 @@ def test_replace_content_without_using_all_parts():
     __version__ = "1.1"
     """
 
-    serializer = "__version__ = \"{major}.{minor}\""
+    serializer = "__version__ = \"{{major}}.{{minor}}\""
     old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializer)
 
