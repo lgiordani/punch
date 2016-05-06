@@ -9,9 +9,11 @@ def test_integer_version_part_init_with_integer():
     vp = vpart.IntegerVersionPart('major', 4)
     assert vp.value == 4
 
+
 def test_integer_version_part_init_with_string():
     vp = vpart.IntegerVersionPart('major', '4')
     assert vp.value == 4
+
 
 def test_integer_version_part_init_with_none():
     vp = vpart.IntegerVersionPart('major', None)
@@ -28,6 +30,14 @@ def test_integer_version_part_reset():
     vp = vpart.IntegerVersionPart('major', 4)
     vp.reset()
     assert vp.value == 0
+
+
+def test_integer_version_part_copy():
+    vp = vpart.IntegerVersionPart('major', 4)
+    nvp = vp.copy()
+    vp.inc()
+
+    assert nvp.value == 4
 
 
 def test_valuelist_version_part_init_with_allowed_value():
@@ -50,6 +60,7 @@ def test_valuelist_version_part_increase():
     vp.inc()
     assert vp.value == 2
 
+
 def test_valuelist_version_part_increase_from_last():
     vp = vpart.ValueListVersionPart('major', 8, [0, 2, 4, 6, 8])
     vp.inc()
@@ -61,10 +72,21 @@ def test_valuelist_version_part_increase_with_non_numerical_values():
     vp.inc()
     assert vp.value == 'alpha'
 
+
 def test_valuelist_version_part_reset():
     vp = vpart.ValueListVersionPart('major', 4, [0, 2, 4, 6, 8])
     vp.reset()
     assert vp.value == 0
+
+
+def test_valuelist_version_part_copy():
+    vp = vpart.ValueListVersionPart('major', 4, [0, 2, 4, 6, 8])
+    nvp = vp.copy()
+    vp.inc()
+    vp.values.append(9)
+
+    assert nvp.value == 4
+    assert nvp.values == [0, 2, 4, 6, 8]
 
 def test_get_integer_version_part_from_full_dict():
     input_dict = {
@@ -79,6 +101,7 @@ def test_get_integer_version_part_from_full_dict():
     assert vp.value == 1
     assert isinstance(vp, vpart.IntegerVersionPart)
 
+
 def test_get_integer_version_part_from_partial_dict():
     input_dict = {
         'name': 'major',
@@ -90,6 +113,7 @@ def test_get_integer_version_part_from_partial_dict():
     assert vp.name == 'major'
     assert vp.value == 1
     assert isinstance(vp, vpart.IntegerVersionPart)
+
 
 def test_get_value_list_version_part_from_full_dict():
     input_dict = {

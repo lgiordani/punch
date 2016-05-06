@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from punch.helpers import import_file
 from punch import version_part as vpart
 
 
@@ -8,7 +9,11 @@ class Version():
         self.keys = []
         self.parts = {}
 
-    def add_part(self, name, value, cls=vpart.IntegerVersionPart, *args, **kwds):
+    def add_part(self, part):
+        self.keys.append(part.name)
+        self.parts[part.name] = part
+
+    def create_part(self, name, value, cls=vpart.IntegerVersionPart, *args, **kwds):
         self.keys.append(name)
         self.parts[name] = cls(name, value, *args, **kwds)
 
@@ -26,6 +31,13 @@ class Version():
         for key in self.keys[idx + 1:]:
             self.parts[key].reset()
 
+    def copy(self):
+        new = Version()
+        for key in self.keys:
+            new.add_part(self.parts[key].copy())
+
+        return new
+
     def as_dict(self):
         return dict((key, part.value) for key, part in self.parts.items())
 
@@ -33,3 +45,19 @@ class Version():
         with open(version_filepath, 'w') as f:
             for key in self.keys:
                 f.write("{0} = {1}\n".format(key, self.parts[key].value))
+
+    @classmethod
+    def from_file(cls, version_filepath, version_description):
+        version_module = import_file(version_filepath)
+        version = Version()
+
+        for version_part in version_description:
+            try:
+                value = getattr(version_module, version_part['name'])
+                version_part['value'] = value
+            except AttributeError:
+                raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
+
+            version.add_part_from_dict(version_part)
+
+        return version

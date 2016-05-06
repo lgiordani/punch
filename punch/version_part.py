@@ -31,6 +31,9 @@ class IntegerVersionPart(VersionPart):
     def reset(self):
         self.value = 0
 
+    def copy(self):
+        return IntegerVersionPart(self.name, self.value)
+
 
 class ValueListVersionPart(VersionPart):
     def __init__(self, name, value, allowed_values):
@@ -44,7 +47,8 @@ class ValueListVersionPart(VersionPart):
                                  allowed_values)
             self.value = value
 
-        self.values = allowed_values
+        # When copying this does not take the object itself
+        self.values = [v for v in allowed_values]
 
     def inc(self):
         idx = self.values.index(self.value)
@@ -52,3 +56,6 @@ class ValueListVersionPart(VersionPart):
 
     def reset(self):
         self.value = self.values[0]
+
+    def copy(self):
+        return ValueListVersionPart(self.name, self.value, self.values)

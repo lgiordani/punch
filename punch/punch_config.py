@@ -6,9 +6,9 @@ from punch import file_configuration as fc
 
 
 class PunchConfig(object):
-    def __init__(self, config_filepath, version_filepath):
+    def __init__(self, config_filepath):
 
-        configuration_module, version_module = import_file(config_filepath, version_filepath)
+        configuration_module = import_file(config_filepath)
 
         try:
             self.__config_version__ = configuration_module.__config_version__
@@ -37,17 +37,17 @@ class PunchConfig(object):
                 self.files.append(fc.FileConfiguration(file_configuration, {}, self.globals))
 
         try:
-            version = configuration_module.VERSION
+            self.version = configuration_module.VERSION
         except AttributeError:
             raise ValueError("Given config file is invalid: missing 'VERSION' attribute")
 
-        self.version = ver.Version()
-
-        for version_part in version:
-            try:
-                value = getattr(version_module, version_part['name'])
-                version_part['value'] = value
-            except AttributeError:
-                raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
-
-            self.version.add_part_from_dict(version_part)
+        # self.version = ver.Version()
+        #
+        # for version_part in version:
+        #     try:
+        #         value = getattr(version_module, version_part['name'])
+        #         version_part['value'] = value
+        #     except AttributeError:
+        #         raise ValueError("Given version file is invalid: missing '{}' variable".format(version_part['name']))
+        #
+        #     self.version.add_part_from_dict(version_part)
