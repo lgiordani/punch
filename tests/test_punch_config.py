@@ -5,20 +5,20 @@ from punch import punch_config as pc
 
 
 @pytest.fixture
-def semver_config_file_content():
+def config_file_content():
     return """
 __config_version__ = 1
 
 # http://semver.org/
 GLOBALS = {
-    'serializer': '{major}.{minor}.{patch}'
+    'serializer': '{{major}}.{{minor}}.{{patch}}'
 }
 
 FILES = [
     'pkg/__init__.py',
     {
         'path': 'version.txt',
-        'serializer': '{major}.{minor}'
+        'serializer': '{{major}}.{{minor}}'
     }
 ]
 
@@ -110,11 +110,11 @@ def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content, c
     assert str(exc.value) == "Unsupported configuration file version 2"
 
 
-def test_read_plain_variables(temp_empty_dir, semver_config_file_content, config_file_name,
+def test_read_plain_variables(temp_empty_dir, config_file_content, config_file_name,
                               version_file_content, version_file_name):
     clean_previous_imports()
 
-    write_file(temp_empty_dir, semver_config_file_content, config_file_name)
+    write_file(temp_empty_dir, config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
     cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
@@ -122,17 +122,18 @@ def test_read_plain_variables(temp_empty_dir, semver_config_file_content, config
     assert cf.__config_version__ == 1
 
 
-def test_read_global_variables(temp_empty_dir, semver_config_file_content, config_file_name,
+def test_read_global_variables(temp_empty_dir, config_file_content, config_file_name,
                                version_file_content, version_file_name):
     clean_previous_imports()
 
-    write_file(temp_empty_dir, semver_config_file_content, config_file_name)
+    write_file(temp_empty_dir, config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
     cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
     expected_dict = {
-        'serializer': '{major}.{minor}.{patch}'
+        'serializer': '{{major}}.{{minor}}.{{patch}}'
     }
 
     assert cf.globals == expected_dict
+

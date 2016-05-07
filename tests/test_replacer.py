@@ -47,6 +47,40 @@ def test_replace_content():
     assert new_file_content == updated_file_content
 
 
+def test_replace_content_with_multiple_serializers():
+    current_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 0
+    }
+    new_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 1
+    }
+
+    file_content = """# Just a comment
+    __version__ = "1.0.0"
+    __api_abi__ = "1.0"
+    """
+
+    updated_file_content = """# Just a comment
+    __version__ = "1.0.1"
+    __api_abi__ = "1.0"
+    """
+
+    serializers = [
+        "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
+        "__api_abi__= \"{{major}}.{{minor}}\""
+        ]
+
+    old_file_content = file_like(file_content).read()
+    rep = replacer.Replacer(serializers)
+
+    new_file_content = rep.replace(old_file_content, current_version, new_version)
+
+    assert new_file_content == updated_file_content
+
 def test_replace_content_without_using_all_parts():
     current_version = {
         'major': 1,
