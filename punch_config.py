@@ -6,23 +6,24 @@ GLOBALS = {
     'serializer': "{{major}}.{{minor}}.{{patch}}{{ '+%s' % build if build}}"
 }
 
-FILES = ['version.txt',
-         # {
-         #     'path': 'version.txt',
-         #     'serializer': '{{major}}.{{minor}}'
-         # },
-         # {
-         #     'path': 'version.txt',
-         #     'serializer': '__version__ = {{ GLOBALS.serializer}}'
-         # },
-         # {
-         #     'path': 'version.txt',
-         #     'serializer': [
-         #         'Full version: {{major}}.{{minor}}.{{patch}}',
-         #         'Short version: {{major}}.{{minor}}'
-         #     ]
-         # }
-         ]
+FILES = [
+    'version.txt',
+    # {
+    #     'path': 'version.txt',
+    #     'serializer': '{{major}}.{{minor}}'
+    # },
+    # {
+    #     'path': 'version.txt',
+    #     'serializer': '__version__ = {{ GLOBALS.serializer}}'
+    # },
+    # {
+    #     'path': 'version.txt',
+    #     'serializer': [
+    #         'Full version: {{major}}.{{minor}}.{{patch}}',
+    #         'Short version: {{major}}.{{minor}}'
+    #     ]
+    # }
+]
 
 VERSION = ['major', 'minor', 'patch',
            # {
