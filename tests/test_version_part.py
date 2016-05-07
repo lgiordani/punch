@@ -20,6 +20,19 @@ def test_integer_version_part_init_with_none():
     assert vp.value == 0
 
 
+def test_integer_version_part_init_without_value():
+    vp = vpart.IntegerVersionPart('major')
+    assert vp.value == 0
+
+
+def test_integer_version_part_init_with_start_value():
+    vp = vpart.IntegerVersionPart('major', start_value=1)
+    assert vp.value == 1
+    vp.inc()
+    vp.reset()
+    assert vp.value == 1
+
+
 def test_integer_version_part_increases():
     vp = vpart.IntegerVersionPart('major', 4)
     vp.inc()
@@ -39,6 +52,11 @@ def test_integer_version_part_copy():
 
     assert nvp.value == 4
 
+def test_integer_version_part_with_start_value_copy():
+    vp = vpart.IntegerVersionPart('major', 4, start_value=1)
+    nvp = vp.copy()
+
+    assert nvp.start_value == 1
 
 def test_valuelist_version_part_init_with_allowed_value():
     vp = vpart.ValueListVersionPart('major', 0, [0, 2, 4, 6, 8])
@@ -87,6 +105,7 @@ def test_valuelist_version_part_copy():
 
     assert nvp.value == 4
     assert nvp.values == [0, 2, 4, 6, 8]
+
 
 def test_get_integer_version_part_from_full_dict():
     input_dict = {

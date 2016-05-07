@@ -2,6 +2,7 @@
 
 import sys
 
+
 class VersionPart(object):
     @classmethod
     def from_dict(cls, dic):
@@ -17,11 +18,16 @@ class VersionPart(object):
 
 
 class IntegerVersionPart(VersionPart):
-    def __init__(self, name, value):
+    def __init__(self, name, value=None, start_value=None):
         self.name = name
 
+        if start_value is None:
+            self.start_value = 0
+        else:
+            self.start_value = start_value
+
         if value is None:
-            self.value = 0
+            self.value = self.start_value
         else:
             self.value = int(value)
 
@@ -29,10 +35,10 @@ class IntegerVersionPart(VersionPart):
         self.value = self.value + 1
 
     def reset(self):
-        self.value = 0
+        self.value = self.start_value
 
     def copy(self):
-        return IntegerVersionPart(self.name, self.value)
+        return IntegerVersionPart(self.name, self.value, self.start_value)
 
 
 class ValueListVersionPart(VersionPart):

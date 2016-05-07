@@ -44,3 +44,7 @@ for i in new_version.keys:
 for file_configuration in config.files:
     updater = fu.FileUpdater(file_configuration)
     updater.update(current_version.as_dict(), new_version.as_dict())
+
+with open(args.version_file, 'w') as f:
+    for i in new_version.keys:
+        f.write('{name} = {value}\n'.format(name=new_version.parts[i].name, value=new_version.parts[i].value))

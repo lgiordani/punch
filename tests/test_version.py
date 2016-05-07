@@ -24,6 +24,16 @@ def version_mmp():
     return v
 
 
+@pytest.fixture
+def version_mmpb():
+    v = ver.Version()
+    v.create_part('major', 4)
+    v.create_part('minor', 3)
+    v.create_part('patch', 1)
+    v.create_part('build', 5, start_value=1)
+    return v
+
+
 def test_version_default_part_is_integer():
     v = ver.Version()
     v.create_part('major', 4)
@@ -58,17 +68,25 @@ def test_version_increment_last_part(version_mmp):
     assert version_mmp.get_part('patch').value == 2
 
 
-def test_version_increment_minor_part(version_mmp):
+def test_version_increment_middle_part(version_mmp):
     version_mmp.inc('minor')
     assert version_mmp.get_part('minor').value == 4
     assert version_mmp.get_part('patch').value == 0
 
 
-def test_version_increment_major_part(version_mmp):
+def test_version_increment_first_part(version_mmp):
     version_mmp.inc('major')
     assert version_mmp.get_part('major').value == 5
     assert version_mmp.get_part('minor').value == 0
     assert version_mmp.get_part('patch').value == 0
+
+def test_version_increment_part_with_custom_start_value(version_mmpb):
+    version_mmpb.inc('major')
+    assert version_mmpb.get_part('major').value == 5
+    assert version_mmpb.get_part('minor').value == 0
+    assert version_mmpb.get_part('patch').value == 0
+    assert version_mmpb.get_part('build').value == 1
+
 
 def test_version_copy(version_mmp):
     new_version = version_mmp.copy()
