@@ -1,0 +1,5 @@
+-r development.txt
+
+pytest
+tox
+mock

@@ -1,4 +1,5 @@
 import os
+import six
 import pytest
 
 from punch import file_configuration as fc
@@ -84,7 +85,12 @@ def test_file_updater_with_nonexisting_file(temp_empty_dir):
 
     file_config = fc.FileConfiguration(filepath, local_variables)
 
-    with pytest.raises(FileNotFoundError) as exc:
+    if six.PY2:
+        expected_exception = IOError
+    else:
+        expected_exception = FileNotFoundError
+
+    with pytest.raises(expected_exception) as exc:
         fu.FileUpdater(file_config)
 
     assert str(exc.value) == "The file {} does not exist".format(file_config.path)
