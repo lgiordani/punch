@@ -104,7 +104,7 @@ def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content, c
     write_file(temp_empty_dir, illegal_config_file_content, config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(pc.ConfigurationVersionError) as exc:
         pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
     assert str(exc.value) == "Unsupported configuration file version 2"

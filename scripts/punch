@@ -1,50 +1,117 @@
 #!/usr/bin/env python
 
 import argparse
+import os
 import sys
 
+import punch
 from punch import config as cfr
 from punch import version as ver
 from punch import file_updater as fu
 
+default_config_file_name = "punch_config.py"
+
+default_config_file_content = """
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
+}
+
+FILES = []
+
+VERSION = ['major', 'minor', 'patch']
+"""
+
+default_version_file_name = "punch_version.py"
+
+default_version_file_content = """
+major = 0
+minor = 1
+patch = 0
+"""
+
 parser = argparse.ArgumentParser(description="Manages file content with versions.")
 parser.add_argument('-c', '--config-file', action='store',
-                    help="Config file", default="punch_config.py")
+                    help="Config file", default=default_config_file_name)
 parser.add_argument('-v', '--version-file', action='store',
-                    help="Version file", default="punch_version.py")
+                    help="Version file", default=default_version_file_name)
 parser.add_argument('-p', '--part', action='store')
 parser.add_argument('--verbose', action='store_true',
                     help="Be verbose")
+parser.add_argument('--init', action='store_true',
+                    help="Writes default initialization files (does not overwrite existing ones)")
+parser.add_argument('--simulate', action='store_true',
+                    help="Simulates the version increment and prints a summary of the relevant data")
 
 args = parser.parse_args()
+
+if args.init is True:
+    if not os.path.exists(default_config_file_name):
+        with open(default_config_file_name, 'w') as f:
+            f.write(default_config_file_content)
+
+    if not os.path.exists(default_version_file_name):
+        with open(default_version_file_name, 'w') as f:
+            f.write(default_version_file_content)
+
+    sys.exit(0)
 
 if args.part is None:
     print("Part is missing")
     sys.exit(1)
 
-print("## Punch")
+if args.verbose:
+    print("## Punch version {}".format(punch.__version__))
 
-config = cfr.PunchConfig(args.config_file)
+try:
+    config = cfr.PunchConfig(args.config_file)
+except cfr.ConfigurationVersionError as exc:
+    print(exc)
+    sys.exit(1)
+except ValueError as exc:
+    print("An error occurred while reading the configuration file: {}".format(str(exc)))
+    sys.exit(1)
+
+if not args.simulate:
+    if len(config.files) == 0:
+        print("You didn't configure any file")
+        sys.exit(1)
+
 current_version = ver.Version.from_file(args.version_file, config.version)
 new_version = current_version.copy()
 new_version.inc(args.part)
 
-# print(config.__config_version__)
-# print(config.globals)
-# print(config.files)
+# TODO: review the global API, the following thing are a bit unclean (as_dict() for example)
 
-for i in current_version.keys:
-    print(current_version.parts[i].name, current_version.parts[i].value)
+if args.simulate:
+    print("* Current version")
+    for i in current_version.keys:
+        print("{}={}".format(current_version.parts[i].name, current_version.parts[i].value))
 
-print()
-
-for i in new_version.keys:
-    print(new_version.parts[i].name, new_version.parts[i].value)
-
-for file_configuration in config.files:
-    updater = fu.FileUpdater(file_configuration)
-    updater.update(current_version.as_dict(), new_version.as_dict())
-
-with open(args.version_file, 'w') as f:
+    print("\n* New version")
     for i in new_version.keys:
-        f.write('{name} = {value}\n'.format(name=new_version.parts[i].name, value=new_version.parts[i].value))
+        print("{}={}".format(new_version.parts[i].name, new_version.parts[i].value))
+
+    print("\nConfigured files")
+    for file_configuration in config.files:
+        updater = fu.FileUpdater(file_configuration)
+        changes = updater.rep.get_summary(current_version.as_dict(), new_version.as_dict())
+        print("* {}: ".format(file_configuration.path))
+        for change in changes:
+            print("  * {} -> {}".format(*change))
+
+
+else:
+    for file_configuration in config.files:
+        if args.verbose:
+            print("* Updating file {}".format(file_configuration.path))
+        updater = fu.FileUpdater(file_configuration)
+        updater.update(current_version.as_dict(), new_version.as_dict())
+
+    with open(args.version_file, 'w') as f:
+        if args.verbose:
+            print("* Updating version file")
+
+        for i in new_version.keys:
+            f.write('{name} = {value}\n'.format(name=new_version.parts[i].name, value=new_version.parts[i].value))

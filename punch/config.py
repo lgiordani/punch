@@ -3,6 +3,8 @@ import collections
 from punch.helpers import import_file
 from punch import file_configuration as fc
 
+class ConfigurationVersionError(Exception):
+    "An exception used to signal that the configuration file version is wrong"
 
 class PunchConfig(object):
     def __init__(self, config_filepath):
@@ -15,7 +17,7 @@ class PunchConfig(object):
             raise ValueError("Given config file is invalid: missing '__config_version__' variable")
 
         if configuration_module.__config_version__ > 1:
-            raise ValueError(
+            raise ConfigurationVersionError(
                 "Unsupported configuration file version {}".format(configuration_module.__config_version__))
 
         try:

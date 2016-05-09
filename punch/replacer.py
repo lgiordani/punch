@@ -1,6 +1,7 @@
 import collections
 from jinja2 import Template
 
+
 class Replacer:
     def __init__(self, serializers):
 
@@ -8,6 +9,15 @@ class Replacer:
             self.serializers = serializers
         else:
             self.serializers = [serializers]
+
+    def get_summary(self, current_version, new_version):
+        summary = []
+        for serializer in self.serializers:
+            template = Template(serializer)
+
+            summary.append((template.render(**current_version), template.render(**new_version)))
+
+        return summary
 
     def replace(self, text, current_version, new_version):
         new_text = text
