@@ -1,4 +1,3 @@
-major = 1
-minor = 7
+major = 0
+minor = 1
 patch = 0
-build = 1

@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from punch import punch_config as pc
+from punch import config as pc
 
 
 @pytest.fixture

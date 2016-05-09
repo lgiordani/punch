@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from punch import punch_config as cfr
+from punch import config as cfr
 from punch import version as ver
 from punch import file_updater as fu
 

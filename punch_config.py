@@ -1,33 +1,9 @@
 __config_version__ = 1
 
-# http://semver.org/
 GLOBALS = {
-    #    'serializer': '{{major}}.{{minor}}.{{patch}}',
-    'serializer': "{{major}}.{{minor}}.{{patch}}{{ '+%s' % build if build}}"
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
 }
 
-FILES = [
-    'version.txt',
-    # {
-    #     'path': 'version.txt',
-    #     'serializer': '{{major}}.{{minor}}'
-    # },
-    # {
-    #     'path': 'version.txt',
-    #     'serializer': '__version__ = {{ GLOBALS.serializer}}'
-    # },
-    # {
-    #     'path': 'version.txt',
-    #     'serializer': [
-    #         'Full version: {{major}}.{{minor}}.{{patch}}',
-    #         'Short version: {{major}}.{{minor}}'
-    #     ]
-    # }
-]
+FILES = ['punch/__init__.py']
 
-VERSION = ['major', 'minor', 'patch',
-           # {
-           #     'name': 'build',
-           #     'start_value': 1
-           # }
-           ]
+VERSION = ['major', 'minor', 'patch']

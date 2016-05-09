@@ -1,7 +1,6 @@
 import collections
 
 from punch.helpers import import_file
-from punch import version as ver
 from punch import file_configuration as fc
 
 
@@ -40,4 +39,3 @@ class PunchConfig(object):
             self.version = configuration_module.VERSION
         except AttributeError:
             raise ValueError("Given config file is invalid: missing 'VERSION' attribute")
-
