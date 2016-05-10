@@ -8,6 +8,7 @@ import punch
 from punch import config as cfr
 from punch import version as ver
 from punch import file_updater as fu
+from punch import replacer as rep
 
 default_config_file_name = "punch_config.py"
 
@@ -82,23 +83,36 @@ current_version = ver.Version.from_file(args.version_file, config.version)
 new_version = current_version.copy()
 new_version.inc(args.part)
 
+
+def show_version_parts(values):
+    for p in values:
+        print("{}={}".format(p.name, p.value))
+
+
+def show_version_updates(changes):
+    for current, new in changes:
+        print("  * {} -> {}".format(current, new))
+
+
 if args.simulate:
     print("* Current version")
-    for part in current_version.values:
-        print("{}={}".format(part.name, part.value))
+    show_version_parts(current_version.values)
 
     print("\n* New version")
-    for part in new_version.values:
-        print("{}={}".format(part.name, part.value))
+    show_version_parts(new_version.values)
+
+    global_replacer = rep.Replacer(config.globals['serializer'])
+    changes = global_replacer.get_summary(current_version.as_dict(), new_version.as_dict())
+
+    print("\n* Global version updates")
+    show_version_updates(changes)
 
     print("\nConfigured files")
     for file_configuration in config.files:
         updater = fu.FileUpdater(file_configuration)
-        changes = updater.get_summary(current_version.as_dict(), new_version.as_dict())
         print("* {}: ".format(file_configuration.path))
-        for oldv, newv in changes:
-            print("  * {} -> {}".format(oldv, newv))
-
+        changes = updater.get_summary(current_version.as_dict(), new_version.as_dict())
+        show_version_updates(changes)
 
 else:
     for file_configuration in config.files:
