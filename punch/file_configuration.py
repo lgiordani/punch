@@ -1,5 +1,6 @@
 import jinja2
 
+
 class FileConfiguration(object):
     def __init__(self, filepath, local_variables, global_variables=None):
         self.config = {}

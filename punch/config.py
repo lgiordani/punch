@@ -3,8 +3,10 @@ import collections
 from punch.helpers import import_file
 from punch import file_configuration as fc
 
+
 class ConfigurationVersionError(Exception):
     "An exception used to signal that the configuration file version is wrong"
+
 
 class PunchConfig(object):
     def __init__(self, config_filepath):

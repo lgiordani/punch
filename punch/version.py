@@ -8,8 +8,15 @@ from punch import version_part as vpart
 
 class Version():
     def __init__(self):
-        self.keys = []
-        self.parts = {}
+        self.parts = collections.OrderedDict()
+
+    @property
+    def keys(self):
+        return list(self.parts.keys())
+
+    @property
+    def values(self):
+        return list(self.parts.values())
 
     def add_part(self, part):
         self.keys.append(part.name)
@@ -30,23 +37,27 @@ class Version():
     def inc(self, name):
         self.parts[name].inc()
         idx = self.keys.index(name)
-        for key in self.keys[idx + 1:]:
+        reset_keys = self.keys[idx + 1:]
+        for key in reset_keys:
             self.parts[key].reset()
 
     def copy(self):
         new = Version()
-        for key in self.keys:
-            new.add_part(self.parts[key].copy())
+        for value in self.parts.values():
+            new.add_part(value.copy())
 
         return new
 
     def as_dict(self):
         return dict((key, part.value) for key, part in self.parts.items())
 
+    def as_list(self):
+        return list((key, part.value) for key, part in self.parts.items())
+
     def to_file(self, version_filepath):
         with open(version_filepath, 'w') as f:
-            for key in self.keys:
-                f.write("{0} = {1}\n".format(key, self.parts[key].value))
+            for key, part in self.parts.items():
+                f.write("{0} = {1}\n".format(key, part.value))
 
     @classmethod
     def from_file(cls, version_filepath, version_description):

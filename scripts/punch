@@ -82,24 +82,22 @@ current_version = ver.Version.from_file(args.version_file, config.version)
 new_version = current_version.copy()
 new_version.inc(args.part)
 
-# TODO: review the global API, the following thing are a bit unclean (as_dict() for example)
-
 if args.simulate:
     print("* Current version")
-    for i in current_version.keys:
-        print("{}={}".format(current_version.parts[i].name, current_version.parts[i].value))
+    for part in current_version.values:
+        print("{}={}".format(part.name, part.value))
 
     print("\n* New version")
-    for i in new_version.keys:
-        print("{}={}".format(new_version.parts[i].name, new_version.parts[i].value))
+    for part in new_version.values:
+        print("{}={}".format(part.name, part.value))
 
     print("\nConfigured files")
     for file_configuration in config.files:
         updater = fu.FileUpdater(file_configuration)
-        changes = updater.rep.get_summary(current_version.as_dict(), new_version.as_dict())
+        changes = updater.get_summary(current_version.as_dict(), new_version.as_dict())
         print("* {}: ".format(file_configuration.path))
-        for change in changes:
-            print("  * {} -> {}".format(*change))
+        for oldv, newv in changes:
+            print("  * {} -> {}".format(oldv, newv))
 
 
 else:

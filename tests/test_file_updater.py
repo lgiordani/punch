@@ -85,12 +85,48 @@ def test_file_updater_with_nonexisting_file(temp_empty_dir):
 
     file_config = fc.FileConfiguration(filepath, local_variables)
 
+    current_version = {
+        'major': 1,
+        'minor': 2,
+        'patch': 3
+    }
+    new_version = {
+        'major': 1,
+        'minor': 3,
+        'patch': 0
+    }
+
     if six.PY2:
         expected_exception = IOError
     else:
         expected_exception = FileNotFoundError
 
     with pytest.raises(expected_exception) as exc:
-        fu.FileUpdater(file_config)
+        updater = fu.FileUpdater(file_config)
+        updater.update(current_version, new_version)
 
     assert str(exc.value) == "The file {} does not exist".format(file_config.path)
+
+def test_file_updater_preview(temp_empty_dir):
+    filepath = os.path.join(temp_empty_dir, "__init__.py")
+    local_variables = {
+        'serializer': "__version__ = \"{{major}}.{{minor}}\""
+    }
+
+    file_config = fc.FileConfiguration(filepath, local_variables)
+
+    current_version = {
+        'major': 1,
+        'minor': 2,
+        'patch': 3
+    }
+    new_version = {
+        'major': 1,
+        'minor': 3,
+        'patch': 0
+    }
+
+    updater = fu.FileUpdater(file_config)
+    summary = updater.get_summary(current_version, new_version)
+
+    assert summary == [("__version__ = \"1.2\"", "__version__ = \"1.3\"")]
