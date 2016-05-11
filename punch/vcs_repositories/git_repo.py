@@ -1,7 +1,8 @@
+import os
 import six
 
 from punch.vcs_repositories import vcs_repo as vr
-from punch.vcs_repositories.exceptions import RepositoryStatusError
+from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositorySystemError
 
 
 class GitRepo(vr.VCSRepo):
@@ -10,6 +11,16 @@ class GitRepo(vr.VCSRepo):
             super(GitRepo, self).__init__(working_path, config_obj)
         else:
             super().__init__(working_path, config_obj)
+
+    def _check_system(self):
+        if six.PY2:
+            super(GitRepo, self)._check_system()
+        else:
+            super()._check_system()
+
+        if not os.path.exists(os.path.join(self.working_path, '.git')):
+            raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
+
 
     def _set_command(self):
         self.commands = ['git']

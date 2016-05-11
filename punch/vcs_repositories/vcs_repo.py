@@ -26,7 +26,7 @@ class VCSRepo(object):
 
         try:
             if six.PY2:
-                out = subprocess.check_output(null_commands)
+                subprocess.check_output(null_commands)
             else:
                 subprocess.check_call(null_commands, stdout=subprocess.DEVNULL)
 

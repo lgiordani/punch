@@ -7,6 +7,7 @@ from punch.vcs_repositories import git_repo as gr, exceptions as re
 
 pytestmark = pytest.mark.slow
 
+
 @pytest.fixture
 def temp_empty_git_dir(temp_empty_dir):
     subprocess.check_call(["git", "init", "-q", temp_empty_dir])
@@ -44,10 +45,11 @@ def test_init(temp_empty_git_dir):
     assert repo.working_path == temp_empty_git_dir
 
 
-def test_pre_start_release_with_uninitialized_directory(temp_empty_dir):
-    repo = gr.GitRepo(temp_empty_dir)
-    with pytest.raises(re.RepositorySystemError):
-        repo.pre_start_release()
+def test_init_with_uninitialized_dir(temp_empty_dir):
+    with pytest.raises(re.RepositorySystemError) as exc:
+        gr.GitRepo(temp_empty_dir)
+
+    assert str(exc.value) == "The current directory {} is not a Git repository".format(temp_empty_dir)
 
 
 def test_pre_start_release(temp_git_dir):

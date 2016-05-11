@@ -10,6 +10,19 @@ from punch import version as ver
 from punch import file_updater as fu
 from punch import replacer as rep
 
+from punch.vcs_use_cases import release as ruc
+from punch.vcs_repositories import exceptions as rex
+from punch.vcs_repositories import git_repo as gr
+from punch.vcs_repositories import git_flow_repo as gfr
+
+
+def fatal_error(message, exception=None):
+    print(message)
+    if exception is not None:
+        print("Exception {}: {}".format(exception.__class__.__name__, str(exception)))
+    sys.exit(1)
+
+
 default_config_file_name = "punch_config.py"
 
 default_config_file_content = """
@@ -59,25 +72,19 @@ if args.init is True:
     sys.exit(0)
 
 if args.part is None:
-    print("Part is missing")
-    sys.exit(1)
+    fatal_error("Part is missing")
 
 if args.verbose:
     print("## Punch version {}".format(punch.__version__))
 
 try:
     config = cfr.PunchConfig(args.config_file)
-except cfr.ConfigurationVersionError as exc:
-    print(exc)
-    sys.exit(1)
-except ValueError as exc:
-    print("An error occurred while reading the configuration file: {}".format(str(exc)))
-    sys.exit(1)
+except (cfr.ConfigurationVersionError, ValueError) as exc:
+    fatal_error("An error occurred while reading the configuration file.", exc)
 
 if not args.simulate:
     if len(config.files) == 0:
-        print("You didn't configure any file")
-        sys.exit(1)
+        fatal_error("You didn't configure any file")
 
 current_version = ver.Version.from_file(args.version_file, config.version)
 new_version = current_version.copy()
@@ -114,7 +121,32 @@ if args.simulate:
         changes = updater.get_summary(current_version.as_dict(), new_version.as_dict())
         show_version_updates(changes)
 
+    if config.vcs is not None:
+        print("\nVersion control configuration")
+        print(config.vcs)
+
 else:
+    if config.vcs is not None:
+        if config.vcs['name'] == 'git':
+            repo_class = gr.GitRepo
+        elif config.vcs['name'] == 'git-flow':
+            repo_class = gfr.GitFlowRepo
+        else:
+            fatal_error("The requested version control system {} is not supported.".format(config.vcs['name']))
+
+        try:
+            repo = gr.GitRepo(os.getcwd(), config.vcs)
+        except rex.RepositorySystemError as exc:
+            fatal_error("while initializing the version control repository", exc)
+    else:
+        repo = None
+
+    # TODO: Awkward!! Fix this.
+    global_replacer = rep.Replacer(config.globals['serializer'])
+    changes = global_replacer.get_summary(current_version.as_dict(), new_version.as_dict())
+    current_version_string = changes[0][0]
+    new_version_string = changes[0][1]
+
     for file_configuration in config.files:
         if args.verbose:
             print("* Updating file {}".format(file_configuration.path))
@@ -127,3 +159,15 @@ else:
 
         for i in new_version.keys:
             f.write('{name} = {value}\n'.format(name=new_version.parts[i].name, value=new_version.parts[i].value))
+
+    if config.vcs is not None:
+        uc = ruc.VCSReleaseUseCase(repo)
+        print("uc.pre_start_release()")
+        uc.pre_start_release(new_version_string)
+        print("uc.start_release()")
+        uc.start_release(new_version_string)
+        print("uc.finish_release()")
+        # TODO: Fix this message!!!!
+        uc.finish_release(new_version_string, "TEMP MESSAGE")
+        print("uc.post_finish_release()")
+        uc.post_finish_release(new_version_string)

@@ -1,3 +1,4 @@
+import os
 import six
 import subprocess
 
@@ -25,6 +26,9 @@ class GitFlowRepo(gr.GitRepo):
 
         if "git flow <subcommand>" not in stdout.decode('utf8'):
             raise RepositorySystemError("Cannot run {}".format(self.commands))
+
+        if not os.path.exists(os.path.join(self.working_path, '.git')):
+            raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
 
     def pre_start_release(self, release_name=None):
         output = self._run([self.command, "status"])
