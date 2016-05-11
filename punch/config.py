@@ -23,14 +23,14 @@ class PunchConfig(object):
                 "Unsupported configuration file version {}".format(configuration_module.__config_version__))
 
         try:
-            files = configuration_module.FILES
-        except AttributeError:
-            raise ValueError("Given config file is invalid: missing 'FILES' attribute")
-
-        try:
             self.globals = configuration_module.GLOBALS
         except AttributeError:
             self.globals = {}
+
+        try:
+            files = configuration_module.FILES
+        except AttributeError:
+            raise ValueError("Given config file is invalid: missing 'FILES' attribute")
 
         self.files = []
         for file_configuration in files:
@@ -43,3 +43,10 @@ class PunchConfig(object):
             self.version = configuration_module.VERSION
         except AttributeError:
             raise ValueError("Given config file is invalid: missing 'VERSION' attribute")
+
+        try:
+            self.vcs = configuration_module.VCS
+            if 'name' not in self.vcs.keys():
+                raise ValueError("Missing key 'name' in VCS configuration")
+        except AttributeError:
+            self.vcs = None
