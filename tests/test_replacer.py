@@ -47,7 +47,7 @@ def test_replace_content():
     assert new_file_content == updated_file_content
 
 
-def test_replace_get_versions():
+def test_get_versions():
     current_version = {
         'major': 1,
         'minor': 0,
@@ -62,11 +62,11 @@ def test_replace_get_versions():
     serializer = "__version__ = \"{{major}}.{{minor}}.{{patch}}\""
     rep = replacer.Replacer(serializer)
 
-    list_of_versions = rep.get_summary(current_version, new_version)
+    list_of_versions = rep.run_all_serializers(current_version, new_version)
 
     assert list_of_versions == [("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")]
 
-def test_replace_get_versions_with_multiple_serializers():
+def test_get_versions_with_multiple_serializers():
     current_version = {
         'major': 1,
         'minor': 0,
@@ -84,12 +84,34 @@ def test_replace_get_versions_with_multiple_serializers():
     ]
     rep = replacer.Replacer(serializers)
 
-    list_of_versions = rep.get_summary(current_version, new_version)
+    list_of_versions = rep.run_all_serializers(current_version, new_version)
 
     assert list_of_versions == [
         ("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\""),
         ("__api_abi__ = \"1.0\"", "__api_abi__ = \"1.0\"")
     ]
+
+def test_get_main_version_change_with_multiple_serializers():
+    current_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 0
+    }
+    new_version = {
+        'major': 1,
+        'minor': 0,
+        'patch': 1
+    }
+
+    serializers = [
+        "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
+        "__api_abi__ = \"{{major}}.{{minor}}\""
+    ]
+    rep = replacer.Replacer(serializers)
+
+    current, new = rep.run_main_serializer(current_version, new_version)
+
+    assert current, new == ("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")
 
 def test_replace_content_with_multiple_serializers():
     current_version = {

@@ -10,14 +10,17 @@ class Replacer:
         else:
             self.serializers = [serializers]
 
-    def get_summary(self, current_version, new_version):
+    def run_all_serializers(self, current_version_dict, new_version_dict):
         summary = []
         for serializer in self.serializers:
             template = Template(serializer)
 
-            summary.append((template.render(**current_version), template.render(**new_version)))
+            summary.append((template.render(**current_version_dict), template.render(**new_version_dict)))
 
         return summary
+
+    def run_main_serializer(self, current_version_dict, new_version_dict):
+        return self.run_all_serializers(current_version_dict, new_version_dict)[0]
 
     def replace(self, text, current_version, new_version):
         new_text = text

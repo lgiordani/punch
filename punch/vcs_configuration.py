@@ -4,8 +4,11 @@ from jinja2 import Template
 
 
 class VCSConfiguration(object):
-    def __init__(self, name, commit_message, options, global_variables, special_variables):
+    def __init__(self, name, options, global_variables, special_variables, commit_message=None):
         self.name = name
+
+        if commit_message is None:
+            commit_message = "Version updated {{ current_version }} -> {{ new_version }}"
 
         commit_message_template = Template(commit_message)
 
@@ -26,7 +29,7 @@ class VCSConfiguration(object):
     @classmethod
     def from_dict(cls, vcs_configuration_dict, global_variables, special_variables):
         return VCSConfiguration(vcs_configuration_dict['name'],
-                                vcs_configuration_dict['commit_message'],
                                 vcs_configuration_dict['options'],
                                 global_variables,
-                                special_variables)
+                                special_variables,
+                                vcs_configuration_dict.get('commit_message', None))

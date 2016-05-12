@@ -10,7 +10,7 @@ class FileUpdater(object):
         self.rep = replacer.Replacer(file_configuration.config['serializer'])
 
     def get_summary(self, current_version, new_version):
-        return self.rep.get_summary(current_version, new_version)
+        return self.rep.run_all_serializers(current_version, new_version)
 
     def update(self, current_version, new_version):
         if not os.path.exists(self.file_configuration.path):

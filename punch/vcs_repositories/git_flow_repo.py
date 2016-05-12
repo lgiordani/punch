@@ -45,14 +45,15 @@ class GitFlowRepo(gr.GitRepo):
     def start_release(self, release_name):
         self._run(self.commands + ["release", "start", release_name])
 
-    def finish_release(self, release_name):
+    def finish_release(self, release_name, commit_message):
         branch = self.get_current_branch()
 
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
-            message = ["-m", "Created release {}".format(release_name)]
+
+            message = ["-m", commit_message.format(release_name)]
 
             command_line = [self.command, "commit"]
             command_line.extend(message)
@@ -61,5 +62,5 @@ class GitFlowRepo(gr.GitRepo):
 
         self._run(self.commands + ["release", "finish", "-m", branch])
 
-    def post_finish_release(self, release_name=None):
+    def post_finish_release(self, release_name):
         pass

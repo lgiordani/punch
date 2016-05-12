@@ -111,7 +111,7 @@ def test_finish_release_without_changes(temp_git_dir):
     assert release_name not in repo.get_tags()
 
 
-def test_finish_release_with_changes(temp_git_dir):
+def test_finish_release_with_message(temp_git_dir):
     release_name = "1.0"
     repo = gr.GitRepo(temp_git_dir)
     repo.pre_start_release()
@@ -120,25 +120,11 @@ def test_finish_release_with_changes(temp_git_dir):
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
-    repo.finish_release(release_name)
-    assert repo.get_current_branch() == "master"
-    assert release_name not in repo.get_tags()
-
-
-def test_finish_release_with_custom_message(temp_git_dir):
-    release_name = "1.0"
-    repo = gr.GitRepo(temp_git_dir)
-    repo.pre_start_release()
-    repo.start_release(release_name)
-
-    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
-        f.writelines([release_name])
-
-    custom_message = "A custom message"
-    repo.finish_release(release_name, custom_message)
+    message = "A custom message"
+    repo.finish_release(release_name, message)
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    assert custom_message in stdout.decode('utf8')
+    assert message in stdout.decode('utf8')
 
 
 def test_post_finish_release(temp_git_dir):

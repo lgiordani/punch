@@ -56,8 +56,8 @@ class VCSRepo(object):
     def start_release(self, release_name):
         pass
 
-    def finish_release(self, release_name):
+    def finish_release(self, release_name, commit_message):
         pass
 
-    def post_finish_release(self, release_name=None):
+    def post_finish_release(self, release_name):
         pass

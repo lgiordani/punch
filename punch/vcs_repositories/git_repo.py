@@ -21,7 +21,6 @@ class GitRepo(vr.VCSRepo):
         if not os.path.exists(os.path.join(self.working_path, '.git')):
             raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
 
-
     def _set_command(self):
         self.commands = ['git']
         self.command = 'git'
@@ -51,17 +50,14 @@ class GitRepo(vr.VCSRepo):
     def start_release(self, release_name):
         self._run([self.command, "checkout", "-b", release_name])
 
-    def finish_release(self, release_name, custom_message=None):
+    def finish_release(self, release_name, commit_message):
         branch = self.get_current_branch()
 
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
-            if custom_message is not None:
-                message = custom_message.format(release_name)
-            else:
-                message = "Created release {}".format(release_name)
+            message = commit_message.format(release_name)
 
             command_line = [self.command, "commit"]
             command_line.extend(["-m", message])
@@ -71,5 +67,5 @@ class GitRepo(vr.VCSRepo):
         self._run([self.command, "checkout", "master"])
         self._run([self.command, "merge", branch])
 
-    def post_finish_release(self, release_name=None):
+    def post_finish_release(self, release_name):
         self._run([self.command, "tag", release_name])
