@@ -25,9 +25,11 @@ values of the version parts.
 
 The default name of the config file is `punch_config.py`, but this may be changed with the `--config-file` switch.
 
-The config file contains 4 variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_file__` variable
+The config file contains 4 mandatory variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_file__` variable
 shall always be equal to `1` and provides a way to introduce later new versions of the configuration file without breaking the
 backward compatibility.
+
+The optional variables are: `VCS`.
 
 This file contains pure Pyhton, so feel free to fill it with the Python code you need. Punch is only interested in the value of the 4 variables described here.
 
@@ -160,6 +162,23 @@ The following list describes the different types of parts you may use and their 
 * `value_list`: a list of values. When incrementing the last value the field goes back to the first.
     * `allowed_values`: [mandatory] The list of allowed values for this field (e.g. `['alpha`, `beta`])
 
+
+#### VCS
+
+Punch can be configured to automatically commit the version change to one of the supported VCS. The VCS
+variable in the config file, if present, enables this feature. The format of the variable is that of a
+dictionary encompassing the 'name' variable with the name of the VCS of choice. Currently supported VCSs are
+
+* 'git'
+* 'git-flow'
+
+
+
+# All variables defined in GLOBALS are available as Jinja2 tags
+# 'current_version' and 'new_version' contain the serialization of the current and new
+# versions according to the first serializer given in GLOBALS
+# Beware that options are depending on the VCS in use - check the documentation.
+# 'commit_message' is optional. The  
 
 ### Version file
 

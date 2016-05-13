@@ -35,6 +35,17 @@ GLOBALS = {
 FILES = []
 
 VERSION = ['major', 'minor', 'patch']
+
+VCS = {
+    'name': 'git',
+    'commit_message': "Version updated from {{ current_version }} to {{ new_version }}",
+    'finish_release': True
+    'options': {
+        'make_release_branch': False,
+        'annotate_tags': False,
+        'annotation_message': '',
+    }
+}
 """
 
 default_version_file_name = "punch_version.py"
@@ -44,6 +55,8 @@ major = 0
 minor = 1
 patch = 0
 """
+
+default_commit_message = "Version update {{ current_version }} -> {{ new_version }}"
 
 parser = argparse.ArgumentParser(description="Manages file content with versions.")
 parser.add_argument('-c', '--config-file', action='store',
@@ -95,7 +108,12 @@ current_version_string, new_version_string = global_replacer.run_main_serializer
                                                                                  new_version.as_dict())
 
 if config.vcs is not None:
-    vcs_configuration = vcsc.VCSConfiguration.from_dict(config.vcs)
+    special_variables = {
+        'current_version': current_version_string,
+        'new_version': new_version_string
+    }
+
+    vcs_configuration = vcsc.VCSConfiguration.from_dict(config.vcs, config.globals, special_variables)
 else:
     vcs_configuration = None
 
@@ -165,4 +183,5 @@ else:
 
     if vcs_configuration is not None:
         uc = ruc.VCSReleaseUseCase(repo)
-        uc.run(new_version_string, "TEMP MESSAGE")
+        finish_release = vcs_configuration.options.get('finish_release', True)
+        uc.run(new_version_string, default_commit_message, finish_release)

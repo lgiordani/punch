@@ -117,7 +117,7 @@ def test_finish_release_without_changes(temp_git_dir):
     repo = gfr.GitFlowRepo(temp_git_dir)
     repo.pre_start_release()
     repo.start_release(release_name)
-    repo.finish_release(release_name)
+    repo.finish_release(release_name, "Commit_message")
     assert repo.get_current_branch() == "develop"
     assert release_name in repo.get_tags()
 
@@ -131,7 +131,7 @@ def test_finish_release_with_changes(temp_git_dir):
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
-    repo.finish_release(release_name)
+    repo.finish_release(release_name, "Commit_message")
     assert repo.get_current_branch() == "develop"
     assert release_name in repo.get_tags()
 
@@ -140,7 +140,7 @@ def test_post_finish_release(temp_git_dir):
     repo = gfr.GitFlowRepo(temp_git_dir)
     repo.pre_start_release()
     repo.start_release(release_name)
-    repo.finish_release(release_name)
+    repo.finish_release(release_name, "Commit_message")
     repo.post_finish_release(release_name)
 
     assert repo.get_current_branch() == "develop"

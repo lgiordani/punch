@@ -68,4 +68,5 @@ class GitRepo(vr.VCSRepo):
         self._run([self.command, "merge", branch])
 
     def post_finish_release(self, release_name):
-        self._run([self.command, "tag", release_name])
+        pass
+        # self._run([self.command, "tag", release_name])

@@ -4,7 +4,7 @@ from jinja2 import Template
 
 
 class VCSConfiguration(object):
-    def __init__(self, name, options, global_variables, special_variables, commit_message=None):
+    def __init__(self, name, options, global_variables, special_variables, commit_message=None, finish_release=True):
         self.name = name
 
         if commit_message is None:
@@ -17,6 +17,7 @@ class VCSConfiguration(object):
         template_variables.update(special_variables)
 
         self.commit_message = commit_message_template.render(**template_variables)
+        self.finish_release = finish_release
 
         self.options = {}
         for key, value in options.items():
@@ -32,4 +33,5 @@ class VCSConfiguration(object):
                                 vcs_configuration_dict['options'],
                                 global_variables,
                                 special_variables,
-                                vcs_configuration_dict.get('commit_message', None))
+                                vcs_configuration_dict.get('commit_message', None),
+                                vcs_configuration_dict.get('finish_release', True))

@@ -16,6 +16,7 @@ def vcs_configuration_dict():
     return {
         'name': 'git',
         'commit_message': "Version updated to {{ new_version }}",
+        'finish_release': True,
         'options': {
             'make_release_branch': False,
             'annotate_tags': False,
@@ -48,6 +49,7 @@ def test_vcs_configuration_from_string(vcs_configuration_dict, global_variables,
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 
@@ -62,6 +64,7 @@ def test_vcs_configuration_from_dict(vcs_configuration_dict, global_variables, s
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 def test_vcs_configuration_from_dict_without_commit_message(vcs_configuration_dict, global_variables, special_variables):
@@ -76,6 +79,22 @@ def test_vcs_configuration_from_dict_without_commit_message(vcs_configuration_di
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated 1.2.3 -> 1.3.0"
+    assert vcsconf.finish_release is True
+    assert vcsconf.options == expected_options
+
+def test_vcs_configuration_from_dict_without_finish_release(vcs_configuration_dict, global_variables, special_variables):
+    vcs_configuration_dict.pop('finish_release')
+    vcsconf = vc.VCSConfiguration.from_dict(vcs_configuration_dict, global_variables, special_variables)
+
+    expected_options = {
+        'make_release_branch': False,
+        'annotate_tags': False,
+        'annotation_message': '',
+    }
+
+    assert vcsconf.name == 'git'
+    assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 def test_vcs_configuration_from_dict_can_use_global_variables(vcs_configuration_dict, global_variables, special_variables):
