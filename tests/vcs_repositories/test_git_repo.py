@@ -90,7 +90,7 @@ def test_pre_start_release_starting_from_different_branch_with_uncommitted_chang
                      stderr=safe_devnull)
 
     repo = gr.GitRepo(temp_git_dir)
-    with pytest.raises(gr.RepositoryStatusError) as exc:
+    with pytest.raises(re.RepositoryStatusError) as exc:
         repo.pre_start_release()
 
 
@@ -127,11 +127,10 @@ def test_finish_release_with_message(temp_git_dir):
     assert message in stdout.decode('utf8')
 
 
-# def test_post_finish_release(temp_git_dir):
-#     release_name = "1.0"
-#     repo = gr.GitRepo(temp_git_dir)
-#     repo.pre_start_release()
-#     repo.start_release(release_name)
-#     repo.finish_release(release_name, "Commit message")
-#     repo.post_finish_release(release_name)
-#     assert release_name in repo.get_tags()
+def test_pre_tag_cannot_be_called_without_finish_release():
+    repo = gr.GitRepo(temp_git_dir)
+
+    with pytest.raises(re.RepositoryWorkflowError):
+        repo.pre_tag("just_a_tag")
+
+    #assert "just_a_tag" in repo.get_tags()

@@ -16,6 +16,7 @@ from punch.vcs_repositories import git_repo as gr
 from punch.vcs_repositories import git_flow_repo as gfr
 from punch import vcs_configuration as vcsc
 
+
 def fatal_error(message, exception=None):
     print(message)
     if exception is not None:
@@ -73,6 +74,10 @@ parser.add_argument('--simulate', action='store_true',
 
 args = parser.parse_args()
 
+# These are here just to avoid "can be not defined messages" by linters
+config = None
+repo = None
+
 if args.init is True:
     if not os.path.exists(default_config_file_name):
         with open(default_config_file_name, 'w') as f:
@@ -117,13 +122,14 @@ if config.vcs is not None:
 else:
     vcs_configuration = None
 
+
 def show_version_parts(values):
     for p in values:
         print("{}={}".format(p.name, p.value))
 
 
-def show_version_updates(changes):
-    for current, new in changes:
+def show_version_updates(version_changes):
+    for current, new in version_changes:
         print("  * {} -> {}".format(current, new))
 
 

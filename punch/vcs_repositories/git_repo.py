@@ -2,7 +2,7 @@ import os
 import six
 
 from punch.vcs_repositories import vcs_repo as vr
-from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositorySystemError
+from punch.vcs_repositories import exceptions as e
 
 
 class GitRepo(vr.VCSRepo):
@@ -19,7 +19,7 @@ class GitRepo(vr.VCSRepo):
             super()._check_system()
 
         if not os.path.exists(os.path.join(self.working_path, '.git')):
-            raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
+            raise e.RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
 
     def _set_command(self):
         self.commands = ['git']
@@ -38,14 +38,14 @@ class GitRepo(vr.VCSRepo):
     def pre_start_release(self, release_name=None):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
-            raise RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
+            raise e.RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
 
         self._run([self.command, "checkout", "master"])
 
         branch = self.get_current_branch()
 
         if branch != "master":
-            raise RepositoryStatusError("Current branch shall be master but is {}".format(branch))
+            raise e.RepositoryStatusError("Current branch shall be master but is {}".format(branch))
 
     def start_release(self, release_name):
         self._run([self.command, "checkout", "-b", release_name])
@@ -66,7 +66,12 @@ class GitRepo(vr.VCSRepo):
 
         self._run([self.command, "checkout", "master"])
         self._run([self.command, "merge", branch])
+        self.finish_release_called = True
 
     def post_finish_release(self, release_name):
         pass
-        # self._run([self.command, "tag", release_name])
+
+    def pre_tag(self, tag_name):
+        if not self.finish_release_called:
+            raise e.RepositoryWorkflowError
+        self._run([self.command, "tag", tag_name])
