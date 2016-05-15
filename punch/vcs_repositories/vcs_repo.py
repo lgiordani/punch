@@ -9,8 +9,6 @@ class VCSRepo(object):
         self.working_path = working_path
         self.config_obj = config_obj
 
-        self.finish_release_called = False
-
         self._set_command()
         self._check_system()
 
@@ -59,7 +57,6 @@ class VCSRepo(object):
         pass
 
     def finish_release(self, release_name, commit_message):
-        self.finish_release_called = True
         pass
 
     def post_finish_release(self, release_name):

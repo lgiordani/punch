@@ -35,6 +35,9 @@ class GitRepo(vr.VCSRepo):
     def get_tags(self):
         return self._run([self.command, "tag"])
 
+    def get_branches(self):
+        return self._run([self.command, "branch"])
+
     def pre_start_release(self, release_name=None):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
@@ -56,22 +59,28 @@ class GitRepo(vr.VCSRepo):
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
-        if "nothing to commit, working directory clean" not in output:
-            message = commit_message.format(release_name)
 
-            command_line = [self.command, "commit"]
-            command_line.extend(["-m", message])
+        if "nothing to commit, working directory clean" in output:
+            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "branch", "-d", branch])
+            return
 
-            self._run(command_line)
+        message = commit_message.format(release_name)
+
+        command_line = [self.command, "commit"]
+        command_line.extend(["-m", message])
+
+        self._run(command_line)
 
         self._run([self.command, "checkout", "master"])
         self._run([self.command, "merge", branch])
-        self.finish_release_called = True
+        self._run([self.command, "branch", "-d", branch])
+        self._run([self.command, "tag", release_name])
 
     def post_finish_release(self, release_name):
         pass
 
-    def pre_tag(self, tag_name):
-        if not self.finish_release_called:
-            raise e.RepositoryWorkflowError
-        self._run([self.command, "tag", tag_name])
+        # def pre_tag(self, tag_name):
+        #     if not self.finish_release_called:
+        #         raise e.RepositoryWorkflowError
+        #     self._run([self.command, "tag", tag_name])

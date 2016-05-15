@@ -108,6 +108,7 @@ def test_finish_release_without_changes(temp_git_dir):
     repo.start_release(release_name)
     repo.finish_release(release_name, "Commit_message")
     assert repo.get_current_branch() == "master"
+    assert release_name not in repo.get_branches()
     assert release_name not in repo.get_tags()
 
 
@@ -125,12 +126,13 @@ def test_finish_release_with_message(temp_git_dir):
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     assert message in stdout.decode('utf8')
+    assert release_name in repo.get_tags()
+    assert release_name not in repo.get_branches()
 
-
-def test_pre_tag_cannot_be_called_without_finish_release():
-    repo = gr.GitRepo(temp_git_dir)
-
-    with pytest.raises(re.RepositoryWorkflowError):
-        repo.pre_tag("just_a_tag")
-
-    #assert "just_a_tag" in repo.get_tags()
+# def test_pre_tag_cannot_be_called_without_finish_release():
+#     repo = gr.GitRepo(temp_git_dir)
+#
+#     with pytest.raises(re.RepositoryWorkflowError):
+#         repo.pre_tag("just_a_tag")
+#
+#     #assert "just_a_tag" in repo.get_tags()
