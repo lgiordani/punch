@@ -51,6 +51,7 @@ def test_post_finish_release():
     assert repo.post_finish_release.called
     assert repo.post_finish_release.called_with("release_name")
 
+
 def test_run():
     repo = mock.Mock()
     use_case = rel.VCSReleaseUseCase(repo)

@@ -7,9 +7,10 @@ import shutil
 import os
 import subprocess
 
+
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true",
-        help="run slow tests")
+                     help="run slow tests")
 
 
 def pytest_runtest_setup(item):
@@ -22,10 +23,11 @@ def temp_empty_dir(request):
     tempdir = tempfile.mkdtemp()
 
     def fin():
-        shutil.rmtree(tempdir)
+        shutil.rmtree(tempdir, ignore_errors=True)
 
     request.addfinalizer(fin)
     return tempdir
+
 
 @pytest.fixture
 def safe_devnull():

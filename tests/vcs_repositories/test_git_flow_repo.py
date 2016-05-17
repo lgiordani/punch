@@ -7,6 +7,7 @@ from punch.vcs_repositories import git_flow_repo as gfr, exceptions as re
 
 pytestmark = pytest.mark.slow
 
+
 @pytest.fixture
 def temp_empty_git_dir(temp_empty_dir):
     subprocess.check_call(["git", "init", "-q", temp_empty_dir])
@@ -106,44 +107,40 @@ def test_pre_start_release_starting_from_different_branch_with_uncommitted_chang
 
 
 def test_start_release(temp_gitflow_dir):
-    repo = gfr.GitFlowRepo(temp_gitflow_dir)
+    repo = gfr.GitFlowRepo(temp_gitflow_dir, {'new_version': 'a_release'})
     repo.pre_start_release()
-    repo.start_release("a_release")
+    repo.start_release()
     assert repo.get_current_branch() == "release/a_release"
 
 
 def test_finish_release_without_changes(temp_gitflow_dir):
     release_name = "a_release"
-    repo = gfr.GitFlowRepo(temp_gitflow_dir)
+    repo = gfr.GitFlowRepo(temp_gitflow_dir, {'new_version': release_name})
     repo.pre_start_release()
-    repo.start_release(release_name)
-    repo.finish_release(release_name, "Commit_message")
+    repo.start_release()
+    repo.finish_release()
     assert repo.get_current_branch() == "develop"
     assert release_name in repo.get_tags()
 
 
 def test_finish_release_with_changes(temp_gitflow_dir):
     release_name = "1.0"
-    repo = gfr.GitFlowRepo(temp_gitflow_dir)
+    commit_message = "A commit message"
+    repo = gfr.GitFlowRepo(temp_gitflow_dir, {'commit_message': commit_message, 'new_version': release_name})
     repo.pre_start_release()
-    repo.start_release(release_name)
+    repo.start_release()
 
     with open(os.path.join(temp_gitflow_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
-    repo.finish_release(release_name, "Commit_message")
+    repo.finish_release()
     assert repo.get_current_branch() == "develop"
     assert release_name in repo.get_tags()
 
-# def test_post_finish_release(temp_gitflow_dir):
-#     release_name = "1.0"
-#     repo = gfr.GitFlowRepo(temp_gitflow_dir)
-#     repo.pre_start_release()
-#     repo.start_release(release_name)
-#     repo.finish_release(release_name, "Commit_message")
-#     repo.post_finish_release(release_name)
-#
-#     assert repo.get_current_branch() == "develop"
-#     assert release_name in repo.get_tags()
-#
 
+def test_tag(temp_gitflow_dir):
+    repo = gfr.GitFlowRepo(temp_gitflow_dir)
+
+    repo.tag("just_a_tag")
+
+    assert "just_a_tag" in repo.get_tags()

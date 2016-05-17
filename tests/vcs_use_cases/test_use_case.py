@@ -1,6 +1,7 @@
 import mock
 from punch.vcs_use_cases import use_case
 
+
 def test_delegate_all():
     repo = mock.Mock()
     uc = use_case.VCSUseCase(repo)

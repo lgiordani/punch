@@ -5,6 +5,7 @@ import pytest
 from punch import file_configuration as fc
 from punch import file_updater as fu
 
+
 @pytest.fixture
 def temp_dir_with_version_file(temp_empty_dir):
     with open(os.path.join(temp_empty_dir, "__init__.py"), 'w') as f:
@@ -49,6 +50,7 @@ def test_file_updater(temp_dir_with_version_file):
 
     assert new_file_content == "__version__ = \"1.2.4\""
 
+
 def test_file_updater_with_partial_serializer(temp_dir_with_version_file_partial):
     filepath = os.path.join(temp_dir_with_version_file_partial, "__init__.py")
 
@@ -76,6 +78,7 @@ def test_file_updater_with_partial_serializer(temp_dir_with_version_file_partial
         new_file_content = f.read()
 
     assert new_file_content == "__version__ = \"1.3\""
+
 
 def test_file_updater_with_nonexisting_file(temp_empty_dir):
     filepath = os.path.join(temp_empty_dir, "__init__.py")
@@ -106,6 +109,7 @@ def test_file_updater_with_nonexisting_file(temp_empty_dir):
         updater.update(current_version, new_version)
 
     assert str(exc.value) == "The file {} does not exist".format(file_config.path)
+
 
 def test_file_updater_preview(temp_empty_dir):
     filepath = os.path.join(temp_empty_dir, "__init__.py")

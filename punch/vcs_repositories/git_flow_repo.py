@@ -30,7 +30,7 @@ class GitFlowRepo(gr.GitRepo):
         if not os.path.exists(os.path.join(self.working_path, '.git')):
             raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
 
-    def pre_start_release(self, release_name=None):
+    def pre_start_release(self):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
@@ -42,10 +42,10 @@ class GitFlowRepo(gr.GitRepo):
         if branch != "develop":
             raise RepositoryStatusError("Current branch shall be master but is {}".format(branch))
 
-    def start_release(self, release_name):
-        self._run(self.commands + ["release", "start", release_name])
+    def start_release(self):
+        self._run(self.commands + ["release", "start", self.config_obj['new_version']])
 
-    def finish_release(self, release_name, commit_message):
+    def finish_release(self):
         branch = self.get_current_branch()
 
         self._run([self.command, "add", "."])
@@ -53,7 +53,7 @@ class GitFlowRepo(gr.GitRepo):
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
 
-            message = ["-m", commit_message.format(release_name)]
+            message = ["-m", self.config_obj['commit_message']]
 
             command_line = [self.command, "commit"]
             command_line.extend(message)
@@ -62,5 +62,5 @@ class GitFlowRepo(gr.GitRepo):
 
         self._run(self.commands + ["release", "finish", "-m", branch])
 
-    def post_finish_release(self, release_name):
+    def post_finish_release(self):
         pass

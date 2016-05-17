@@ -66,6 +66,7 @@ def test_get_versions():
 
     assert list_of_versions == [("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")]
 
+
 def test_get_versions_with_multiple_serializers():
     current_version = {
         'major': 1,
@@ -91,6 +92,7 @@ def test_get_versions_with_multiple_serializers():
         ("__api_abi__ = \"1.0\"", "__api_abi__ = \"1.0\"")
     ]
 
+
 def test_get_main_version_change_with_multiple_serializers():
     current_version = {
         'major': 1,
@@ -112,6 +114,7 @@ def test_get_main_version_change_with_multiple_serializers():
     current, new = rep.run_main_serializer(current_version, new_version)
 
     assert current, new == ("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")
+
 
 def test_replace_content_with_multiple_serializers():
     current_version = {
@@ -138,7 +141,7 @@ def test_replace_content_with_multiple_serializers():
     serializers = [
         "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
         "__api_abi__ = \"{{major}}.{{minor}}\""
-        ]
+    ]
 
     old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializers)
@@ -146,6 +149,7 @@ def test_replace_content_with_multiple_serializers():
     new_file_content = rep.replace(old_file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content
+
 
 def test_replace_content_without_using_all_parts():
     current_version = {

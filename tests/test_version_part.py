@@ -52,11 +52,13 @@ def test_integer_version_part_copy():
 
     assert nvp.value == 4
 
+
 def test_integer_version_part_with_start_value_copy():
     vp = vpart.IntegerVersionPart('major', 4, start_value=1)
     nvp = vp.copy()
 
     assert nvp.start_value == 1
+
 
 def test_valuelist_version_part_init_with_allowed_value():
     vp = vpart.ValueListVersionPart('major', 0, [0, 2, 4, 6, 8])

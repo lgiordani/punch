@@ -95,18 +95,18 @@ def test_pre_start_release_starting_from_different_branch_with_uncommitted_chang
 
 
 def test_start_release(temp_git_dir):
-    repo = gr.GitRepo(temp_git_dir)
+    repo = gr.GitRepo(temp_git_dir, {'new_version': 'a_release'})
     repo.pre_start_release()
-    repo.start_release("a_release")
+    repo.start_release()
     assert repo.get_current_branch() == "a_release"
 
 
 def test_finish_release_without_changes(temp_git_dir):
     release_name = "a_release"
-    repo = gr.GitRepo(temp_git_dir)
+    repo = gr.GitRepo(temp_git_dir, {'new_version': release_name})
     repo.pre_start_release()
-    repo.start_release(release_name)
-    repo.finish_release(release_name, "Commit_message")
+    repo.start_release()
+    repo.finish_release()
     assert repo.get_current_branch() == "master"
     assert release_name not in repo.get_branches()
     assert release_name not in repo.get_tags()
@@ -114,25 +114,83 @@ def test_finish_release_without_changes(temp_git_dir):
 
 def test_finish_release_with_message(temp_git_dir):
     release_name = "1.0"
-    repo = gr.GitRepo(temp_git_dir)
+    commit_message = "A commit message"
+    repo = gr.GitRepo(temp_git_dir, {'commit_message': commit_message, 'new_version': release_name})
     repo.pre_start_release()
-    repo.start_release(release_name)
+    repo.start_release()
 
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
-    message = "A custom message"
-    repo.finish_release(release_name, message)
+    repo.finish_release()
+
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    assert message in stdout.decode('utf8')
+    assert commit_message in stdout.decode('utf8')
+
     assert release_name in repo.get_tags()
     assert release_name not in repo.get_branches()
 
-# def test_pre_tag_cannot_be_called_without_finish_release():
-#     repo = gr.GitRepo(temp_git_dir)
-#
-#     with pytest.raises(re.RepositoryWorkflowError):
-#         repo.pre_tag("just_a_tag")
-#
-#     #assert "just_a_tag" in repo.get_tags()
+
+def test_finish_release_with_custom_tag(temp_git_dir):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    tag = "Version_{}".format(release_name)
+    repo = gr.GitRepo(temp_git_dir, {'commit_message': commit_message, 'new_version': release_name, 'tag': tag})
+    repo.pre_start_release()
+    repo.start_release()
+
+    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
+        f.writelines([release_name])
+
+    repo.finish_release()
+
+    assert tag in repo.get_tags()
+
+
+def test_finish_release_custom_tag_cannot_contain_spaces(temp_git_dir):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    tag = "Version {}".format(release_name)
+
+    with pytest.raises(re.RepositoryConfigurationError):
+        gr.GitRepo(temp_git_dir, {'commit_message': commit_message, 'new_version': release_name, 'tag': tag})
+
+
+def test_finish_release_with_annotated_tag(temp_git_dir):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    annotation_message = "An annotation message"
+    repo = gr.GitRepo(temp_git_dir, {
+        'commit_message': commit_message,
+        'new_version': release_name,
+        'annotate_tags': True,
+        'annotation_message': annotation_message
+    })
+    repo.pre_start_release()
+    repo.start_release()
+
+    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
+        f.writelines([release_name])
+
+    repo.finish_release()
+
+    p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    assert commit_message in stdout.decode('utf8')
+
+    p = subprocess.Popen(["git", "show", release_name], cwd=temp_git_dir, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    assert annotation_message in stdout.decode('utf8')
+
+    assert release_name in repo.get_tags()
+    assert release_name not in repo.get_branches()
+
+
+def test_tag(temp_git_dir):
+    repo = gr.GitRepo(temp_git_dir)
+
+    repo.tag("just_a_tag")
+
+    assert "just_a_tag" in repo.get_tags()

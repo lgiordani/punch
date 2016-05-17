@@ -12,6 +12,12 @@ class GitRepo(vr.VCSRepo):
         else:
             super().__init__(working_path, config_obj)
 
+    def _check_config(self):
+        # Tag names cannot contain spaces
+        tag = self.config_obj.get('tag', '')
+        if ' ' in tag:
+            raise e.RepositoryConfigurationError("""You specified "'tag': {}". Tag names cannot contain spaces""".format(tag))
+
     def _check_system(self):
         if six.PY2:
             super(GitRepo, self)._check_system()
@@ -38,7 +44,7 @@ class GitRepo(vr.VCSRepo):
     def get_branches(self):
         return self._run([self.command, "branch"])
 
-    def pre_start_release(self, release_name=None):
+    def pre_start_release(self):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise e.RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
@@ -50,10 +56,10 @@ class GitRepo(vr.VCSRepo):
         if branch != "master":
             raise e.RepositoryStatusError("Current branch shall be master but is {}".format(branch))
 
-    def start_release(self, release_name):
-        self._run([self.command, "checkout", "-b", release_name])
+    def start_release(self):
+        self._run([self.command, "checkout", "-b", self.config_obj['new_version']])
 
-    def finish_release(self, release_name, commit_message):
+    def finish_release(self):
         branch = self.get_current_branch()
 
         self._run([self.command, "add", "."])
@@ -65,22 +71,27 @@ class GitRepo(vr.VCSRepo):
             self._run([self.command, "branch", "-d", branch])
             return
 
-        message = commit_message.format(release_name)
-
         command_line = [self.command, "commit"]
-        command_line.extend(["-m", message])
+        command_line.extend(["-m", self.config_obj['commit_message']])
 
         self._run(command_line)
 
         self._run([self.command, "checkout", "master"])
         self._run([self.command, "merge", branch])
         self._run([self.command, "branch", "-d", branch])
-        self._run([self.command, "tag", release_name])
 
-    def post_finish_release(self, release_name):
+        try:
+            tag_value = self.config_obj['tag']
+        except KeyError:
+            tag_value = self.config_obj['new_version']
+
+        if self.config_obj.get('annotate_tags', False):
+            self._run([self.command, "tag", "-a", tag_value, "-m", self.config_obj['annotation_message']])
+        else:
+            self._run([self.command, "tag", tag_value])
+
+    def post_finish_release(self):
         pass
 
-        # def pre_tag(self, tag_name):
-        #     if not self.finish_release_called:
-        #         raise e.RepositoryWorkflowError
-        #     self._run([self.command, "tag", tag_name])
+    def tag(self, tag_name):
+        self._run([self.command, "tag", tag_name])

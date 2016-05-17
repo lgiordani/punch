@@ -61,4 +61,3 @@ def test_initialize_repo_with_global_configuration_object(temp_empty_dir):
     global_config = mock.Mock()
     repo = vr.VCSRepo(temp_empty_dir, config_obj=global_config)
     assert repo.config_obj == global_config
-

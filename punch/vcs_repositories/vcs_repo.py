@@ -7,10 +7,17 @@ from punch.vcs_repositories.exceptions import RepositorySystemError
 class VCSRepo(object):
     def __init__(self, working_path, config_obj=None):
         self.working_path = working_path
-        self.config_obj = config_obj
+        if config_obj is not None:
+            self.config_obj = config_obj
+        else:
+            self.config_obj = {}
 
+        self._check_config()
         self._set_command()
         self._check_system()
+
+    def _check_config(self):
+        pass
 
     def _set_command(self):
         self.commands = [None]
@@ -50,14 +57,14 @@ class VCSRepo(object):
 
         return stdout.decode('utf8')
 
-    def pre_start_release(self, release_name=None):
+    def pre_start_release(self):
         pass
 
-    def start_release(self, release_name):
+    def start_release(self):
         pass
 
-    def finish_release(self, release_name, commit_message):
+    def finish_release(self):
         pass
 
-    def post_finish_release(self, release_name):
+    def post_finish_release(self):
         pass
