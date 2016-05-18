@@ -1,5 +1,13 @@
-# punch
+# Punch
 Update your version while having a drink
+
+[![Build Status](https://travis-ci.org/lgiordani/punch.svg?branch=master)](https://travis-ci.org/lgiordani/punch)
+[![Version](https://img.shields.io/pypi/v/punch.svg)](https://github.com/lgiordani/punch)
+
+Update your version while having a drink
+
+* Documentation: https://punch.readthedocs.org.
+
 
 This project has been heavily inspired by bumpversion, and I want to thank Filip Noetzel, the author of that project for his work and the inspiring ideas.
 
@@ -232,3 +240,13 @@ The options supported by this adapter are:
 ##### git-flow
 
 The `git-flow` VCS adapter follows the well-known git-flow workflow, so the release is done starting from the `develop` branch, with a dedicated release branch. There are currently no options for this adapter.
+
+## Credits
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+* Cookiecutter: https://github.com/audreyr/cookiecutter
+* `audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
+
+
