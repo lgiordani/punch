@@ -11,6 +11,8 @@ class GitRepo(vr.VCSRepo):
         else:
             super().__init__(working_path, config_obj)
 
+        self.make_release_branch = self.config_obj.get('make_release_branch', True)
+
     def _check_config(self):
         # Tag names cannot contain spaces
         tag = self.config_obj.get('tag', '')
@@ -57,7 +59,8 @@ class GitRepo(vr.VCSRepo):
             raise e.RepositoryStatusError("Current branch shall be master but is {}".format(branch))
 
     def start_release(self):
-        self._run([self.command, "checkout", "-b", self.config_obj['new_version']])
+        if self.make_release_branch:
+            self._run([self.command, "checkout", "-b", self.config_obj['new_version']])
 
     def finish_release(self):
         branch = self.get_current_branch()
@@ -66,7 +69,7 @@ class GitRepo(vr.VCSRepo):
 
         output = self._run([self.command, "status"])
 
-        if "nothing to commit, working directory clean" in output:
+        if "nothing to commit, working directory clean" in output and self.make_release_branch:
             self._run([self.command, "checkout", "master"])
             self._run([self.command, "branch", "-d", branch])
             return
@@ -76,9 +79,10 @@ class GitRepo(vr.VCSRepo):
 
         self._run(command_line)
 
-        self._run([self.command, "checkout", "master"])
-        self._run([self.command, "merge", branch])
-        self._run([self.command, "branch", "-d", branch])
+        if self.make_release_branch:
+            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "merge", branch])
+            self._run([self.command, "branch", "-d", branch])
 
         try:
             tag_value = self.config_obj['tag']
@@ -86,7 +90,8 @@ class GitRepo(vr.VCSRepo):
             tag_value = self.config_obj['new_version']
 
         if self.config_obj.get('annotate_tags', False):
-            self._run([self.command, "tag", "-a", tag_value, "-m", self.config_obj['annotation_message']])
+            annotation_message = self.config_obj.get('annotation_message', "Version {{ new_version }}")
+            self._run([self.command, "tag", "-a", tag_value, "-m", annotation_message])
         else:
             self._run([self.command, "tag", tag_value])
 

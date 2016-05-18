@@ -1,8 +1,7 @@
-import os
 import subprocess
 
+import os
 import pytest
-
 from punch.vcs_repositories import git_repo as gr, exceptions as re
 
 pytestmark = pytest.mark.slow
@@ -106,6 +105,8 @@ def test_finish_release_without_changes(temp_git_dir):
     repo = gr.GitRepo(temp_git_dir, {'new_version': release_name})
     repo.pre_start_release()
     repo.start_release()
+    assert release_name in repo.get_branches()
+
     repo.finish_release()
     assert repo.get_current_branch() == "master"
     assert release_name not in repo.get_branches()
@@ -118,6 +119,7 @@ def test_finish_release_with_message(temp_git_dir):
     repo = gr.GitRepo(temp_git_dir, {'commit_message': commit_message, 'new_version': release_name})
     repo.pre_start_release()
     repo.start_release()
+    assert release_name in repo.get_branches()
 
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
@@ -131,6 +133,51 @@ def test_finish_release_with_message(temp_git_dir):
     assert release_name in repo.get_tags()
     assert release_name not in repo.get_branches()
 
+
+def test_release_without_release_branch(temp_git_dir):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    repo = gr.GitRepo(temp_git_dir, {'commit_message': commit_message,
+                                     'new_version': release_name,
+                                     'make_release_branch': False})
+    repo.pre_start_release()
+    repo.start_release()
+    assert release_name not in repo.get_branches()
+
+    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
+        f.writelines([release_name])
+
+    repo.finish_release()
+
+    p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    assert commit_message in stdout.decode('utf8')
+
+    assert release_name in repo.get_tags()
+    assert release_name not in repo.get_branches()
+
+
+def test_release_with_explicit_release_branch(temp_git_dir):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    repo = gr.GitRepo(temp_git_dir, {'commit_message': commit_message,
+                                     'new_version': release_name,
+                                     'make_release_branch': True})
+    repo.pre_start_release()
+    repo.start_release()
+    assert release_name in repo.get_branches()
+
+    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
+        f.writelines([release_name])
+
+    repo.finish_release()
+
+    p = subprocess.Popen(["git", "log"], cwd=temp_git_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    assert commit_message in stdout.decode('utf8')
+
+    assert release_name in repo.get_tags()
+    assert release_name not in repo.get_branches()
 
 def test_finish_release_with_custom_tag(temp_git_dir):
     release_name = "1.0"

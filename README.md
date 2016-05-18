@@ -1,6 +1,8 @@
 # punch
 Update your version while having a drink
 
+This project has been heavily inspired by bumpversion, and I want to thank Filip Noetzel, the author of that project for his work and the inspiring ideas.
+
 ## The punch workflow
 
 The way punch works can be summarized by the following workflow:
@@ -10,7 +12,7 @@ The way punch works can be summarized by the following workflow:
 * The new version is created incrementing the part requested by the user and changing the rest of the version accordingly
 * Each file listed in the configuration file is opened, processed by each of the global or local serializers, replacing the old version with the new one
 * The new version is written into the version file
-* THe VCS actions are run
+* The VCS requested actions are executed
 
 ## Configuration
 
@@ -20,6 +22,20 @@ Both have a default value (`punch_config.py` and `punch_version.py` respectively
 
 The config file contains the managed files and the version parts description, while the version file contains the actual
 values of the version parts.
+
+### Version file
+
+The default name of the version file is `punch_version.py`, but this may be changed with the `--version-file` switch.
+
+The version file is a Python valid file that contains a variable declaration for each part of the version described in the config file (see below). **This file will be overwritten by punch each time it runs**, so avoid inserting here Python code different from the required variables.
+
+An example of the content of this file for a `major.minor.patch` version is 
+
+``` python
+major = 2
+minor = 4
+patch = 12
+```
 
 ### Config file
 
@@ -40,7 +56,7 @@ by local variables (see `FILES`, for example).
 
 * `serializer` can be a single string o a list of strings, and represents the templates used to search and replace the old version. Each string in `serializer` (or the single one if it is a string) is a Jinja2 template which is rendered with the current version and the new version to get the search and replace patterns.
 
-**Example**
+##### Example
 
 Let's assume that the current version is `major = 1`, `minor = 4`, and `patch = 6`, and that we increment the `patch` version part. With this configuration
 
@@ -52,9 +68,9 @@ GLOBALS = {
 
 the search pattern becomes `1.4.6` and the replacement pattern is `1.4.7`.
 
-**Example**
+##### Example
 
-Let's assume that the current version is `major = 1`, `minor = 4`, `patch = 6, build = 1`, and that we increment the `patch` version part. Let's assume the `build` part is configured to start with the number `1` instead of `0`. With this configuration
+Let's assume that the current version is `major = 1`, `minor = 4`, `patch = 6`, `build = 1`, and that we increment the `patch` version part. Let's assume the `build` part is configured to start with the number `1` instead of `0`. With this configuration
 
 ``` python
 GLOBALS = {
@@ -64,7 +80,19 @@ GLOBALS = {
 
 the search pattern becomes `1.4.6+1` and the replacement pattern is `1.4.7+1`.
 
-**Example**
+##### Example
+
+Let's assume that the current version is `major = 1`, `minor = 4`, `patch = 6`, `build = 1`, and that we increment the `patch` version part. Let's assume this time the `build` part is configured with a standard integer value. With this configuration
+
+``` python
+GLOBALS = {
+    'serializer': "{{ major }}.{{ minor }}.{{ patch }}{{ '+%s' % build if build}}"
+}
+```
+
+the search pattern becomes `1.4.6+1` and the replacement pattern is `1.4.7`.
+
+##### Example
 
 Let's assume that the current version is `major = 1`, `minor = 4`, `patch = 6`, and that we increment the `patch` version part. With this configuration
 
@@ -79,6 +107,10 @@ GLOBALS = {
 
 the first search pattern becomes `Full version: 1.4.6` and its replacement pattern is `Full version: 1.4.7`. The second search pattern will be `Short version: 1.4` and the replacement pattern will not change. This may be useful if you have different representation of the same version in a file, or if you want to specifically target uses of that version.
 
+
+##### Other global variables
+
+You may define any variable in the GLOBALS dictionary and use it later where a Jinja2 temple is available, for example in the `commit_message` of the `VCS` variable.
 
 #### FILES
 
@@ -122,7 +154,7 @@ FILES = [
 ]
 ```
 
-sets the local serializer to `__version__ = {{ major }}.{{ minor }}.{{ patch }}` without duplication the global serializer.
+sets the local serializer to `__version__ = {{ major }}.{{ minor }}.{{ patch }}` without duplication of the global serializer value.
 
 #### VERSION
 
@@ -132,7 +164,9 @@ This variable is a **list** of version parts, in the right hierarchical order. A
 VERSION = ['major', 'minor', 'patch']
 ```
 
-This is a description that fits a standard 3-numbers version as described by the plain semver (http://semver.org) without meta information. The order of the parts is important, since when increasing the value of a part (which is what punch does), the following ones shall be reset to their initial value. Each version part may also be fully specified through a dictionary that contains a `name`, a `type` and other keywords that depend on the part type. THe former example may be fully rewritter as
+This is a description that fits a standard 3-numbers version as described by the plain semver (http://semver.org) without meta information. The order of the parts is important, since when increasing the value of a part (which is what punch does), the following ones shall be reset to their initial value.
+
+Each version part may also be fully specified through a dictionary that contains a `name`, a `type` and other keywords that depend on the part type. The former example may be fully rewritten as
 
 ```python
 VERSION = [
@@ -172,25 +206,29 @@ dictionary encompassing the 'name' variable with the name of the VCS of choice. 
 * 'git'
 * 'git-flow'
 
+The `VCS` variable is a **dictionary** which must contain the `'name'` key with the name of the adapter of choice (available values are listed above).
+ 
+This dictionary is processed using Jinja2 and with a dictionary of variables that contains all global variables and the following sepcial variables:
+ 
+ * `current_version`: is the serialized value of the current version. In case of multiple serializers the first one is used.
+ * `new_version`: is the serialized value of the new version. In case of multiple serializers the first one is used.
 
+Other keys accepted by the `VCS` dictionary are
 
-# All variables defined in GLOBALS are available as Jinja2 tags
-# 'current_version' and 'new_version' contain the serialization of the current and new
-# versions according to the first serializer given in GLOBALS
-# Beware that options are depending on the VCS in use - check the documentation.
-# 'commit_message' is optional. The  
+* `commit_message`: a Jinja2 template with the message used to commit the version advancement. (default: `"Version updated {{ current_version }} -> {{ new_version }}"`
+* `finish_release`: a boolean which tells the VCS to commit the changes. (default: `True`)
+* `options`: a **dictionary** of VCS-specific options (see the relevant section below)
 
-### Version file
+##### git
 
-The default name of the config file is `punch_version.py`, but this may be changed with the `--version-file` switch.
+The `git` VCS adapter provides support for project managed through Git. The adapter automatically commits the version advancement and tags the resulting repository status.
+ 
+The options supported by this adapter are:
 
-The version file is a Python valid file that contains a variable declaration for each part of the version described in the config file. **This file will be overwritten by punch each time it runs**, so avoid inserting here Python code different from the required variables.
+* `'make_release_branch'`: creates a dedicated release branch to commit the version advancement, then merges it into master. (default: `True`)
+* `'annotate_tags` and `'annotation_message'`: tags the repository status after committing the release update with an annotated tag and the given annotation message. (defaults: `False` and `"Version {{ new_version }}"`)
+* `'tag'`: the name of the tag (default: the value of the `new_version` variable)
 
-For the major-minor-patch version shown above this file could be
+##### git-flow
 
-``` python
-major = 2
-minor = 4
-patch = 12
-```
-
+The `git-flow` VCS adapter follows the well-known git-flow workflow, so the release is done starting from the `develop` branch, with a dedicated release branch. There are currently no options for this adapter.
