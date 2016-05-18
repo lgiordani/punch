@@ -1,0 +1,15 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+
+before_install:
+	- sudo apt-get install -qq git git-flow
+
+# command to install dependencies
+install: "pip install -r requirements.txt"
+
+# command to run tests
+script: py.test -sv --runslow
