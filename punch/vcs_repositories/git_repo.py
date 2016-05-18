@@ -1,8 +1,7 @@
 import os
 import six
-
-from punch.vcs_repositories import vcs_repo as vr
 from punch.vcs_repositories import exceptions as e
+from punch.vcs_repositories import vcs_repo as vr
 
 
 class GitRepo(vr.VCSRepo):
@@ -16,7 +15,8 @@ class GitRepo(vr.VCSRepo):
         # Tag names cannot contain spaces
         tag = self.config_obj.get('tag', '')
         if ' ' in tag:
-            raise e.RepositoryConfigurationError("""You specified "'tag': {}". Tag names cannot contain spaces""".format(tag))
+            raise e.RepositoryConfigurationError(
+                """You specified "'tag': {}". Tag names cannot contain spaces""".format(tag))
 
     def _check_system(self):
         if six.PY2:

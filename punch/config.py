@@ -1,7 +1,6 @@
 import collections
-
-from punch.helpers import import_file
 from punch import file_configuration as fc
+from punch.helpers import import_file
 
 
 class ConfigurationVersionError(Exception):

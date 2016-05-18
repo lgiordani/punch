@@ -1,7 +1,7 @@
-import os
-import six
 import subprocess
 
+import os
+import six
 from punch.vcs_repositories import git_repo as gr
 from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositorySystemError
 
@@ -52,7 +52,6 @@ class GitFlowRepo(gr.GitRepo):
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
-
             message = ["-m", self.config_obj['commit_message']]
 
             command_line = [self.command, "commit"]

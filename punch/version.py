@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import collections
-
-from punch.helpers import import_file
 from punch import version_part as vpart
+from punch.helpers import import_file
 
 
 class Version():

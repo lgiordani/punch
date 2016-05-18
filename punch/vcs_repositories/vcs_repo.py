@@ -1,8 +1,8 @@
-import six
-
-import os
 import subprocess
+
+import six
 from punch.vcs_repositories.exceptions import RepositorySystemError
+
 
 class VCSRepo(object):
     def __init__(self, working_path, config_obj=None):
