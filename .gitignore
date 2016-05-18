@@ -67,3 +67,4 @@ venv*
 # Jetbrains
 .idea
 sandbox
+site
