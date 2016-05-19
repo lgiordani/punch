@@ -61,9 +61,11 @@ parser.add_argument('-v', '--version-file', action='store',
 parser.add_argument('-p', '--part', action='store')
 parser.add_argument('--verbose', action='store_true',
                     help="Be verbose")
+parser.add_argument('--version', action='store_true',
+                    help="Print the Punch version and project information")
 parser.add_argument('--init', action='store_true',
                     help="Writes default initialization files (does not overwrite existing ones)")
-parser.add_argument('--simulate', action='store_true',
+parser.add_argument('-s', '--simulate', action='store_true',
                     help="Simulates the version increment and prints a summary of the relevant data")
 
 args = parser.parse_args()
@@ -71,6 +73,14 @@ args = parser.parse_args()
 # These are here just to avoid "can be not defined messages" by linters
 config = None
 repo = None
+
+if args.version is True:
+    print("Punch version {}".format(punch.__version__))
+    print("Copyright (C) 2016 Leonardo Giordani")
+    print("This is free software, see the LICENSE file.")
+    print("Source: https://github.com/lgiordani/punch")
+    print("Documentation: http://punch.readthedocs.io/en/latest/")
+    sys.exit(0)
 
 if args.init is True:
     if not os.path.exists(default_config_file_name):
@@ -88,6 +98,7 @@ if args.part is None:
 
 if args.verbose:
     print("## Punch version {}".format(punch.__version__))
+
 
 try:
     config = cfr.PunchConfig(args.config_file)

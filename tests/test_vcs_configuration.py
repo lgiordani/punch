@@ -101,6 +101,15 @@ def test_vcs_configuration_from_dict_without_finish_release(vcs_configuration_di
     assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
+def test_vcs_configuration_from_dict_without_options(vcs_configuration_dict, global_variables,
+                                                                special_variables):
+    vcs_configuration_dict.pop('options')
+    vcsconf = vc.VCSConfiguration.from_dict(vcs_configuration_dict, global_variables, special_variables)
+
+    assert vcsconf.name == 'git'
+    assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.finish_release is True
+
 
 def test_vcs_configuration_from_dict_can_use_global_variables(vcs_configuration_dict, global_variables,
                                                               special_variables):

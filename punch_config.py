@@ -7,3 +7,7 @@ GLOBALS = {
 FILES = ['punch/__init__.py']
 
 VERSION = ['major', 'minor', 'patch']
+
+VCS = {
+    'name': 'git-flow'
+}

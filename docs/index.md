@@ -38,9 +38,10 @@ Punch may be invoked with the following command line options
 * `-c`, `--config_file`: If you name your config file differently you may tell Punch here to load that file instead of `punch_config.py`
 * `-v`, `--version_file`: If you name your version file differently you may tell Punch here to load that file instead of `punch_version.py`
 * `-p`, `--part`: The name of the part you want to increase to produce the new version. This must be one of the labels listed in the config file and which value is in version file.
-* `--verbose`: Verbosely print information about the execution
+* `--verbose`: Verbosely prints information about the execution
+* `--version`: Prints the Punch version and project information
 * `--init`: Creates each of the `punch_config.py` and `punch_version.py` files if it does not already exist.
-* `--simulate`: Just pretend to increase the version, printing sensible variable values without altering any file.
+* '-s', `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file.
 
 ## The punch workflow
 

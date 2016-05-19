@@ -30,7 +30,7 @@ class VCSConfiguration(object):
     @classmethod
     def from_dict(cls, vcs_configuration_dict, global_variables, special_variables):
         return VCSConfiguration(vcs_configuration_dict['name'],
-                                vcs_configuration_dict['options'],
+                                vcs_configuration_dict.get('options', {}),
                                 global_variables,
                                 special_variables,
                                 vcs_configuration_dict.get('commit_message', None),
