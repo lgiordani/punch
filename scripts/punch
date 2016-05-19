@@ -195,4 +195,4 @@ else:
     if vcs_configuration is not None:
         uc = ruc.VCSReleaseUseCase(repo)
         finish_release = vcs_configuration.options.get('finish_release', True)
-        uc.run(new_version_string, default_commit_message)
+        uc.run()
