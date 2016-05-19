@@ -171,7 +171,7 @@ else:
             fatal_error("The requested version control system {} is not supported.".format(vcs_configuration.name))
 
         try:
-            repo = repo_class(os.getcwd(), vcs_configuration.options)
+            repo = repo_class(os.getcwd(), vcs_configuration)
         except rex.RepositorySystemError as exc:
             fatal_error("An error occurred while initializing the version control repository", exc)
     else:
