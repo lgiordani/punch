@@ -63,7 +63,7 @@ class GitFlowRepo(gr.GitRepo):
 
         self._run(command_line)
 
-        self._run(self.commands + ["release", "finish", self.config_obj.options['new_version'], "-m", branch])
+        self._run(self.commands + ["release", "finish", "-m", branch, self.config_obj.options['new_version']])
 
     def post_finish_release(self):
         pass
