@@ -4,7 +4,7 @@ GLOBALS = {
     'serializer': '{{major}}.{{minor}}.{{patch}}',
 }
 
-FILES = ['punch/__init__.py']
+FILES = ['punch/__init__.py', 'setup.py']
 
 VERSION = ['major', 'minor', 'patch']
 
