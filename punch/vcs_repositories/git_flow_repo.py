@@ -51,13 +51,17 @@ class GitFlowRepo(gr.GitRepo):
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
-        if "nothing to commit, working directory clean" not in output:
-            message = ["-m", self.config_obj.commit_message]
+        if "nothing to commit, working directory clean" in output:
+            self._run([self.command, "checkout", "develop"])
+            self._run([self.command, "branch", "-d", branch])
+            return
 
-            command_line = [self.command, "commit"]
-            command_line.extend(message)
+        message = ["-m", self.config_obj.commit_message]
 
-            self._run(command_line)
+        command_line = [self.command, "commit"]
+        command_line.extend(message)
+
+        self._run(command_line)
 
         self._run(self.commands + ["release", "finish", self.config_obj.options['new_version'], "-m", branch])
 

@@ -124,7 +124,7 @@ def test_finish_release_without_changes(temp_gitflow_dir, empty_vcs_configuratio
     repo.start_release()
     repo.finish_release()
     assert repo.get_current_branch() == "develop"
-    assert release_name in repo.get_tags()
+    assert release_name not in repo.get_tags()
 
 
 def test_finish_release_with_changes(temp_gitflow_dir, empty_vcs_configuration):
