@@ -5,17 +5,17 @@ from punch.vcs_repositories import vcs_repo as vr
 
 
 class GitRepo(vr.VCSRepo):
-    def __init__(self, working_path, config_obj=None):
+    def __init__(self, working_path, config_obj):
         if six.PY2:
             super(GitRepo, self).__init__(working_path, config_obj)
         else:
             super().__init__(working_path, config_obj)
 
-        self.make_release_branch = self.config_obj.get('make_release_branch', True)
+        self.make_release_branch = self.config_obj.options.get('make_release_branch', True)
 
     def _check_config(self):
         # Tag names cannot contain spaces
-        tag = self.config_obj.get('tag', '')
+        tag = self.config_obj.options.get('tag', '')
         if ' ' in tag:
             raise e.RepositoryConfigurationError(
                 """You specified "'tag': {}". Tag names cannot contain spaces""".format(tag))
@@ -60,7 +60,7 @@ class GitRepo(vr.VCSRepo):
 
     def start_release(self):
         if self.make_release_branch:
-            self._run([self.command, "checkout", "-b", self.config_obj['new_version']])
+            self._run([self.command, "checkout", "-b", self.config_obj.options['new_version']])
 
     def finish_release(self):
         branch = self.get_current_branch()
@@ -75,7 +75,7 @@ class GitRepo(vr.VCSRepo):
             return
 
         command_line = [self.command, "commit"]
-        command_line.extend(["-m", self.config_obj['commit_message']])
+        command_line.extend(["-m", self.config_obj.commit_message])
 
         self._run(command_line)
 
@@ -85,12 +85,12 @@ class GitRepo(vr.VCSRepo):
             self._run([self.command, "branch", "-d", branch])
 
         try:
-            tag_value = self.config_obj['tag']
+            tag_value = self.config_obj.options['tag']
         except KeyError:
-            tag_value = self.config_obj['new_version']
+            tag_value = self.config_obj.options['new_version']
 
-        if self.config_obj.get('annotate_tags', False):
-            annotation_message = self.config_obj.get('annotation_message', "Version {{ new_version }}")
+        if self.config_obj.options.get('annotate_tags', False):
+            annotation_message = self.config_obj.options.get('annotation_message', "Version {{ new_version }}")
             self._run([self.command, "tag", "-a", tag_value, "-m", annotation_message])
         else:
             self._run([self.command, "tag", tag_value])

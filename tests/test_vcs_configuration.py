@@ -45,6 +45,8 @@ def test_vcs_configuration_from_string(vcs_configuration_dict, global_variables,
         'make_release_branch': False,
         'annotate_tags': False,
         'annotation_message': '',
+        'current_version': '1.2.3',
+        'new_version': '1.3.0'
     }
 
     assert vcsconf.name == 'git'
@@ -60,6 +62,8 @@ def test_vcs_configuration_from_dict(vcs_configuration_dict, global_variables, s
         'make_release_branch': False,
         'annotate_tags': False,
         'annotation_message': '',
+        'current_version': '1.2.3',
+        'new_version': '1.3.0'
     }
 
     assert vcsconf.name == 'git'
@@ -77,6 +81,8 @@ def test_vcs_configuration_from_dict_without_commit_message(vcs_configuration_di
         'make_release_branch': False,
         'annotate_tags': False,
         'annotation_message': '',
+        'current_version': '1.2.3',
+        'new_version': '1.3.0'
     }
 
     assert vcsconf.name == 'git'
@@ -94,6 +100,8 @@ def test_vcs_configuration_from_dict_without_finish_release(vcs_configuration_di
         'make_release_branch': False,
         'annotate_tags': False,
         'annotation_message': '',
+        'current_version': '1.2.3',
+        'new_version': '1.3.0'
     }
 
     assert vcsconf.name == 'git'
@@ -139,6 +147,8 @@ def test_vcs_configuration_from_dict_options_templates_are_processed(vcs_configu
         'make_release_branch': False,
         'annotate_tags': False,
         'annotation_message': 'Updated 1.2.3 -> 1.3.0',
+        'current_version': '1.2.3',
+        'new_version': '1.3.0'
     }
 
     assert vcsconf.options == expected_options

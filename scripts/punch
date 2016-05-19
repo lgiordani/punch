@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
 import argparse
-import os
 import sys
 
+import os
 import punch
 from punch import config as cfr
-from punch import version as ver
 from punch import file_updater as fu
 from punch import replacer as rep
-
-from punch.vcs_use_cases import release as ruc
-from punch.vcs_repositories import exceptions as rex
-from punch.vcs_repositories import git_repo as gr
-from punch.vcs_repositories import git_flow_repo as gfr
 from punch import vcs_configuration as vcsc
+from punch import version as ver
+from punch.vcs_repositories import exceptions as rex
+from punch.vcs_repositories import git_flow_repo as gfr
+from punch.vcs_repositories import git_repo as gr
+from punch.vcs_use_cases import release as ruc
 
 
 def fatal_error(message, exception=None):
@@ -99,7 +98,6 @@ if args.part is None:
 if args.verbose:
     print("## Punch version {}".format(punch.__version__))
 
-
 try:
     config = cfr.PunchConfig(args.config_file)
 except (cfr.ConfigurationVersionError, ValueError) as exc:
@@ -173,11 +171,17 @@ else:
             fatal_error("The requested version control system {} is not supported.".format(vcs_configuration.name))
 
         try:
-            repo = gr.GitRepo(os.getcwd(), vcs_configuration.options)
+            repo = repo_class(os.getcwd(), vcs_configuration)
         except rex.RepositorySystemError as exc:
             fatal_error("An error occurred while initializing the version control repository", exc)
     else:
         repo = None
+
+    if vcs_configuration is not None:
+        # TODO: Create a fake UseCase to allow running this without a repo and outside this nasty if
+        uc = ruc.VCSReleaseUseCase(repo)
+        uc.pre_start_release()
+        uc.start_release()
 
     for file_configuration in config.files:
         if args.verbose:
@@ -193,6 +197,5 @@ else:
             f.write('{name} = {value}\n'.format(name=new_version.parts[i].name, value=new_version.parts[i].value))
 
     if vcs_configuration is not None:
-        uc = ruc.VCSReleaseUseCase(repo)
-        finish_release = vcs_configuration.options.get('finish_release', True)
-        uc.run()
+        uc.finish_release()
+        uc.post_finish_release()

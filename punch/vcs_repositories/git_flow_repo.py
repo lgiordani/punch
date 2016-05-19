@@ -7,7 +7,7 @@ from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositoryS
 
 
 class GitFlowRepo(gr.GitRepo):
-    def __init__(self, working_path, config_obj=None):
+    def __init__(self, working_path, config_obj):
         if six.PY2:
             super(GitFlowRepo, self).__init__(working_path, config_obj)
         else:
@@ -43,7 +43,7 @@ class GitFlowRepo(gr.GitRepo):
             raise RepositoryStatusError("Current branch shall be master but is {}".format(branch))
 
     def start_release(self):
-        self._run(self.commands + ["release", "start", self.config_obj['new_version']])
+        self._run(self.commands + ["release", "start", self.config_obj.options['new_version']])
 
     def finish_release(self):
         branch = self.get_current_branch()
@@ -52,14 +52,14 @@ class GitFlowRepo(gr.GitRepo):
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" not in output:
-            message = ["-m", self.config_obj['commit_message']]
+            message = ["-m", self.config_obj.commit_message]
 
             command_line = [self.command, "commit"]
             command_line.extend(message)
 
             self._run(command_line)
 
-        self._run(self.commands + ["release", "finish", self.config_obj['new_version'], "-m", branch])
+        self._run(self.commands + ["release", "finish", self.config_obj.options['new_version'], "-m", branch])
 
     def post_finish_release(self):
         pass

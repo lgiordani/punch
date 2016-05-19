@@ -5,12 +5,9 @@ from punch.vcs_repositories.exceptions import RepositorySystemError
 
 
 class VCSRepo(object):
-    def __init__(self, working_path, config_obj=None):
+    def __init__(self, working_path, config_obj):
         self.working_path = working_path
-        if config_obj is not None:
-            self.config_obj = config_obj
-        else:
-            self.config_obj = {}
+        self.config_obj = config_obj
 
         self._check_config()
         self._set_command()

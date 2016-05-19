@@ -27,6 +27,8 @@ class VCSConfiguration(object):
             else:
                 self.options[key] = value
 
+        self.options.update(special_variables)
+
     @classmethod
     def from_dict(cls, vcs_configuration_dict, global_variables, special_variables):
         return VCSConfiguration(vcs_configuration_dict['name'],
