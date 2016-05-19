@@ -22,6 +22,10 @@ def pytest_runtest_setup(item):
 def temp_empty_dir(request):
     tempdir = tempfile.mkdtemp()
 
+    # Make sure the directory is empty, there are some issues on Travis CI
+    shutil.rmtree(tempdir, ignore_errors=True)
+    os.mkdir(tempdir)
+
     def fin():
         shutil.rmtree(tempdir, ignore_errors=True)
 
