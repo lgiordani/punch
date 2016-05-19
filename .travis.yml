@@ -8,7 +8,7 @@ python:
 
 before_install:
   - sudo apt-get install -qq git
-  - wget --no-check-certificate -q  https://raw.github.com/petervanderdoes/gitflow-avh/develop/contrib/gitflow-installer.sh && bash gitflow-installer.sh install stable && rm gitflow-installer.sh
+  - wget --no-check-certificate -q  https://raw.github.com/petervanderdoes/gitflow-avh/develop/contrib/gitflow-installer.sh && sudo bash gitflow-installer.sh install stable && rm gitflow-installer.sh
 
 # command to install dependencies
 install: "pip install -r requirements.txt"
