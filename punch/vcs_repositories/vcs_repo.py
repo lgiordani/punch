@@ -40,7 +40,6 @@ class VCSRepo(object):
             raise RepositorySystemError("Error running {}".format(self.command))
 
     def _run(self, command_line, error_message=None):
-        print("Running:", command_line)
         p = subprocess.Popen(command_line, cwd=self.working_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
@@ -52,9 +51,6 @@ class VCSRepo(object):
                 error_message = error_text.format(" ".join(command_line),
                                                   stderr.decode('utf8'), stdout.decode('utf8'))
                 raise RepositorySystemError(error_message)
-
-        print("Output:", stdout.decode('utf8'))
-        print()
 
         return stdout.decode('utf8')
 
