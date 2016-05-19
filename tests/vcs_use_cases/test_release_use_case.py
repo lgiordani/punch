@@ -50,14 +50,3 @@ def test_post_finish_release():
 
     assert repo.post_finish_release.called
     assert repo.post_finish_release.called_with()
-
-
-def test_run():
-    repo = mock.Mock()
-    use_case = rel.VCSReleaseUseCase(repo)
-
-    use_case.run()
-    assert repo.pre_start_release.called_with()
-    assert repo.start_release.called_with()
-    assert repo.finish_release.called_with()
-    assert repo.post_finish_release.called_with()
