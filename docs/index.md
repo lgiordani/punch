@@ -316,6 +316,10 @@ The options supported by this adapter are:
 
 The `git-flow` VCS adapter follows the well-known git-flow workflow, so the release is done starting from the `develop` branch, with a dedicated release branch. There are currently no options for this adapter.
 
+## Contributing
+
+See the CONTRIBUTING file for detailed information. Please remember that this project is actively developed in the `develop` branch, so be sure to work there if you try to implement new feature of fix bugs.
+
 ## Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage) project template.

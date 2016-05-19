@@ -31,3 +31,7 @@ punch --init
 ```
 
 which will create the `punch_config.py` and `punch_version.py` files in the current directory.
+
+## Contributing
+
+See the CONTRIBUTING file for detailed information. Please remember that this project is actively developed in the `develop` branch, so be sure to work there if you try to implement new feature of fix bugs.
