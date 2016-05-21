@@ -11,8 +11,8 @@ pytestmark = pytest.mark.slow
 @pytest.fixture
 def temp_empty_git_dir(temp_empty_dir):
     subprocess.check_call(["git", "init", "-q", temp_empty_dir])
-    subprocess.Popen(["git", "config", "user.email", "py.test@email.com"], cwd=temp_empty_dir)
-    subprocess.Popen(["git", "config", "user.name", "PyTest"], cwd=temp_empty_dir)
+    subprocess.check_call(["git", "config", "user.email", "py.test@email.com"], cwd=temp_empty_dir)
+    subprocess.check_call(["git", "config", "user.name", "PyTest"], cwd=temp_empty_dir)
 
     return temp_empty_dir
 
@@ -22,8 +22,8 @@ def temp_git_dir(temp_empty_git_dir, safe_devnull):
     with open(os.path.join(temp_empty_git_dir, "README.md"), "w") as f:
         f.writelines(["# Test file", "This is just a test file for punch"])
 
-    subprocess.Popen(["git", "add", "README.md"], cwd=temp_empty_git_dir, stdout=safe_devnull)
-    subprocess.Popen(["git", "commit", "-m", "Initial addition"], cwd=temp_empty_git_dir,
+    subprocess.check_call(["git", "add", "README.md"], cwd=temp_empty_git_dir, stdout=safe_devnull)
+    subprocess.check_call(["git", "commit", "-m", "Initial addition"], cwd=temp_empty_git_dir,
                      stdout=safe_devnull)
 
     return temp_empty_git_dir
@@ -65,7 +65,7 @@ def test_pre_start_release(temp_git_dir, empty_vcs_configuration):
 
 
 def test_pre_start_release_starting_from_different_branch(temp_git_dir, safe_devnull, empty_vcs_configuration):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+    subprocess.check_call(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
                      stderr=safe_devnull)
 
     repo = gr.GitRepo(temp_git_dir, empty_vcs_configuration)
@@ -76,7 +76,7 @@ def test_pre_start_release_starting_from_different_branch(temp_git_dir, safe_dev
 
 def test_pre_start_release_starting_from_different_branch_with_unstaged_changes(temp_git_dir, safe_devnull,
                                                                                 empty_vcs_configuration):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+    subprocess.check_call(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
                      stderr=safe_devnull)
     with open(os.path.join(temp_git_dir, "README.md"), "w") as f:
         f.writelines(["Unstaged lines"])
@@ -89,11 +89,11 @@ def test_pre_start_release_starting_from_different_branch_with_unstaged_changes(
 
 def test_pre_start_release_starting_from_different_branch_with_uncommitted_changes(temp_git_dir, safe_devnull,
                                                                                    empty_vcs_configuration):
-    subprocess.Popen(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
+    subprocess.check_call(["git", "checkout", "-b", "new_branch"], cwd=temp_git_dir, stdout=safe_devnull,
                      stderr=safe_devnull)
     with open(os.path.join(temp_git_dir, "README.md"), "w") as f:
         f.writelines(["Unstaged lines"])
-    subprocess.Popen(["git", "add", "README.md"], cwd=temp_git_dir, stdout=safe_devnull,
+    subprocess.check_call(["git", "add", "README.md"], cwd=temp_git_dir, stdout=safe_devnull,
                      stderr=safe_devnull)
 
     repo = gr.GitRepo(temp_git_dir, empty_vcs_configuration)
