@@ -18,7 +18,7 @@ Punch stores the version of your project in its own file. Each time you need to 
 Punch is available for both Python 2 and Python 3 through pip. Just create a virtual environment and run
 
 ``` sh
-pip install punch
+pip install punch.py
 ```
 
 To start working with Punch you need a configuration file and a version file. You may ask Punch to create the two files for you with
