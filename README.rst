@@ -29,7 +29,7 @@ create a virtual environment and run
 
 .. code:: sh
 
-    pip install punch
+    pip install punch.py
 
 To start working with Punch you need a configuration file and a version
 file. You may ask Punch to create the two files for you with reasonable

@@ -20,8 +20,8 @@ test_requirements = [
 ]
 
 setup(
-    name='punch',
-    version='1.0.0',
+    name='punch.py',
+    version='1.0.1',
     description="Update your version while having a drink",
     long_description=readme + '\n\n' + history,
     author="Leonardo Giordani",
