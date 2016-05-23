@@ -1,7 +1,7 @@
 # Punch
 
 [![Build Status](https://travis-ci.org/lgiordani/punch.svg?branch=master)](https://travis-ci.org/lgiordani/punch)
-[![Version](https://img.shields.io/pypi/v/punch.svg)](https://github.com/lgiordani/punch)
+[![Version](https://img.shields.io/pypi/v/punch.py.svg)](https://github.com/lgiordani/punch)
 
 Update your version while having a drink
 
@@ -315,6 +315,133 @@ The options supported by this adapter are:
 #### git-flow
 
 The `git-flow` VCS adapter follows the well-known git-flow workflow, so the release is done starting from the `develop` branch, with a dedicated release branch. There are currently no options for this adapter.
+
+## Examples
+
+The following are examples of Punch configuration that show the different options implemented in it. The configuration files are all implemented in working tests that you can find in the `test_config_*.py` files of the test suite.
+
+### Plain SemVer
+
+This is an example configuration that uses SemVer (http://semver.org) without any metadata (as described by parts 9 and 10 of the specification).
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}'
+}
+
+FILES = []
+
+VERSION = ['major', 'minor', 'patch']
+```
+
+| Part updated  | Current version | New version |
+| ------------- |:---------------:|:-----------:|
+| major         | 1.0.0           | 2.0.0       |
+| minor         | 1.0.0           | 1.1.0       |
+| patch         | 1.0.0           | 1.0.1       |
+
+### SemVer with build metadata
+
+This configuration implements SemVer with build metadata (as described by part 10 of the specification). This build number is made of three digit and starts with 1
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': "{{ major }}.{{ minor }}.{{ patch }}{{ '+{0:03d}'.format(build) }}"
+}
+
+FILES = ["README.md"]
+
+VERSION = [
+            'major',
+            'minor',
+            'patch',
+            {
+                'name': 'build',
+                'type': 'integer',
+                'start_value': 1
+            }
+          ]
+```
+
+| Part updated  | Current version | New version |
+| ------------- |:---------------:|:-----------:|
+| major         | 1.0.0+001       | 2.0.0+001   |
+| minor         | 1.0.0+001       | 1.1.0+001   |
+| patch         | 1.0.0+001       | 1.0.1+001   |
+| build         | 1.0.0+001       | 1.0.0+002   |
+
+### SemVer with prerelease metadata
+
+This configuration implements SemVer with prerelease metadata (as described by part 9 of the specification). The chosen prerelease strings are `'alpha'` and `'beta`.
+
+WARNING: This use of the prerelease parts is pretty incomplete and a bit useless. It will be soon updated
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': "{{ major }}.{{ minor }}.{{ patch }}{{ '-{}'.format(prerelease) if prerelease }}"
+}
+
+FILES = ["README.md"]
+
+VERSION = [
+            'major',
+            'minor',
+            'patch',
+            {
+                'name': 'prerelease',
+                'type': 'value_list',
+                'allowed_values': ['', 'alpha', 'beta']
+            }
+          ]
+```
+
+
+| Part updated  | Current version | New version |
+| ------------- |:---------------:|:-----------:|
+| major         | 1.0.0-alpha     | 2.0.0       |
+| minor         | 1.0.0-alpha     | 1.1.0       |
+| patch         | 1.0.0-alpha     | 1.0.1       |
+| prerelease    | 1.0.0-alpha     | 1.0.0-beta  |
+| prerelease    | 1.0.0-beta      | 1.0.0       |
+
+If you put the empty string as last element of the string you get the following behaviour
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': "{{ major }}.{{ minor }}.{{ patch }}{{ '-{}'.format(prerelease) if prerelease }}"
+}
+
+FILES = ["README.md"]
+
+VERSION = [
+            'major',
+            'minor',
+            'patch',
+            {
+                'name': 'prerelease',
+                'type': 'value_list',
+                'allowed_values': ['alpha', 'beta', '']
+            }
+          ]
+```
+
+
+| Part updated  | Current version | New version |
+| ------------- |:---------------:|:-----------:|
+| major         | 1.0.0-alpha     | 2.0.0-alpha |
+| minor         | 1.0.0-alpha     | 1.1.0-alpha |
+| patch         | 1.0.0-alpha     | 1.0.1-alpha |
+| prerelease    | 1.0.0-alpha     | 1.0.0-beta  |
+| prerelease    | 1.0.0-beta      | 1.0.0       |
+
 
 ## Contributing
 

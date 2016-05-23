@@ -44,5 +44,5 @@ in the current directory.
 
 .. |Build Status| image:: https://travis-ci.org/lgiordani/punch.svg?branch=master
    :target: https://travis-ci.org/lgiordani/punch
-.. |Version| image:: https://img.shields.io/pypi/v/punch.svg
+.. |Version| image:: https://img.shields.io/pypi/v/punch.py.svg
    :target: https://github.com/lgiordani/punch
