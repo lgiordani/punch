@@ -114,7 +114,6 @@ new_version.inc(args.part)
 global_replacer = rep.Replacer(config.globals['serializer'])
 current_version_string, new_version_string = global_replacer.run_main_serializer(current_version.as_dict(),
                                                                                  new_version.as_dict())
-
 if config.vcs is not None:
     special_variables = {
         'current_version': current_version_string,
