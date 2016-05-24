@@ -1,7 +1,7 @@
 # Punch
 
 [![Build Status](https://travis-ci.org/lgiordani/punch.svg?branch=master)](https://travis-ci.org/lgiordani/punch)
-[![Version](https://img.shields.io/pypi/v/punch.svg)](https://github.com/lgiordani/punch)
+[![Version](https://img.shields.io/pypi/v/punch.py.svg)](https://github.com/lgiordani/punch)
 
 Update your version while having a drink
 
