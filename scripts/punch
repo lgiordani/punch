@@ -58,6 +58,7 @@ parser.add_argument('-c', '--config-file', action='store',
 parser.add_argument('-v', '--version-file', action='store',
                     help="Version file", default=default_version_file_name)
 parser.add_argument('-p', '--part', action='store')
+parser.add_argument('--set-part', action='store')
 parser.add_argument('--verbose', action='store_true',
                     help="Be verbose")
 parser.add_argument('--version', action='store_true',
@@ -92,8 +93,8 @@ if args.init is True:
 
     sys.exit(0)
 
-if args.part is None:
-    fatal_error("Part is missing")
+if args.part is None and args.set_part is None:
+    fatal_error("You must either specify --part or --set-part")
 
 if args.verbose:
     print("## Punch version {}".format(punch.__version__))
@@ -109,7 +110,12 @@ if not args.simulate:
 
 current_version = ver.Version.from_file(args.version_file, config.version)
 new_version = current_version.copy()
-new_version.inc(args.part)
+
+if args.part:
+    new_version.inc(args.part)
+
+if args.set_part:
+    set_dict = dict(i.split("=") for i in args.set_part.split(","))
 
 global_replacer = rep.Replacer(config.globals['serializer'])
 current_version_string, new_version_string = global_replacer.run_main_serializer(current_version.as_dict(),

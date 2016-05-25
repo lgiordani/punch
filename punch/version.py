@@ -40,6 +40,10 @@ class Version():
         for key in reset_keys:
             self.parts[key].reset()
 
+    def set(self, adict):
+        for key, value in adict.items():
+            self.parts[key].set(value)
+
     def copy(self):
         new = Version()
         for value in self.parts.values():
