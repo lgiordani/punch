@@ -33,16 +33,23 @@ class Version():
     def get_part(self, name):
         return self.parts[name]
 
-    def inc(self, name):
-        self.parts[name].inc()
+    def _reset_following_parts(self, name):
         idx = self.keys.index(name)
         reset_keys = self.keys[idx + 1:]
         for key in reset_keys:
             self.parts[key].reset()
 
+    def inc(self, name):
+        self.parts[name].inc()
+        self._reset_following_parts(name)
+
     def set(self, adict):
         for key, value in adict.items():
             self.parts[key].set(value)
+
+    def set_and_reset(self, name, value):
+        self.parts[name].set(value)
+        self._reset_following_parts(name)
 
     def copy(self):
         new = Version()

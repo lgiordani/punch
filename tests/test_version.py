@@ -109,6 +109,13 @@ def test_version_set_first_part(version_mmp):
     assert version_mmp.get_part('patch').value == 1
 
 
+def test_version_set_and_reset_first_part(version_mmp):
+    version_mmp.set_and_reset('major', 9)
+    assert version_mmp.get_part('major').value == 9
+    assert version_mmp.get_part('minor').value == 0
+    assert version_mmp.get_part('patch').value == 0
+
+
 def test_version_increment_part_with_custom_start_value(version_mmpb):
     version_mmpb.inc('major')
     assert version_mmpb.get_part('major').value == 5

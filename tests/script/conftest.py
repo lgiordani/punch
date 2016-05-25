@@ -24,7 +24,7 @@ class TestEnvironment(object):
             return f.read()
 
     def call(self, cmdline, **kwds):
-        subprocess.check_call(cmdline, cwd=self.path, **kwds)
+        return subprocess.check_call(cmdline, cwd=self.path, **kwds)
 
     def output(self, cmdline, **kwds):
         output = subprocess.check_output(cmdline, cwd=self.path, **kwds)

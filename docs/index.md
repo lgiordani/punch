@@ -35,13 +35,23 @@ by Punch, but you may change them (see later).
 
 Punch may be invoked with the following command line options
 
-* `-c`, `--config_file`: If you name your config file differently you may tell Punch here to load that file instead of `punch_config.py`
-* `-v`, `--version_file`: If you name your version file differently you may tell Punch here to load that file instead of `punch_version.py`
+* `-c`, `--config_file`: If you name your config file differently you may tell Punch here to load that file instead of `punch_config.py`.
+* `-v`, `--version_file`: If you name your version file differently you may tell Punch here to load that file instead of `punch_version.py`.
 * `-p`, `--part`: The name of the part you want to increase to produce the new version. This must be one of the labels listed in the config file and which value is in version file.
-* `--verbose`: Verbosely prints information about the execution
-* `--version`: Prints the Punch version and project information
+* `--set-part`: A comma-separated list of "{part}={value}" tokens. The new version parts will be set accordingly. This will not reset the following parts.
+* `--reset-on-set`: Resets the folowing parts after setting a part to a specific value. You may not set more than a part if you use this flag.
+* `--verbose`: Verbosely prints information about the execution.
+* `--version`: Prints the Punch version and project information.
 * `--init`: Creates each of the `punch_config.py` and `punch_version.py` files if it does not already exist.
 * '-s', `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file.
+
+## Usage examples
+
+* `punch --init` creates the two `punch_config.py` and `punch_version.py` files if they are not existing.
+* `punch --part minor` increases the `minor` part and resets the following ones (e.g. `1.0.0 --> 1.1.0`)
+* `punch --set-part minor=23` sets the `minor` part to `23` and leaves the following parts untouched (e.g. `1.2.3 --> 1.23.3`)
+* `punch --part major --set-part minor=23` increases the `major` part, then resets the following ones. Finally sets the `minor` part to `23` leaving the following parts untouched (e.g. `1.2.3 (--> 2.0.0) --> 2.23.0`)
+* `punch --set-part minor=23 --reset-on-set` sets the `minor` part to `23` and resets the following parts (e.g. `1.2.3 --> 1.23.0`)
 
 ## The punch workflow
 
@@ -409,6 +419,8 @@ VERSION = [
 | patch         | 1.0.0-alpha     | 1.0.1       |
 | prerelease    | 1.0.0-alpha     | 1.0.0-beta  |
 | prerelease    | 1.0.0-beta      | 1.0.0       |
+
+When using tags like the prerelease shown here you may take advantage of the `--set-part` option that allows to explicitly set the value of a version part when creating the new version.
 
 If you put the empty string as last element of the string you get the following behaviour
 
