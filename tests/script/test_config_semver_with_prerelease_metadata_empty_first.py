@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.slow
+
 version_file_content = """
 major = 1
 minor = 0

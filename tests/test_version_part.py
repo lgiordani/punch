@@ -39,6 +39,12 @@ def test_integer_version_part_increases():
     assert vp.value == 5
 
 
+def test_integer_version_part_set():
+    vp = vpart.IntegerVersionPart('major', 4)
+    vp.set(9)
+    assert vp.value == 9
+
+
 def test_integer_version_part_reset():
     vp = vpart.IntegerVersionPart('major', 4)
     vp.reset()
@@ -81,6 +87,12 @@ def test_valuelist_version_part_increase():
     assert vp.value == 2
 
 
+def test_valuelist_version_part_set():
+    vp = vpart.ValueListVersionPart('major', 0, [0, 2, 4, 6, 8])
+    vp.set(8)
+    assert vp.value == 8
+
+
 def test_valuelist_version_part_increase_from_last():
     vp = vpart.ValueListVersionPart('major', 8, [0, 2, 4, 6, 8])
     vp.inc()
@@ -91,6 +103,12 @@ def test_valuelist_version_part_increase_with_non_numerical_values():
     vp = vpart.ValueListVersionPart('major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1])
     vp.inc()
     assert vp.value == 'alpha'
+
+
+def test_valuelist_version_part_set_with_non_numerical_values():
+    vp = vpart.ValueListVersionPart('major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1])
+    vp.set('rc1')
+    assert vp.value == 'rc1'
 
 
 def test_valuelist_version_part_reset():
