@@ -29,10 +29,13 @@ class IntegerVersionPart(VersionPart):
         if value is None:
             self.value = self.start_value
         else:
-            self.value = int(value)
+            self.set(value)
 
     def inc(self):
         self.value = self.value + 1
+
+    def set(self, value):
+        self.value = int(value)
 
     def reset(self):
         self.value = self.start_value
@@ -44,17 +47,21 @@ class IntegerVersionPart(VersionPart):
 class ValueListVersionPart(VersionPart):
     def __init__(self, name, value, allowed_values):
         self.name = name
+        self.allowed_values = allowed_values
 
         if value is None:
             self.value = allowed_values[0]
         else:
-            if value not in allowed_values:
-                raise ValueError("The given value {} is not allowed, the list of possible values is {}", value,
-                                 allowed_values)
-            self.value = value
+            self.set(value)
 
         # When copying this does not take the object itself
         self.values = [v for v in allowed_values]
+
+    def set(self, value):
+        if value not in self.allowed_values:
+            raise ValueError("The given value {} is not allowed, the list of possible values is {}", value,
+                             self.allowed_values)
+        self.value = value
 
     def inc(self):
         idx = self.values.index(self.value)

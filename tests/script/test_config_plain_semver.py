@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.slow
+
 version_file_content = """
 major = 1
 minor = 0
@@ -15,7 +19,6 @@ FILES = ["README.md"]
 
 VERSION = ['major', 'minor', 'patch']
 """
-
 
 def test_update_major(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
