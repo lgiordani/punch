@@ -63,12 +63,19 @@ Increase the `minor` part and reset the following ones (e.g. `1.0.0 --> 1.1.0`)
 
 Sets the `minor` part to `23` and leave the following parts untouched (e.g. `1.2.3 --> 1.23.3`)
 
-``` sh
-punch --set-part minor=23
-```
+`punch --set-part minor=23`
 
-* `punch --part major --set-part minor=23` increases the `major` part, then resets the following ones. Finally sets the `minor` part to `23` leaving the following parts untouched (e.g. `1.2.3 (--> 2.0.0) --> 2.23.0`)
-* `punch --set-part minor=23 --reset-on-set` sets the `minor` part to `23` and resets the following parts (e.g. `1.2.3 --> 1.23.0`)
+### Increment version and set a part
+
+Increase the `major` part, then reset the following ones. Finally set the `minor` part to `23` leaving the following parts untouched (e.g. `1.2.3 (--> 2.0.0) --> 2.23.0`)
+
+`punch --part major --set-part minor=23`
+
+### Explicitly set and reset
+
+Set the `minor` part to `23` and reset the following parts (e.g. `1.2.3 --> 1.23.0`)
+
+`punch --set-part minor=23 --reset-on-set` 
 
 ## The punch workflow
 
