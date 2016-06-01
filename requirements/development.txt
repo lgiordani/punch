@@ -2,4 +2,4 @@
 
 wheel
 mkdocs
-punch
+punch.py
