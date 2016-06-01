@@ -11,7 +11,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    'jinja2',
+    'six'
 ]
 
 test_requirements = [
@@ -21,7 +22,7 @@ test_requirements = [
 
 setup(
     name='punch.py',
-    version='1.1.0',
+    version='1.1.1',
     description="Update your version while having a drink",
     long_description=readme + '\n\n' + history,
     author="Leonardo Giordani",

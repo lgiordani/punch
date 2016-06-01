@@ -39,11 +39,11 @@ Punch may be invoked with the following command line options
 * `-v`, `--version_file`: If you name your version file differently you may tell Punch here to load that file instead of `punch_version.py`.
 * `-p`, `--part`: The name of the part you want to increase to produce the new version. This must be one of the labels listed in the config file and which value is in version file.
 * `--set-part`: A comma-separated list of "{part}={value}" tokens. The new version parts will be set accordingly. This will not reset the following parts.
-* `--reset-on-set`: Resets the folowing parts after setting a part to a specific value. You may not set more than a part if you use this flag.
+* `--reset-on-set`: Resets the following parts after setting a part to a specific value. You may not set more than a part if you use this flag.
 * `--verbose`: Verbosely prints information about the execution.
 * `--version`: Prints the Punch version and project information.
 * `--init`: Creates each of the `punch_config.py` and `punch_version.py` files if it does not already exist.
-* '-s', `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file.
+* `-s`, `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file.
 
 ## Usage examples
 

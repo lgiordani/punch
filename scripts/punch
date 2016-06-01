@@ -25,8 +25,7 @@ def fatal_error(message, exception=None):
 
 default_config_file_name = "punch_config.py"
 
-default_config_file_content = """
-__config_version__ = 1
+default_config_file_content = """__config_version__ = 1
 
 GLOBALS = {
     'serializer': '{{major}}.{{minor}}.{{patch}}',
@@ -44,8 +43,7 @@ VCS = {
 
 default_version_file_name = "punch_version.py"
 
-default_version_file_content = """
-major = 0
+default_version_file_content = """major = 0
 minor = 1
 patch = 0
 """
