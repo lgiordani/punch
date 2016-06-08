@@ -1,3 +1,4 @@
+import six
 import collections
 from jinja2 import Template
 
@@ -23,6 +24,9 @@ class Replacer:
         return self.run_all_serializers(current_version_dict, new_version_dict)[0]
 
     def replace(self, text, current_version, new_version):
+        if six.PY2:
+            text = unicode(text, 'utf8')
+
         new_text = text
         for serializer in self.serializers:
             template = Template(serializer)

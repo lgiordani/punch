@@ -1,7 +1,8 @@
-import os
-import six
-import pytest
+# coding: utf-8
 
+import os
+import pytest
+import six
 from punch import file_configuration as fc
 from punch import file_updater as fu
 
@@ -13,6 +14,13 @@ def temp_dir_with_version_file(temp_empty_dir):
 
     return temp_empty_dir
 
+
+@pytest.fixture
+def temp_dir_with_unicode_version_file(temp_empty_dir):
+    with open(os.path.join(temp_empty_dir, "__init__.py"), 'w') as f:
+        f.write("__version⚠__ = \"1.2.3\"")
+
+    return temp_empty_dir
 
 @pytest.fixture
 def temp_dir_with_version_file_partial(temp_empty_dir):
@@ -49,6 +57,35 @@ def test_file_updater(temp_dir_with_version_file):
         new_file_content = f.read()
 
     assert new_file_content == "__version__ = \"1.2.4\""
+
+
+def test_file_updater_with_unicode_characters(temp_dir_with_unicode_version_file):
+    filepath = os.path.join(temp_dir_with_unicode_version_file, "__init__.py")
+
+    current_version = {
+        'major': 1,
+        'minor': 2,
+        'patch': 3
+    }
+    new_version = {
+        'major': 1,
+        'minor': 2,
+        'patch': 4
+    }
+
+    local_variables = {
+        'serializer': "__version⚠__ = \"{{major}}.{{minor}}.{{patch}}\""
+    }
+
+    file_config = fc.FileConfiguration(filepath, local_variables)
+
+    updater = fu.FileUpdater(file_config)
+    updater.update(current_version, new_version)
+
+    with open(filepath, 'r') as f:
+        new_file_content = f.read()
+
+    assert new_file_content == "__version⚠__ = \"1.2.4\""
 
 
 def test_file_updater_with_partial_serializer(temp_dir_with_version_file_partial):
