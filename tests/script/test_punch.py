@@ -2,6 +2,7 @@ import subprocess
 
 import pytest
 
+pytestmark = pytest.mark.slow
 
 def test_punch_version_flag(test_environment):
     # output = test_environment_fixture.output(["punch", "--version"])

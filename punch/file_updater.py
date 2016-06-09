@@ -24,5 +24,8 @@ class FileUpdater(object):
 
         new_file_content = self.rep.replace(old_file_content, current_version, new_version)
 
+        if six.PY2:
+            new_file_content = new_file_content.encode('utf8')
+
         with open(self.file_configuration.path, 'w') as f:
             f.write(new_file_content)
