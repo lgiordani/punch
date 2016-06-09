@@ -39,10 +39,9 @@ def test_replace_content():
     """
 
     serializer = "__version__ = \"{{major}}.{{minor}}.{{patch}}\""
-    old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializer)
 
-    new_file_content = rep.replace(old_file_content, current_version, new_version)
+    new_file_content = rep.replace(file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content
 
@@ -143,10 +142,9 @@ def test_replace_content_with_multiple_serializers():
         "__api_abi__ = \"{{major}}.{{minor}}\""
     ]
 
-    old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializers)
 
-    new_file_content = rep.replace(old_file_content, current_version, new_version)
+    new_file_content = rep.replace(file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content
 
@@ -172,9 +170,8 @@ def test_replace_content_without_using_all_parts():
     """
 
     serializer = "__version__ = \"{{major}}.{{minor}}\""
-    old_file_content = file_like(file_content).read()
     rep = replacer.Replacer(serializer)
 
-    new_file_content = rep.replace(old_file_content, current_version, new_version)
+    new_file_content = rep.replace(file_content, current_version, new_version)
 
     assert new_file_content == updated_file_content

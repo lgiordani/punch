@@ -1,3 +1,4 @@
+import six
 import jinja2
 
 
@@ -10,6 +11,9 @@ class FileConfiguration(object):
         new_local_variables = {}
         env = jinja2.Environment(undefined=jinja2.DebugUndefined)
         for key, value in local_variables.items():
+            if six.PY2:
+                value = value.decode('utf8')
+
             template = env.from_string(value)
             new_local_variables[key] = template.render(GLOBALS=global_variables)
 
