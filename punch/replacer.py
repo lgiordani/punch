@@ -25,7 +25,7 @@ class Replacer:
 
     def replace(self, text, current_version, new_version):
         if six.PY2:
-            text = unicode(text, 'utf8')
+            text = text.decode('utf8')
 
         new_text = text
         for serializer in self.serializers:
