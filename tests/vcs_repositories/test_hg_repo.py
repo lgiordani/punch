@@ -11,7 +11,7 @@ from punch.vcs_repositories import hg_repo as hr, exceptions as re
 from tests.conftest import safe_devnull
 
 
-#pytestmark = pytest.mark.slow
+pytestmark = pytest.mark.slow
 
 
 def hg_repo_add_file(temp_hg_dir, fname, content="", out=None):
