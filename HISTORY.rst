@@ -2,6 +2,11 @@
 History
 =======
 
+1.2.0 (2016-09-09)
+------------------
+
+* Mercurial support added by Michele D'Amico
+
 1.1.2 (2016-06-09)
 ------------------
 

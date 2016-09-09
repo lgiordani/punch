@@ -322,6 +322,7 @@ dictionary encompassing the 'name' variable with the name of the VCS of choice. 
 
 * 'git'
 * 'git-flow'
+* 'hg' (Mercurial)
 
 The `VCS` variable is a **dictionary** which must contain the `'name'` key with the name of the adapter of choice (available values are listed above).
  
@@ -349,6 +350,12 @@ The options supported by this adapter are:
 #### git-flow
 
 The `git-flow` VCS adapter follows the well-known git-flow workflow, so the release is done starting from the `develop` branch, with a dedicated release branch. There are currently no options for this adapter.
+
+#### hg
+
+The 'hg' VCS adapter provides support for projects managed with Mercurial. The options suported by this adapter are:
+
+* `'branch'`: the name of the newly created branch (default: `default`)
 
 ## Examples
 
@@ -488,4 +495,6 @@ See the CONTRIBUTING file for detailed information. Please remember that this pr
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage) project template.
 
 This project has been heavily inspired by [bumpversion](https://github.com/peritus/bumpversion), and I want to thank [Filip Noetzel](https://github.com/peritus), the author of that project for his work and the inspiring ideas.
+
+Mercurial support thanks to [Michele d'Amico](https://github.com/la10736).
 
