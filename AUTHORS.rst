@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Michele D'Amico <michele.damico@gmail.com> (Mercurial support)
