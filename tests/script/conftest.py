@@ -10,7 +10,9 @@ import pytest
 # This part of the test suite is in development, the aim is to find a way to easily test
 # a script included in a Python package through pytest.
 
+
 class TestEnvironment(object):
+
     def __init__(self, path):
         self.finalize = True
         self.path = path
@@ -53,5 +55,3 @@ def test_environment(request):
 
     request.addfinalizer(fin)
     return te
-
-

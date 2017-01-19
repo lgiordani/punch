@@ -66,6 +66,7 @@ def test_update_patch(test_environment):
 
     assert test_environment.get_file_content("README.md") == "Version 1.0.1+001"
 
+
 def test_update_build(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0+001")
 
