@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import six
 import pytest
 
 from punch import version_part as vpart
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
 
 
 def test_integer_version_part_init_with_integer():
@@ -168,3 +174,105 @@ def test_get_value_list_version_part_from_full_dict():
     assert vp.value == 'alpha'
     assert isinstance(vp, vpart.ValueListVersionPart)
     assert vp.values == ['alpha', 'beta', 'stable']
+
+
+@mock.patch('punch.version_part.strftime')
+def test_date_version_part_init_without_value(mock_strftime):
+    mock_strftime.return_value = '2018'
+    vp = vpart.DateVersionPart('major', value=None, fmt='%Y')
+    mock_strftime.assert_called_with('%Y')
+    assert vp.value == '2018'
+
+
+@mock.patch('punch.version_part.strftime')
+def test_date_version_part_init_with_value(mock_strftime):
+    mock_strftime.return_value = '2018'
+    vp = vpart.DateVersionPart('major', value='2017', fmt='%Y')
+    mock_strftime.assert_not_called()
+    assert vp.value == '2017'
+
+
+@mock.patch('punch.version_part.strftime')
+def test_date_version_part_reset(mock_strftime):
+    vp = vpart.DateVersionPart('major', value='2017', fmt='%Y')
+    assert vp.value == '2017'
+    mock_strftime.return_value = '2018'
+    vp.reset()
+    mock_strftime.assert_called_with('%Y')
+    assert vp.value == '2018'
+
+
+@mock.patch('punch.version_part.strftime')
+def test_date_version_part_increases_just_resets(mock_strftime):
+    vp = vpart.DateVersionPart('major', value='2017', fmt='%Y')
+    assert vp.value == '2017'
+    mock_strftime.return_value = '2018'
+    vp.inc()
+    mock_strftime.assert_called_with('%Y')
+    assert vp.value == '2018'
+
+
+def test_date_version_part_copy():
+    vp = vpart.DateVersionPart('major', value='2017', fmt='%Y%m')
+    nvp = vp.copy()
+
+    assert nvp.fmt == '%Y%m'
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_full_year(mock_strftime):
+    vpart.strftime('YYYY')
+    mock_strftime.assert_called_with('%Y')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_short_year(mock_strftime):
+    vpart.strftime('YY')
+    mock_strftime.assert_called_with('%y')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_short_month(mock_strftime):
+    vpart.strftime('MM')
+    mock_strftime.assert_called_with('%m')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_short_month_is_not_padded(mock_strftime):
+    mock_strftime.return_value = '04'
+    assert vpart.strftime('MM') == '4'
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_zero_padded_short_month(mock_strftime):
+    vpart.strftime('0M')
+    mock_strftime.assert_called_with('%m')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_zero_padded_short_month_is_padded(mock_strftime):
+    mock_strftime.return_value = '04'
+    assert vpart.strftime('0M') == '04'
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_short_day(mock_strftime):
+    vpart.strftime('DD')
+    mock_strftime.assert_called_with('%d')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_short_day_is_not_padded(mock_strftime):
+    mock_strftime.return_value = '04'
+    assert vpart.strftime('DD') == '4'
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_zero_padded_short_day(mock_strftime):
+    vpart.strftime('0D')
+    mock_strftime.assert_called_with('%d')
+
+
+@mock.patch('punch.version_part._strftime')
+def test_strftime_zero_padded_short_day_is_padded(mock_strftime):
+    mock_strftime.return_value = '04'
+    assert vpart.strftime('0D') == '04'

@@ -78,6 +78,7 @@ def test_update_prerelease(test_environment):
 
     assert test_environment.get_file_content("README.md") == "Version 1.0.0-beta"
 
+
 def test_update_after_last_prerelease(test_environment):
     version_file_content = """
     major = 1

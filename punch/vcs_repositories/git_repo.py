@@ -5,6 +5,7 @@ from punch.vcs_repositories import vcs_repo as vr
 
 
 class GitRepo(vr.VCSRepo):
+
     def __init__(self, working_path, config_obj):
         if six.PY2:
             super(GitRepo, self).__init__(working_path, config_obj)
@@ -27,7 +28,8 @@ class GitRepo(vr.VCSRepo):
             super()._check_system()
 
         if not os.path.exists(os.path.join(self.working_path, '.git')):
-            raise e.RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
+            raise e.RepositorySystemError(
+                "The current directory {} is not a Git repository".format(self.working_path))
 
     def _set_command(self):
         self.commands = ['git']
@@ -49,7 +51,8 @@ class GitRepo(vr.VCSRepo):
     def pre_start_release(self):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
-            raise e.RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
+            raise e.RepositoryStatusError(
+                "Cannot checkout master while repository contains uncommitted changes")
 
         self._run([self.command, "checkout", "master"])
 
@@ -69,7 +72,9 @@ class GitRepo(vr.VCSRepo):
 
         output = self._run([self.command, "status"])
 
-        if "nothing to commit, working directory clean" in output and self.make_release_branch:
+        if ("nothing to commit, working directory clean" in output or
+                "nothing to commit, working tree clean" in output) and \
+                self.make_release_branch:
             self._run([self.command, "checkout", "master"])
             self._run([self.command, "branch", "-d", branch])
             return
@@ -90,7 +95,8 @@ class GitRepo(vr.VCSRepo):
             tag_value = self.config_obj.options['new_version']
 
         if self.config_obj.options.get('annotate_tags', False):
-            annotation_message = self.config_obj.options.get('annotation_message', "Version {{ new_version }}")
+            annotation_message = self.config_obj.options.get(
+                'annotation_message', "Version {{ new_version }}")
             self._run([self.command, "tag", "-a", tag_value, "-m", annotation_message])
         else:
             self._run([self.command, "tag", tag_value])

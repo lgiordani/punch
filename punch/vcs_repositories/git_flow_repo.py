@@ -7,6 +7,7 @@ from punch.vcs_repositories.exceptions import RepositoryStatusError, RepositoryS
 
 
 class GitFlowRepo(gr.GitRepo):
+
     def __init__(self, working_path, config_obj):
         if six.PY2:
             super(GitFlowRepo, self).__init__(working_path, config_obj)
@@ -28,12 +29,14 @@ class GitFlowRepo(gr.GitRepo):
             raise RepositorySystemError("Cannot run {}".format(self.commands))
 
         if not os.path.exists(os.path.join(self.working_path, '.git')):
-            raise RepositorySystemError("The current directory {} is not a Git repository".format(self.working_path))
+            raise RepositorySystemError(
+                "The current directory {} is not a Git repository".format(self.working_path))
 
     def pre_start_release(self):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
-            raise RepositoryStatusError("Cannot checkout master while repository contains uncommitted changes")
+            raise RepositoryStatusError(
+                "Cannot checkout master while repository contains uncommitted changes")
 
         self._run([self.command, "checkout", "develop"])
 
@@ -51,7 +54,8 @@ class GitFlowRepo(gr.GitRepo):
         self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
-        if "nothing to commit, working directory clean" in output:
+        if "nothing to commit, working directory clean" in output or \
+                "nothing to commit, working tree clean" in output:
             self._run([self.command, "checkout", "develop"])
             self._run([self.command, "branch", "-d", branch])
             return
@@ -63,7 +67,8 @@ class GitFlowRepo(gr.GitRepo):
 
         self._run(command_line)
 
-        self._run(self.commands + ["release", "finish", "-m", branch, self.config_obj.options['new_version']])
+        self._run(
+            self.commands + ["release", "finish", "-m", branch, self.config_obj.options['new_version']])
 
     def post_finish_release(self):
         pass

@@ -20,6 +20,7 @@ FILES = ["README.md"]
 VERSION = ['major', 'minor', 'patch']
 """
 
+
 def test_update_major(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
