@@ -1,9 +1,52 @@
 # -*- coding: utf-8 -*-
 
 import sys
+from datetime import datetime
+
+
+def _strftime(fmt):
+    return datetime.now().strftime(fmt)
+
+
+def strftime(fmt):
+    calver_syntax = {
+        'YYYY': {
+            'fmt': '%Y',
+            'strip': False
+        },
+        'YY': {
+            'fmt': '%y',
+            'strip': False
+        },
+        '0M': {
+            'fmt': '%m',
+            'strip': False
+        },
+        '0D': {
+            'fmt': '%d',
+            'strip': False
+        },
+        'MM': {
+            'fmt': '%m',
+            'strip': True
+        },
+        'DD': {
+            'fmt': '%d',
+            'strip': True
+        }
+    }
+
+    newfmt = calver_syntax.get(fmt, {'fmt': fmt, 'strip': False})
+    value = _strftime(newfmt['fmt'])
+
+    if newfmt['strip']:
+        return value.strip('0')
+
+    return value
 
 
 class VersionPart(object):
+
     @classmethod
     def from_dict(cls, dic):
         try:
@@ -18,6 +61,7 @@ class VersionPart(object):
 
 
 class IntegerVersionPart(VersionPart):
+
     def __init__(self, name, value=None, start_value=None):
         self.name = name
 
@@ -45,6 +89,7 @@ class IntegerVersionPart(VersionPart):
 
 
 class ValueListVersionPart(VersionPart):
+
     def __init__(self, name, value, allowed_values):
         self.name = name
         self.allowed_values = allowed_values
@@ -72,3 +117,24 @@ class ValueListVersionPart(VersionPart):
 
     def copy(self):
         return ValueListVersionPart(self.name, self.value, self.values)
+
+
+class DateVersionPart(VersionPart):
+
+    def __init__(self, name, value, fmt):
+        self.name = name
+        self.fmt = fmt
+
+        if value is None:
+            self.value = strftime(fmt)
+        else:
+            self.value = value
+
+    def reset(self):
+        self.value = strftime(self.fmt)
+
+    def inc(self):
+        self.reset()
+
+    def copy(self):
+        return DateVersionPart(self.name, self.value, self.fmt)
