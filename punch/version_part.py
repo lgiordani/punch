@@ -16,7 +16,7 @@ def strftime(fmt):
         },
         'YY': {
             'fmt': '%y',
-            'strip': False
+            'strip': True
         },
         '0M': {
             'fmt': '%m',
