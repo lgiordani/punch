@@ -232,6 +232,12 @@ def test_strftime_short_year(mock_strftime):
 
 
 @mock.patch('punch.version_part._strftime')
+def test_strftime_short_year_is_not_padded(mock_strftime):
+    mock_strftime.return_value = '03'
+    assert vpart.strftime('YY') == '3'
+
+
+@mock.patch('punch.version_part._strftime')
 def test_strftime_short_month(mock_strftime):
     vpart.strftime('MM')
     mock_strftime.assert_called_with('%m')
