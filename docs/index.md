@@ -9,9 +9,7 @@ Update your version while having a drink
 
 Punch is a configurable version updater, and you can use to automate the management of your project's version number.
 
-Punch stores the version of your project in its own file. Each time you need to update it, Punch runs through the configured
- files and replaces the old version with the new one. Additionally, Punch may also automatically commit the version change
- on your VCS of choice.
+Punch stores the version of your project in its own file. Each time you need to update it, Punch runs through the configured files and replaces the old version with the new one. Additionally, Punch may also automatically commit the version change on your VCS of choice.
 
 ## Installation
 
@@ -21,15 +19,13 @@ Punch is available for both Python 2 and Python 3 through pip. Just create a vir
 pip install punch.py
 ```
 
-To start working with Punch you need a configuration file and a version file. You may ask Punch to create the two files for you with
- reasonable starting values with the flag `--init`
+To start working with Punch you need a configuration file and a version file. You may ask Punch to create the two files for you with reasonable starting values with the flag `--init`
  
 ``` sh
 punch --init
 ```
 
-which will create the `punch_config.py` and `punch_version.py` files in the current directory. These names are used by default
-by Punch, but you may change them (see later).
+which will create the `punch_config.py` and `punch_version.py` files in the current directory. These names are used by default by Punch, but you may change them (see later).
 
 ## Command line options
 
@@ -275,7 +271,7 @@ sets the local serializer to `__version__ = {{ major }}.{{ minor }}.{{ patch }}`
 
 ### VERSION
 
-This variable is a **list** of version parts, in the right hierarchical order. A version part may be just a name, in which case punch build a part made by an integer value starting from `0`.
+This variable is a **list** of version parts, in the right hierarchical order. A version part may be just a name, in which case punch builds a part made by an integer value starting from `0`.
 
 ```python
 VERSION = ['major', 'minor', 'patch']
@@ -308,11 +304,11 @@ VERSION = [
 The following list describes the different types of parts you may use and their custom options.
 
 * `integer`: a positive integer value
-    * `start_value`: [default: `0`] The starting value for this part.
-
+    - `start_value`: [default: `0`] The starting value for this part.
 * `value_list`: a list of values. When incrementing the last value the field goes back to the first.
-    * `allowed_values`: [mandatory] The list of allowed values for this field (e.g. `['alpha`, `beta`])
-
+    - `allowed_values`: [mandatory] The list of allowed values for this field (e.g. `['alpha`, `beta`])
+* `date`: part of the current date (aka `datetime.now()`). When incrementing the current date is always used.
+    - `fmt`: [mandatory] The formatted date string. This uses the Python `strftime()` function, so any string can contain the directives accepted by this function (see [this reference](http://strftime.org/) or [the official docuemntation](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)). Also, some shortcuts from the [CalVer](http://calver.org/) versioning convention have been introduced. The description can be found [here](http://calver.org/#scheme). If `fmt` is just one of those punch will provide the correct value, but those shortcuts cannot be used in a more complex string. 
 
 ### VCS
 
@@ -382,6 +378,42 @@ VERSION = ['major', 'minor', 'patch']
 | major         | 1.0.0           | 2.0.0       |
 | minor         | 1.0.0           | 1.1.0       |
 | patch         | 1.0.0           | 1.0.1       |
+
+### CalVer Ubuntu-style
+
+This example uses a versioning style taken from Ubuntu, which uses the CalVer 'YY.MM' syntax, that is the current year and the current month without zero-padding. See [here](http://calver.org/#ubuntu) for the CalVer explanation.
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': '{{year}}.{{month}}',
+}
+
+FILES = ["README.md"]
+
+VERSION = [
+    {
+        'name': 'year',
+        'type': 'date',
+        'fmt': 'YY'
+    },
+    {
+        'name': 'month',
+        'type': 'date',
+        'fmt': 'MM'
+    }
+]
+```
+
+| Part updated  | Current version | New version |
+| ------------- |:---------------:|:-----------:|
+| year          | 2016            | current(1)  |
+| month         | 10              | current(2)  |
+
+(1) uses the current unpadded year, like `4` if the current year is 2004, `17` is the current year is 2017, and so on.
+
+(2) uses the current unpadded month, so one of the values in the list `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]`
 
 ### SemVer with build metadata
 
