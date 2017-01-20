@@ -2,6 +2,11 @@
 History
 =======
 
+1.3.0 (2017-01-20)
+------------------
+
+* Date-base version part added (with support for CalVer syntax)
+
 1.2.0 (2016-09-09)
 ------------------
 
