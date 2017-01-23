@@ -5,6 +5,8 @@ Punch
 
 Update your version while having a drink
 
+Full documentation available at http://punch.readthedocs.io/en/latest/
+
 About punch
 -----------
 
@@ -41,6 +43,13 @@ starting values with the flag ``--init``
 
 which will create the ``punch_config.py`` and ``punch_version.py`` files
 in the current directory.
+
+Contributing
+------------
+
+See the CONTRIBUTING file for detailed information. Please remember that
+this project is actively developed in the ``develop`` branch, so be sure
+to work there if you try to implement new feature of fix bugs.
 
 .. |Build Status| image:: https://travis-ci.org/lgiordani/punch.svg?branch=master
    :target: https://travis-ci.org/lgiordani/punch
