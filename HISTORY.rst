@@ -2,6 +2,11 @@
 History
 =======
 
+1.3.1 (2017-01-23)
+------------------
+
+* Readthedocs documentation link added to README
+
 1.3.0 (2017-01-20)
 ------------------
 

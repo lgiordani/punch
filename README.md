@@ -5,6 +5,8 @@
 
 Update your version while having a drink
 
+Full documentation available at http://punch.readthedocs.io/en/latest/
+
 ## About punch
 
 Punch is a configurable version updater, and you can use to automate the management of your project's version number.
