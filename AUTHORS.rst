@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-* Michele D'Amico <michele.damico@gmail.com> (Mercurial support)
+* Michele D'Amico <https://github.com/la10736> (Mercurial support)
+* Joris Beckers <https://github.com/jobec> (Windows installation)
