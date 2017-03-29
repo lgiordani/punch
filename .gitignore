@@ -63,6 +63,7 @@ target/
 
 # Virtualenv
 venv*
+.venv
 
 # Jetbrains
 .idea
