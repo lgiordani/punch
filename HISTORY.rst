@@ -2,6 +2,11 @@
 History
 =======
 
+1.3.2 (2017-03-29)
+------------------
+
+* Fixed CLI script installation on Windows (by jobec)
+
 1.3.1 (2017-01-23)
 ------------------
 

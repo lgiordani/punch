@@ -22,7 +22,7 @@ test_requirements = [
 
 setup(
     name='punch.py',
-    version='1.3.1',
+    version='1.3.2',
     description="Update your version while having a drink",
     long_description=readme + '\n\n' + history,
     author="Leonardo Giordani",
@@ -47,7 +47,9 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
-    scripts=[
-        'scripts/punch',
-    ]
+    entry_points={
+        'console_scripts': [
+            'punch = punch.cli:main',
+        ]
+    },
 )
