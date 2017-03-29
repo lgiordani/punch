@@ -47,7 +47,9 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
-    scripts=[
-        'scripts/punch',
-    ]
+    entry_points={
+        'console_scripts': [
+            'punch = punch.cli:main',
+        ]
+    },
 )
