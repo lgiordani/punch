@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from unittest import mock
 
 from punch import version as ver
 from punch import version_part as vp
