@@ -353,6 +353,66 @@ The 'hg' VCS adapter provides support for projects managed with Mercurial. The o
 
 * `'branch'`: the name of the newly created branch (default: `default`)
 
+### Actions
+
+Sometimes complex workflows are required, especially when `date` parts are involved. Those fields come from an external source (the system clock), and their updated status is thus generally speaking unpredictable. You can obviously say at each execution if the field will be updated or not, but the link between the command line options and the updates performed by Punch.
+
+Consider a configuration like the following
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': '{{year}}.{{build}}',
+}
+
+FILES = ["README.md"]
+
+VERSION = [
+    {
+        'name': 'year',
+        'type': 'date',
+        'fmt': '%Y'
+    },
+    'build'
+]
+```
+
+This captures a situation where `build`, which is hierarchically lower than `year`, is reset when `year` changes. During the year the command issued by the user is `punch --part build`, which updates `build` and leaves `year` untouched. On the 1st of January of the new year, however, the command has to be `punch --part year`, otherwise the `year` part doesn't get modifed, and `part` doesn't get reset. Issuing the last command at every build doesn't give the expected result, as `year` doesn't change, and `build` is not incremented.
+
+As mentioned before, this happens because date version parts are updated from an external source, which is unpredictable.
+
+Punch allows then to define actions, that is specific workflows that cannot be captured by the standard syntax. The only possible action type at the moment is `refresh`.
+
+Actions are defined by an `ACTIONS` list in the config file, with the following syntax
+
+``` python
+ACTIONS = {
+    'action_name': {
+        'type': 'action_type',
+        ...
+    }
+}
+```
+
+where `action_name` is a free name that represents the action in your specific setup and `action_type` can only be `refresh` at the moment. The dictionary can contain other keys required or supported by the specific action type.
+
+#### Refresh action
+
+``` python
+ACTIONS = {
+    'mbuild': {
+        'type': 'refresh',
+        'refresh_fields': ['year', 'month'],
+        'fallback_field': 'build'
+    }
+}
+```
+
+The refresh action workflow is the following. Update all the fields listed in `refresh_fields`, then if the full version changed stop, otherwise increment the `fallback_field`.
+
+So for the above configuration if the current version is `2017.01.4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01.5`, while on the 01 February 2017 it will create version `2017.02.0`.
+
 ## Examples
 
 The following are examples of Punch configuration that show the different options implemented in it. The configuration files are all implemented in working tests that you can find in the `test_config_*.py` files of the test suite.
