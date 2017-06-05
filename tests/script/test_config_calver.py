@@ -1,11 +1,5 @@
 import subprocess
-import six
 import pytest
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
 
 pytestmark = pytest.mark.slow
 
@@ -41,15 +35,22 @@ VERSION = [
 def test_update_major(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 2016.4.")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     system_year = subprocess.check_output(['date', '+%Y'])
     system_year = system_year.decode('utf8').replace('\n', '')
 
     system_month = subprocess.check_output(['date', '+%m'])
-    system_month = system_month.decode('utf8').replace('\n', '').replace('0', '')
+    system_month = system_month.decode('utf8').\
+        replace('\n', '').replace('0', '')
 
     test_environment.call(["punch", "--part", "major"])
 
@@ -60,12 +61,15 @@ def test_update_major(test_environment):
 def test_update_minor(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 2016.4.")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py", version_file_content)
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py", config_file_content)
 
     system_month = subprocess.check_output(['date', '+%m'])
-    system_month = system_month.decode('utf8').replace('\n', '').replace('0', '')
+    system_month = system_month.decode(
+        'utf8').replace('\n', '').replace('0', '')
 
     test_environment.call(["punch", "--part", "minor"])
 

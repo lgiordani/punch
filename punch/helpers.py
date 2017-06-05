@@ -13,10 +13,12 @@ def import_file(filepath):
         try:
             module = SourceFileLoader("punch_config", filepath).load_module()
         except FileNotFoundError:
-            raise ValueError("The module file {} cannot be found.".format(filepath))
+            raise ValueError(
+                "The module file {} cannot be found.".format(filepath))
         except ImportError:
             raise ValueError(
-                "The module file {} cannot imported due to an error.".format(filepath))
+                "The module file {} cannot imported due to an error.".format(
+                    filepath))
 
     else:
         import importlib.util

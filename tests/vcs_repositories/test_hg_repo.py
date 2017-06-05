@@ -29,18 +29,31 @@ def hg_repo_add_branch(temp_hg_dir, branch, message=None, out=None):
         out = sys.stdout
     if message is None:
         message = "Starting new branch " + branch
-    subprocess.check_call(["hg", "branch", "-f", branch], cwd=temp_hg_dir, stdout=out)
-    subprocess.check_call(["hg", "commit", "-m", message], cwd=temp_hg_dir, stdout=out)
+    subprocess.check_call(
+        ["hg", "branch", "-f", branch],
+        cwd=temp_hg_dir,
+        stdout=out
+    )
+    subprocess.check_call(
+        ["hg", "commit", "-m", message],
+        cwd=temp_hg_dir,
+        stdout=out
+    )
 
 
 def hg_repo_change_branch(temp_hg_dir, branch, out=None):
     if out is None:
         out = sys.stdout
-    subprocess.check_call(["hg", "update", branch], cwd=temp_hg_dir, stdout=out)
+    subprocess.check_call(
+        ["hg", "update", branch],
+        cwd=temp_hg_dir,
+        stdout=out
+    )
 
 
 def hg_log(temp_hg_dir):
-    p = subprocess.Popen(["hg", "log"], cwd=temp_hg_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(["hg", "log"], cwd=temp_hg_dir,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     return stdout.decode('utf8')
 
@@ -66,9 +79,13 @@ def temp_hg_dir(temp_empty_hg_dir, safe_devnull):
     with open(os.path.join(temp_empty_hg_dir, "README.md"), "w") as f:
         f.writelines(["# Test file", "This is just a test file for punch"])
 
-    subprocess.check_call(["hg", "add", "README.md"], cwd=temp_empty_hg_dir, stdout=safe_devnull)
-    subprocess.check_call(["hg", "commit", "-m", "Initial addition"], cwd=temp_empty_hg_dir,
-                          stdout=safe_devnull)
+    subprocess.check_call(["hg", "add", "README.md"],
+                          cwd=temp_empty_hg_dir, stdout=safe_devnull)
+    subprocess.check_call(
+        ["hg", "commit", "-m", "Initial addition"],
+        cwd=temp_empty_hg_dir,
+        stdout=safe_devnull
+    )
 
     return temp_empty_hg_dir
 
@@ -82,20 +99,28 @@ def hg_other_branch(temp_hg_dir):
 
 @pytest.fixture
 def empty_vcs_configuration():
-    return vc.VCSConfiguration('hg', {}, {}, {'current_version': 'a', 'new_version': 'b'})
+    return vc.VCSConfiguration(
+        'hg', {}, {}, {'current_version': 'a', 'new_version': 'b'}
+    )
 
 
 @pytest.fixture
 def other_branch_vcs_configuration():
-    return vc.VCSConfiguration('hg', {"branch": "other"}, {}, {'current_version': 'a', 'new_version': 'b'})
+    return vc.VCSConfiguration(
+        'hg', {"branch": "other"}, {},
+        {'current_version': 'a', 'new_version': 'b'}
+    )
 
 
 @pytest.fixture
 def ready_to_finish_repo(temp_hg_dir, **kwargs):
     release_name = "1.0"
     commit_message = "A commit message"
-    config = vc.VCSConfiguration('git', kwargs, global_variables={}, special_variables={'new_version': release_name},
-                                 commit_message=commit_message)
+    config = vc.VCSConfiguration(
+        'git', kwargs, global_variables={},
+        special_variables={'new_version': release_name},
+        commit_message=commit_message
+    )
 
     repo = hr.HgRepo(temp_hg_dir, config)
     repo.pre_start_release()
@@ -115,7 +140,9 @@ def test_init_with_uninitialized_dir(temp_empty_dir, empty_vcs_configuration):
     with pytest.raises(re.RepositorySystemError) as exc:
         hr.HgRepo(temp_empty_dir, empty_vcs_configuration)
 
-    assert str(exc.value) == "The current directory {} is not a Hg repository".format(temp_empty_dir)
+    assert str(exc.value) == \
+        "The current directory {} is not a Hg repository".format(
+            temp_empty_dir)
 
 
 def test_get_current_branch(temp_hg_dir, empty_vcs_configuration):
@@ -135,7 +162,8 @@ def test_pre_start_release(temp_hg_dir, empty_vcs_configuration):
     assert repo.get_current_branch() == repo.DEFAULT_BRANCH
 
 
-def test_pre_start_release_start_from_different_branch(temp_hg_dir, empty_vcs_configuration):
+def test_pre_start_release_start_from_different_branch(
+        temp_hg_dir, empty_vcs_configuration):
     hg_dir = temp_hg_dir
     repo = hr.HgRepo(hg_dir, empty_vcs_configuration)
     hg_repo_add_branch(hg_dir, "other")
@@ -143,7 +171,8 @@ def test_pre_start_release_start_from_different_branch(temp_hg_dir, empty_vcs_co
     assert repo.get_current_branch() == repo.DEFAULT_BRANCH
 
 
-def test_pre_start_release_should_use_other_branch(temp_hg_dir, other_branch_vcs_configuration):
+def test_pre_start_release_should_use_other_branch(
+        temp_hg_dir, other_branch_vcs_configuration):
     hg_dir = temp_hg_dir
     repo = hr.HgRepo(hg_dir, other_branch_vcs_configuration)
     hg_repo_add_branch(hg_dir, "other")
@@ -153,7 +182,8 @@ def test_pre_start_release_should_use_other_branch(temp_hg_dir, other_branch_vcs
     assert repo.get_current_branch() == "other"
 
 
-def test_pre_start_release_in_unclean_state(temp_hg_dir, empty_vcs_configuration):
+def test_pre_start_release_in_unclean_state(
+        temp_hg_dir, empty_vcs_configuration):
     hg_dir = temp_hg_dir
     with open(os.path.join(hg_dir, "README.md"), "w") as f:
         f.writelines(["Uncommitted lines"])
@@ -164,7 +194,8 @@ def test_pre_start_release_in_unclean_state(temp_hg_dir, empty_vcs_configuration
     assert repo.get_current_branch() == repo.DEFAULT_BRANCH
 
 
-def test_pre_start_release_starting_from_different_branch_in_unclean_state(temp_hg_dir, empty_vcs_configuration):
+def test_pre_start_release_starting_from_different_branch_in_unclean_state(
+        temp_hg_dir, empty_vcs_configuration):
     hg_dir = temp_hg_dir
     hg_repo_add_branch(hg_dir, "other")
     with open(os.path.join(hg_dir, "README.md"), "w") as f:
@@ -176,14 +207,16 @@ def test_pre_start_release_starting_from_different_branch_in_unclean_state(temp_
     assert repo.get_current_branch() == "other"
 
 
-def test_start_release_should_be_in_defined_branch(hg_other_branch, other_branch_vcs_configuration):
+def test_start_release_should_be_in_defined_branch(
+        hg_other_branch, other_branch_vcs_configuration):
     repo = hr.HgRepo(hg_other_branch, other_branch_vcs_configuration)
     repo.pre_start_release()
     repo.start_release()
     assert repo.get_current_branch() == "other"
 
 
-def test_finish_release_without_changes(hg_other_branch, other_branch_vcs_configuration):
+def test_finish_release_without_changes(
+        hg_other_branch, other_branch_vcs_configuration):
     repo = hr.HgRepo(hg_other_branch, other_branch_vcs_configuration)
     repo.pre_start_release()
     repo.start_release()
@@ -192,7 +225,8 @@ def test_finish_release_without_changes(hg_other_branch, other_branch_vcs_config
     assert 'b' not in repo.get_tags()
 
 
-def test_finish_should_recover_start_branch(hg_other_branch, other_branch_vcs_configuration):
+def test_finish_should_recover_start_branch(
+        hg_other_branch, other_branch_vcs_configuration):
     hg_repo_add_branch(hg_other_branch, "third")
     repo = hr.HgRepo(hg_other_branch, other_branch_vcs_configuration)
     repo.pre_start_release()
@@ -244,7 +278,8 @@ def test_finish_release_custom_tag_cannot_contain_spaces(temp_hg_dir):
     tag = "Version {}".format(release_name)
 
     config = vc.VCSConfiguration('hg', {'tag': tag}, global_variables={},
-                                 special_variables={'new_version': release_name},
+                                 special_variables={
+                                     'new_version': release_name},
                                  commit_message=commit_message)
 
     with pytest.raises(re.RepositoryConfigurationError):
@@ -257,7 +292,8 @@ def test_finish_release_custom_tag_cannot_be_a_number(temp_hg_dir):
     tag = "12234"
 
     config = vc.VCSConfiguration('hg', {'tag': tag}, global_variables={},
-                                 special_variables={'new_version': release_name},
+                                 special_variables={
+                                     'new_version': release_name},
                                  commit_message=commit_message)
 
     with pytest.raises(re.RepositoryConfigurationError):

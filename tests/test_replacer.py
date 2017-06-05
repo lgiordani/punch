@@ -8,7 +8,7 @@ from punch import replacer
 
 def file_like(file_content):
     if six.PY2:
-        return io.StringIO(unicode(file_content))
+        return io.StringIO(unicode(file_content)) # NOQA
     else:
         return io.StringIO(file_content)
 
@@ -63,7 +63,9 @@ def test_get_versions():
 
     list_of_versions = rep.run_all_serializers(current_version, new_version)
 
-    assert list_of_versions == [("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")]
+    assert list_of_versions == [
+        ("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")
+    ]
 
 
 def test_get_versions_with_multiple_serializers():
@@ -112,7 +114,9 @@ def test_get_main_version_change_with_multiple_serializers():
 
     current, new = rep.run_main_serializer(current_version, new_version)
 
-    assert current, new == ("__version__ = \"1.0.0\"", "__version__ = \"1.0.1\"")
+    assert current, new == (
+        "__version__ = \"1.0.0\"", "__version__ = \"1.0.1\""
+    )
 
 
 def test_replace_content_with_multiple_serializers():

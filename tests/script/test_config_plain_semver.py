@@ -24,9 +24,15 @@ VERSION = ['major', 'minor', 'patch']
 def test_update_major(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "major"])
 
@@ -36,9 +42,15 @@ def test_update_major(test_environment):
 def test_update_minor(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "minor"])
 
@@ -48,9 +60,15 @@ def test_update_minor(test_environment):
 def test_update_patch(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "patch"])
 
