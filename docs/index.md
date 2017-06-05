@@ -397,21 +397,21 @@ ACTIONS = {
 
 where `action_name` is a free name that represents the action in your specific setup and `action_type` can only be `refresh` at the moment. The dictionary can contain other keys required or supported by the specific action type.
 
-#### Refresh action
+#### Conditional reset action
 
 ``` python
 ACTIONS = {
     'mbuild': {
-        'type': 'refresh',
-        'refresh_fields': ['year', 'month'],
-        'fallback_field': 'build'
+        'type': 'conditional_reset',
+        'field': 'build',
+        'update_fields': ['year', 'month']
     }
 }
 ```
 
-The refresh action workflow is the following. Update all the fields listed in `refresh_fields`, then if the full version changed stop, otherwise increment the `fallback_field`.
+The conditional reset action workflow is the following. Update all the fields listed in `update_fields`. If the full version changed reset `field`, otherwise increment it.
 
-So for the above configuration if the current version is `2017.01.4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01.5`, while on the 01 February 2017 it will create version `2017.02.0`.
+So for the above configuration if the current version is `2017.01.4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01.5` (`year` and `month` do not change, so `build` is incremented), while on the 01 February 2017 it will create version `2017.02.0` (`build` is reset.
 
 ## Examples
 
