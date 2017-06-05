@@ -28,9 +28,9 @@ class ConditionalResetAction:
             update_part = new_version.get_part(f)
             update_part.inc()
 
-        if new_version != version:
-            reset_part.reset()
-        else:
+        if new_version == version:
             reset_part.inc()
+        else:
+            reset_part.reset()
 
         return new_version
