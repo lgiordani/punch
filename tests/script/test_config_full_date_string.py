@@ -1,11 +1,5 @@
 import subprocess
-import six
 import pytest
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
 
 pytestmark = pytest.mark.slow
 
@@ -32,9 +26,7 @@ VERSION = [
 """
 
 
-def test_update_date(test_environment):
-    # mock_strftime.side_effect = lambda x: {'%Y%m%d': '20170102'}.get(x)
-
+def test_update_date(test_environment, mocker):
     test_environment.ensure_file_is_present("README.md", "Version 20160415.")
 
     test_environment.ensure_file_is_present("punch_version.py",
@@ -47,9 +39,7 @@ def test_update_date(test_environment):
 
     system_date = system_date.decode('utf8').replace('\n', '')
 
-    with mock.patch('punch.version_part.strftime') as mock_strftime:
-        mock_strftime.side_effect = ValueError
-        test_environment.call(["punch", "--part", "date"])
+    test_environment.call(["punch", "--part", "date"])
 
     assert test_environment.get_file_content("README.md") == \
         "Version {}.".format(system_date)

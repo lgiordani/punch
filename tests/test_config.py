@@ -40,6 +40,20 @@ VERSION = [
 
 
 @pytest.fixture
+def config_file_content_with_actions(config_file_content):
+    return config_file_content + """
+
+ACTIONS = {
+    'mbuild': {
+        'type': 'refresh',
+        'refresh_fields': ['year', 'month'],
+        'fallback_field': 'build'
+    }
+}
+"""
+
+
+@pytest.fixture
 def config_file_content_with_vcs(config_file_content):
     return config_file_content + """
 
@@ -115,8 +129,9 @@ def write_file(dir, content, config_file_name):
         f.write(content)
 
 
-def test_read_empty_config_file(temp_empty_dir, empty_file_content, config_file_name,
-                                version_file_content, version_file_name):
+def test_read_empty_config_file(temp_empty_dir, empty_file_content,
+                                config_file_name, version_file_content,
+                                version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, empty_file_content, config_file_name)
@@ -125,11 +140,13 @@ def test_read_empty_config_file(temp_empty_dir, empty_file_content, config_file_
     with pytest.raises(ValueError) as exc:
         pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
-    assert str(exc.value) == "Given config file is invalid: missing '__config_version__' variable"
+    assert str(exc.value) == \
+        "Given config file is invalid: missing '__config_version__' variable"
 
 
-def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content, config_file_name,
-                                  version_file_content, version_file_name):
+def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content,
+                                  config_file_name, version_file_content,
+                                  version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, illegal_config_file_content, config_file_name)
@@ -141,8 +158,9 @@ def test_read_illegal_config_file(temp_empty_dir, illegal_config_file_content, c
     assert str(exc.value) == "Unsupported configuration file version 2"
 
 
-def test_read_plain_variables(temp_empty_dir, config_file_content, config_file_name,
-                              version_file_content, version_file_name):
+def test_read_plain_variables(temp_empty_dir, config_file_content,
+                              config_file_name, version_file_content,
+                              version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, config_file_content, config_file_name)
@@ -153,8 +171,9 @@ def test_read_plain_variables(temp_empty_dir, config_file_content, config_file_n
     assert cf.__config_version__ == 1
 
 
-def test_read_global_variables(temp_empty_dir, config_file_content, config_file_name,
-                               version_file_content, version_file_name):
+def test_read_global_variables(temp_empty_dir, config_file_content,
+                               config_file_name, version_file_content,
+                               version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, config_file_content, config_file_name)
@@ -209,8 +228,9 @@ def test_read_version(temp_empty_dir, config_file_content, config_file_name,
     assert cf.version == expected_value
 
 
-def test_read_config_missing_vcs(temp_empty_dir, config_file_content, config_file_name,
-                                 version_file_content, version_file_name):
+def test_read_config_missing_vcs(temp_empty_dir, config_file_content,
+                                 config_file_name, version_file_content,
+                                 version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, config_file_content, config_file_name)
@@ -221,8 +241,9 @@ def test_read_config_missing_vcs(temp_empty_dir, config_file_content, config_fil
     assert cf.vcs is None
 
 
-def test_read_vcs(temp_empty_dir, config_file_content_with_vcs, config_file_name,
-                  version_file_content, version_file_name):
+def test_read_vcs(temp_empty_dir, config_file_content_with_vcs,
+                  config_file_name, version_file_content,
+                  version_file_name):
     clean_previous_imports()
 
     write_file(temp_empty_dir, config_file_content_with_vcs, config_file_name)
@@ -243,14 +264,55 @@ def test_read_vcs(temp_empty_dir, config_file_content_with_vcs, config_file_name
     assert cf.vcs == expected_dict
 
 
-def test_read_vcs_missing_name(temp_empty_dir, config_file_content_with_wrong_vcs, config_file_name,
-                               version_file_content, version_file_name):
+def test_read_vcs_missing_name(temp_empty_dir,
+                               config_file_content_with_wrong_vcs,
+                               config_file_name, version_file_content,
+                               version_file_name):
     clean_previous_imports()
 
-    write_file(temp_empty_dir, config_file_content_with_wrong_vcs, config_file_name)
+    write_file(temp_empty_dir, config_file_content_with_wrong_vcs,
+               config_file_name)
     write_file(temp_empty_dir, version_file_content, version_file_name)
 
     with pytest.raises(ValueError) as exc:
         pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
     assert str(exc.value) == "Missing key 'name' in VCS configuration"
+
+
+def test_read_empty_actions(temp_empty_dir, config_file_content,
+                            config_file_name, version_file_content,
+                            version_file_name):
+    clean_previous_imports()
+
+    write_file(temp_empty_dir, config_file_content,
+               config_file_name)
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    expected_value = {}
+
+    assert cf.actions == expected_value
+
+
+def test_read_actions(temp_empty_dir, config_file_content_with_actions,
+                      config_file_name, version_file_content,
+                      version_file_name):
+    clean_previous_imports()
+
+    write_file(temp_empty_dir, config_file_content_with_actions,
+               config_file_name)
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    expected_value = {
+        'mbuild': {
+            'type': 'refresh',
+            'refresh_fields': ['year', 'month'],
+            'fallback_field': 'build'
+        }
+    }
+
+    assert cf.actions == expected_value
