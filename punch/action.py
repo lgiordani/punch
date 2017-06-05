@@ -1,7 +1,5 @@
 import sys
 
-from punch import version_part as vp
-
 
 class Action(object):
 
@@ -15,25 +13,24 @@ class Action(object):
         return action_class(**dic)
 
 
-class RefreshAction:
+class ConditionalResetAction:
 
-    def __init__(self, refresh_fields, fallback_field=None, **kwds):
-        self.refresh_fields = refresh_fields
-        self.fallback_field = fallback_field
+    def __init__(self, field, update_fields=None, **kwds):
+        self.field = field
+        self.update_fields = update_fields
 
     def process_version(self, version):
         new_version = version.copy()
 
-        for field in self.refresh_fields:
-            part = new_version.get_part(field)
-            if not isinstance(part, vp.DateVersionPart):
-                raise TypeError
-            part.inc()
+        reset_part = new_version.get_part(self.field)
 
-        print(version.as_dict(), new_version.as_dict())
+        for f in self.update_fields:
+            update_part = new_version.get_part(f)
+            update_part.inc()
 
-        if new_version == version and self.fallback_field:
-            fallback_part = new_version.get_part(self.fallback_field)
-            fallback_part.inc()
+        if new_version != version:
+            reset_part.reset()
+        else:
+            reset_part.inc()
 
         return new_version
