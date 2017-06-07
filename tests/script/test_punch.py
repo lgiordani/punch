@@ -4,6 +4,7 @@ import pytest
 
 pytestmark = pytest.mark.slow
 
+
 def test_punch_version_flag(test_environment):
     # output = test_environment_fixture.output(["punch", "--version"])
 
@@ -23,8 +24,10 @@ def test_punch_version_flag(test_environment):
 def test_punch_increase_version_part(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py",
-                                            "major = 1\nminor = 0\npatch = 0\n")
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        "major = 1\nminor = 0\npatch = 0\n"
+    )
 
     config_file_content = """
     __config_version__ = 1
@@ -38,7 +41,10 @@ def test_punch_increase_version_part(test_environment):
     VERSION = ['major', 'minor', 'patch']
     """
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "major"])
 
@@ -48,8 +54,10 @@ def test_punch_increase_version_part(test_environment):
 def test_punch_set_version_part(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py",
-                                            "major = 1\nminor = 0\npatch = 0\n")
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        "major = 1\nminor = 0\npatch = 0\n"
+    )
 
     config_file_content = """
     __config_version__ = 1
@@ -63,7 +71,10 @@ def test_punch_set_version_part(test_environment):
     VERSION = ['major', 'minor', 'patch']
     """
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--set-part", "minor=4"])
 
@@ -73,8 +84,10 @@ def test_punch_set_version_part(test_environment):
 def test_punch_set_multiple_version_parts(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 
-    test_environment.ensure_file_is_present("punch_version.py",
-                                            "major = 1\nminor = 0\npatch = 0\n")
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        "major = 1\nminor = 0\npatch = 0\n"
+    )
 
     config_file_content = """
     __config_version__ = 1
@@ -88,7 +101,10 @@ def test_punch_set_multiple_version_parts(test_environment):
     VERSION = ['major', 'minor', 'patch']
     """
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--set-part", "minor=4,patch=23"])
 
@@ -98,8 +114,10 @@ def test_punch_set_multiple_version_parts(test_environment):
 def test_punch_set_and_reset_single_part(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.2.3")
 
-    test_environment.ensure_file_is_present("punch_version.py",
-                                            "major = 1\nminor = 2\npatch = 3\n")
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        "major = 1\nminor = 2\npatch = 3\n"
+    )
 
     config_file_content = """
     __config_version__ = 1
@@ -113,7 +131,10 @@ def test_punch_set_and_reset_single_part(test_environment):
     VERSION = ['major', 'minor', 'patch']
     """
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--set-part", "major=9", "--reset-on-set"])
 
@@ -123,8 +144,10 @@ def test_punch_set_and_reset_single_part(test_environment):
 def test_punch_set_and_reset_multiple_parts_fails(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.2.3")
 
-    test_environment.ensure_file_is_present("punch_version.py",
-                                            "major = 1\nminor = 2\npatch = 3\n")
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        "major = 1\nminor = 2\npatch = 3\n"
+    )
 
     config_file_content = """
     __config_version__ = 1
@@ -138,7 +161,11 @@ def test_punch_set_and_reset_multiple_parts_fails(test_environment):
     VERSION = ['major', 'minor', 'patch']
     """
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     with pytest.raises(subprocess.CalledProcessError):
-        test_environment.output(["punch", "--set-part", "major=9,minor=8", "--reset-on-set"])
+        test_environment.output(
+            ["punch", "--set-part", "major=9,minor=8", "--reset-on-set"])

@@ -32,7 +32,10 @@ class HgRepo(vr.VCSRepo):
 
     def get_tags(self):
         tags_str = self._run([self.command, "tags"])
-        tags = map(lambda l: l.rsplit(" ", 1)[0].strip(), tags_str.splitlines())
+        tags = map(
+            lambda l: l.rsplit(" ", 1)[0].strip(),
+            tags_str.splitlines()
+        )
         return "\n".join(tags)
 
     def get_summary(self):
@@ -51,7 +54,9 @@ class HgRepo(vr.VCSRepo):
 
     def pre_start_release(self):
         if not self._is_clean():
-            raise e.RepositoryStatusError("Cannot update default while repository contains uncommitted changes")
+            raise e.RepositoryStatusError(
+                "Cannot update default while repository" +
+                " contains uncommitted changes")
         self._recorded_branch = self.get_current_branch()
 
         self._change_branch(self.branch)
@@ -59,13 +64,15 @@ class HgRepo(vr.VCSRepo):
         branch = self.get_current_branch()
 
         if branch != self.branch:
-            raise e.RepositoryStatusError("Current branch shall be {} but is {}".format(self.branch, branch))
+            raise e.RepositoryStatusError(
+                "Current branch shall be {} but is {}".format(
+                    self.branch, branch))
 
     def start_release(self):
         pass
 
     def finish_release(self):
-        branch = self.get_current_branch()
+        self.get_current_branch()
         try:
             if self._is_clean():
                 return
@@ -93,10 +100,12 @@ class HgRepo(vr.VCSRepo):
         tag = self.config_obj.options.get('tag', '')
         if ' ' in tag:
             raise e.RepositoryConfigurationError(
-                """You specified "'tag': {}". Tag names cannot contain spaces""".format(tag))
+                """You specified "'tag': {}".""".format(tag) +
+                " Tag names cannot contain spaces")
         if re.match("^\d+$", tag):
             raise e.RepositoryConfigurationError(
-                """You specified "'tag': {}". Tag names cannot be just digits""".format(tag))
+                """You specified "'tag': {}".""".format(tag) +
+                " Tag names cannot be just digits")
 
     def _check_system(self):
         if six.PY2:
@@ -105,7 +114,9 @@ class HgRepo(vr.VCSRepo):
             super()._check_system()
 
         if not os.path.exists(os.path.join(self.working_path, '.hg')):
-            raise e.RepositorySystemError("The current directory {} is not a Hg repository".format(self.working_path))
+            raise e.RepositorySystemError(
+                "The current directory {} is not a Hg repository".format(
+                    self.working_path))
 
     def _set_command(self):
         self.commands = ['hg']

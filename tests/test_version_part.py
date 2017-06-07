@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import six
 import pytest
 
 from punch import version_part as vpart
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
 
 
 def test_integer_version_part_init_with_integer():
@@ -106,13 +100,17 @@ def test_valuelist_version_part_increase_from_last():
 
 
 def test_valuelist_version_part_increase_with_non_numerical_values():
-    vp = vpart.ValueListVersionPart('major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1])
+    vp = vpart.ValueListVersionPart(
+        'major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1]
+    )
     vp.inc()
     assert vp.value == 'alpha'
 
 
 def test_valuelist_version_part_set_with_non_numerical_values():
-    vp = vpart.ValueListVersionPart('major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1])
+    vp = vpart.ValueListVersionPart(
+        'major', 0, [0, 'alpha', 'beta', 'rc1', 'rc2', 1]
+    )
     vp.set('rc1')
     assert vp.value == 'rc1'
 
