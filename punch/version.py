@@ -18,11 +18,15 @@ class Version():
     def values(self):
         return list(self.parts.values())
 
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+
     def add_part(self, part):
         self.keys.append(part.name)
         self.parts[part.name] = part
 
-    def create_part(self, name, value, cls=vpart.IntegerVersionPart, *args, **kwds):
+    def create_part(self, name, value,
+                    cls=vpart.IntegerVersionPart, *args, **kwds):
         self.keys.append(name)
         self.parts[name] = cls(name, value, *args, **kwds)
 
@@ -90,9 +94,12 @@ class Version():
         return version
 
     @classmethod
-    def _get_version_part(cls, version_module, version_part, version_part_name):
+    def _get_version_part(cls, version_module,
+                          version_part, version_part_name):
         try:
             return getattr(version_module, version_part_name)
         except AttributeError:
             raise ValueError(
-                "Given version file is invalid: missing '{}' variable".format(version_part_name))
+                "Given version file is invalid:" +
+                " missing '{}' variable".format(version_part_name)
+            )

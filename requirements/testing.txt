@@ -3,3 +3,5 @@
 pytest
 tox
 mock
+pytest-console-scripts
+pytest-mock

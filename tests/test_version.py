@@ -132,6 +132,17 @@ def test_version_copy(version_mmp):
     assert new_version.get_part('patch').value == 0
 
 
+def test_version_compare_equal(version_mmp):
+    new_version = version_mmp.copy()
+    assert new_version == version_mmp
+
+
+def test_version_compare_differ(version_mmp):
+    new_version = version_mmp.copy()
+    new_version.inc('major')
+    assert new_version != version_mmp
+
+
 def test_version_as_list(version_mmp):
     assert version_mmp.as_list() == [('major', 4), ('minor', 3), ('patch', 1)]
 

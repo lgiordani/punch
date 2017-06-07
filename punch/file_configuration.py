@@ -15,7 +15,8 @@ class FileConfiguration(object):
                 value = value.decode('utf8')
 
             template = env.from_string(value)
-            new_local_variables[key] = template.render(GLOBALS=global_variables)
+            new_local_variables[key] = template.render(
+                GLOBALS=global_variables)
 
         self.config.update(new_local_variables)
         self.path = filepath

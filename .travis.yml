@@ -12,7 +12,7 @@ before_install:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements/testing.txt
   - pip install .
 
 # command to run tests

@@ -34,46 +34,74 @@ VERSION = [
 def test_update_major(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0+001")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "major"])
 
-    assert test_environment.get_file_content("README.md") == "Version 2.0.0+001"
+    assert test_environment.get_file_content("README.md") == \
+        "Version 2.0.0+001"
 
 
 def test_update_minor(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0+001")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "minor"])
 
-    assert test_environment.get_file_content("README.md") == "Version 1.1.0+001"
+    assert test_environment.get_file_content("README.md") == \
+        "Version 1.1.0+001"
 
 
 def test_update_patch(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0+001")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "patch"])
 
-    assert test_environment.get_file_content("README.md") == "Version 1.0.1+001"
+    assert test_environment.get_file_content("README.md") == \
+        "Version 1.0.1+001"
 
 
 def test_update_build(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0+001")
 
-    test_environment.ensure_file_is_present("punch_version.py", version_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
 
-    test_environment.ensure_file_is_present("punch_config.py", config_file_content)
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
 
     test_environment.call(["punch", "--part", "build"])
 
-    assert test_environment.get_file_content("README.md") == "Version 1.0.0+002"
+    assert test_environment.get_file_content("README.md") == \
+        "Version 1.0.0+002"

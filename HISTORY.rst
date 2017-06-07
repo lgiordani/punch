@@ -2,6 +2,12 @@
 History
 =======
 
+1.4.0 (2017-06-07)
+------------------
+
+* Support for actions to specify complex behaviours
+* PEP8 compliance global review
+
 1.3.2 (2017-03-29)
 ------------------
 

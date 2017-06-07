@@ -1,11 +1,5 @@
 import subprocess
-import six
 import pytest
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
 
 pytestmark = pytest.mark.slow
 

@@ -7,15 +7,13 @@ import re
 
 import pytest
 
-# This part of the test suite is in development, the aim is to find a way to easily test
-# a script included in a Python package through pytest.
-
 
 class TestEnvironment(object):
 
-    def __init__(self, path):
+    def __init__(self, path, script_runner):
         self.finalize = True
         self.path = path
+        self.script_runner = script_runner
 
     def ensure_file_is_present(self, filename, content=""):
         with open(os.path.join(self.path, filename), "w") as f:
@@ -26,7 +24,7 @@ class TestEnvironment(object):
             return f.read()
 
     def call(self, cmdline, **kwds):
-        return subprocess.check_call(cmdline, cwd=self.path, **kwds)
+        return self.script_runner.run(*cmdline, cwd=self.path, **kwds)
 
     def output(self, cmdline, **kwds):
         output = subprocess.check_output(cmdline, cwd=self.path, **kwds)
@@ -44,10 +42,10 @@ class TestEnvironment(object):
 
 
 @pytest.fixture
-def test_environment(request):
+def test_environment(request, script_runner):
     tempdir = tempfile.mkdtemp()
 
-    te = TestEnvironment(tempdir)
+    te = TestEnvironment(tempdir, script_runner)
 
     def fin():
         if te.finalize:

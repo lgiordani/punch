@@ -104,8 +104,11 @@ class ValueListVersionPart(VersionPart):
 
     def set(self, value):
         if value not in self.allowed_values:
-            raise ValueError("The given value {} is not allowed, the list of possible values is {}", value,
-                             self.allowed_values)
+            raise ValueError(
+                "The given value {} is not allowed," +
+                " the list of possible values is {}",
+                value,
+                self.allowed_values)
         self.value = value
 
     def inc(self):
