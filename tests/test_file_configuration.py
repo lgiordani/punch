@@ -26,6 +26,21 @@ def file_configuration_dict():
     }
 
 
+def test_file_configuration_new_syntax(global_variables):
+    fconf = fc.FileConfiguration(
+        'pkg/__init__.py',
+        {},
+        global_variables
+    )
+
+    assert fconf.path == 'pkg/__init__.py'
+    assert fconf.config['strategy'] == {
+        'type': 'replace',
+        'serializers': ['{{ major }}.{{ minor }}.{{ patch }}'],
+    }
+    assert fconf.config['mark'] == 'just a mark'
+
+
 def test_file_configuration_from_string_local_variables_take_precedence(
         local_variables, global_variables):
     fconf = fc.FileConfiguration(
@@ -35,7 +50,10 @@ def test_file_configuration_from_string_local_variables_take_precedence(
     )
 
     assert fconf.path == 'pkg/__init__.py'
-    assert fconf.config['serializer'] == '{{ major }}.{{ minor }}'
+    assert fconf.config['strategy'] == {
+        'type': 'replace',
+        'serializers': ['{{ major }}.{{ minor }}']
+    }
     assert fconf.config['mark'] == 'just a mark'
 
 
@@ -51,8 +69,10 @@ def test_file_configuration_from_string_can_include_global_variables(
     )
 
     assert fconf.path == 'pkg/__init__.py'
-    assert fconf.config['serializer'] == \
-        '__version__ = {{ major }}.{{ minor }}.{{ patch }}'
+    assert fconf.config['strategy'] == {
+        'type': 'replace',
+        'serializers': ['__version__ = {{ major }}.{{ minor }}.{{ patch }}']
+    }
     assert fconf.config['mark'] == 'just a mark'
 
 
@@ -88,7 +108,10 @@ def test_file_configuration_from_dict_local_variables_take_precedence(
     )
 
     assert fconf.path == 'pkg/__init__.py'
-    assert fconf.config['serializer'] == '{{ major }}.{{ minor }}'
+    assert fconf.config['strategy'] == {
+        'type': 'replace',
+        'serializers': ['{{ major }}.{{ minor }}']
+    }
     assert fconf.config['mark'] == 'just a mark'
 
 

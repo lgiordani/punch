@@ -8,7 +8,8 @@ class FileUpdater(object):
 
     def __init__(self, file_configuration):
         self.file_configuration = file_configuration
-        self.rep = replacer.Replacer(file_configuration.config['serializer'])
+        # self.rep = replacer.Replacer(file_configuration.config['serializer'])
+        self.rep = replacer.Replacer(file_configuration.config['strategy']['serializers'])
 
     def get_summary(self, current_version, new_version):
         return self.rep.run_all_serializers(current_version, new_version)

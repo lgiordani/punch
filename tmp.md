@@ -56,3 +56,64 @@ ACTIONS = {
 This refreshes `year` and `month` and prepares the new version number. If this is different from the old one this is the new version, otherwise the process continues and issues a `--part build`.
 
 If you try to list in `refresh_fields` a part that is not externally specified (like a date), Punch shall complain. 
+
+
+-------------------------
+
+``` python
+GLOBALS = {
+    'serializer': '{{ major }}.{{ minor }}.{{ patch }}'
+}
+
+FILES = [
+    'version.txt',
+    {
+        'path': 'HISTORY.rst',
+        'serializer': '{{ major }}.{{ minor }}'
+    }
+]
+```
+
+is equal to 
+
+``` python
+GLOBALS = {
+    'serializer': '{{ major }}.{{ minor }}.{{ patch }}'
+}
+
+FILES = [
+    'version.txt',
+    {
+        'path': 'HISTORY.rst',
+        'strategy' : {
+            'type': 'replace',
+            'serializers' : ['{{ major }}.{{ minor }}']
+        }
+    }
+]
+```
+
+Now we can introduce new strategies like
+
+``` python
+GLOBALS = {
+    'serializer': '{{ major }}.{{ minor }}.{{ patch }}'
+}
+
+FILES = [
+    'version.txt',
+    {
+        'path': 'HISTORY.rst',
+        'strategy': {
+            'type': 'insert_lines',
+            'line': 5
+            'content': [
+                '{{ major }}.{{ minor }}',
+                '-----------------------'
+            ]
+        }
+    }
+]
+```
+
+

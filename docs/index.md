@@ -148,8 +148,7 @@ This file contains pure Pyhton, so feel free to fill it with the Python code you
 
 ### GLOBALS
 
-This variable is a **dictionary** containing variables that are globally valid during the whole execution of punch, if not overridden
-by local variables (see `FILES`, for example).
+This variable is a **dictionary** containing variables that are globally valid during the whole execution of punch, if not overridden by local variables (see `FILES`, for example).
 
 * `serializer` can be a single string o a list of strings, and represents the templates used to search and replace the old version. Each string in `serializer` (or the single one if it is a string) is a [Jinja2](http://jinja.pocoo.org/) template which is rendered with the current version and the new version to get the search and replace patterns.
 

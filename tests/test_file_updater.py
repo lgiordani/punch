@@ -46,7 +46,10 @@ def test_file_updater(temp_dir_with_version_file):
     }
 
     local_variables = {
-        'serializer': "__version__ = \"{{major}}.{{minor}}.{{patch}}\""
+        'strategy': {
+            'type': 'replace',
+            'serializers': ['__version__ = "{{major}}.{{minor}}.{{patch}}"']
+        }
     }
 
     file_config = fc.FileConfiguration(filepath, local_variables)
@@ -155,7 +158,11 @@ def test_file_updater_with_nonexisting_file(temp_empty_dir):
 def test_file_updater_preview(temp_empty_dir):
     filepath = os.path.join(temp_empty_dir, "__init__.py")
     local_variables = {
-        'serializer': "__version__ = \"{{major}}.{{minor}}\""
+        # 'serializer': "__version__ = \"{{major}}.{{minor}}\""
+        'strategy': {
+            'type': 'replace',
+            'serializers': ['__version__ = "{{major}}.{{minor}}"']
+        }
     }
 
     file_config = fc.FileConfiguration(filepath, local_variables)
