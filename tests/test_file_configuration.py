@@ -101,3 +101,51 @@ def test_file_conf_fr_dict_path_cannot_be_overridden_by_global_variables(
     )
 
     assert fconf.path == 'pkg/__init__.py'
+
+
+def test_file_configuration_manage_nested_global_variables():
+    global_variables = {
+        'nested': {
+            'key1': '{{ value1 }}',
+            'key2': '{{ value2 }}'
+        }
+    }
+
+    local_variables = {
+        'serializer': '{{ GLOBALS.nested.key1 }}'
+    }
+
+    fconf = fc.FileConfiguration(
+        'pkg/__init__.py',
+        local_variables,
+        global_variables
+    )
+
+    assert fconf.path == 'pkg/__init__.py'
+    assert fconf.config['serializer'] == '{{ value1 }}'
+
+
+def test_file_configuration_manage_nested_local_variables():
+    global_variables = {
+        'nested': {
+            'key1': '{{ value1 }}',
+            'key2': '{{ value2 }}'
+        }
+    }
+
+    local_variables = {
+        'config': {
+            'serializer': '{{ GLOBALS.nested.key1 }}'
+        }
+    }
+
+    fconf = fc.FileConfiguration(
+        'pkg/__init__.py',
+        local_variables,
+        global_variables
+    )
+
+    assert fconf.path == 'pkg/__init__.py'
+    assert fconf.config['config'] == {
+        'serializer': '{{ value1 }}'
+    }
