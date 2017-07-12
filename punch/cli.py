@@ -93,7 +93,7 @@ def main(original_args=None):
         '--simulate',
         action='store_true',
         help="Simulates the version increment and" +
-             " prints a summary of the relevant data"
+             " prints a summary of the relevant data (implies --verbose)"
     )
 
     args = parser.parse_args()
@@ -109,6 +109,9 @@ def main(original_args=None):
         print("Source: https://github.com/lgiordani/punch")
         print("Documentation: http://punch.readthedocs.io/en/latest/")
         sys.exit(0)
+
+    if args.simulate:
+        args.verbose = True
 
     if args.init is True:
         if not os.path.exists(default_config_file_name):
@@ -186,8 +189,8 @@ def main(original_args=None):
     else:
         vcs_configuration = None
 
-    if args.simulate:
-        print("* Current version")
+    if args.verbose:
+        print("\n* Current version")
         show_version_parts(current_version.values)
 
         print("\n* New version")
@@ -204,7 +207,7 @@ def main(original_args=None):
         print("\nConfigured files")
         for file_configuration in config.files:
             updater = fu.FileUpdater(file_configuration)
-            print("* {}: ".format(file_configuration.path))
+            print("* {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
                 new_version.as_dict()
@@ -217,7 +220,7 @@ def main(original_args=None):
             print("Commit message", vcs_configuration.commit_message)
             print("Options:", vcs_configuration.options)
 
-    else:
+    if not args.simulate:
         if vcs_configuration is not None:
             if vcs_configuration.name == 'git':
                 repo_class = gr.GitRepo
@@ -250,15 +253,10 @@ def main(original_args=None):
             uc.start_release()
 
         for file_configuration in config.files:
-            if args.verbose:
-                print("* Updating file {}".format(file_configuration.path))
             updater = fu.FileUpdater(file_configuration)
             updater.update(current_version.as_dict(), new_version.as_dict())
 
         with open(args.version_file, 'w') as f:
-            if args.verbose:
-                print("* Updating version file")
-
             for i in new_version.keys:
                 f.write('{name} = {value}\n'.format(
                     name=new_version.parts[i].name,
