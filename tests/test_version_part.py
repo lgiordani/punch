@@ -190,6 +190,14 @@ def test_date_version_part_init_with_value(mocker):
     assert vp.value == '2017'
 
 
+def test_date_version_part_init_with_integer_value(mocker):
+    mock_strftime = mocker.patch('punch.version_part.strftime')
+    mock_strftime.return_value = '2018'
+    vp = vpart.DateVersionPart('major', value=2017, fmt='%Y')
+    mock_strftime.assert_not_called()
+    assert vp.value == '2017'
+
+
 def test_date_version_part_reset(mocker):
     mock_strftime = mocker.patch('punch.version_part.strftime')
     vp = vpart.DateVersionPart('major', value='2017', fmt='%Y')

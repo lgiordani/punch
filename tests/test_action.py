@@ -73,9 +73,9 @@ def test_conditional_reset_process_version_calls_reset_on_field(mocker):
 def test_conditional_reset_process_version_calls_increment_on_field(mocker):
     mocker.patch('punch.version_part.IntegerVersionPart.inc')
     strftime = mocker.patch('punch.version_part.strftime')
-    strftime.return_value = 2016
+    strftime.return_value = '2016'
     v = ver.Version()
-    part_year = vp.DateVersionPart('year', 2016, '%Y')
+    part_year = vp.DateVersionPart('year', '2016', '%Y')
     part_build = vp.IntegerVersionPart('build')
     v.add_part(part_year)
     v.add_part(part_build)

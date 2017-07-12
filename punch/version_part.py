@@ -131,7 +131,7 @@ class DateVersionPart(VersionPart):
         if value is None:
             self.value = strftime(fmt)
         else:
-            self.value = value
+            self.value = str(value)
 
     def reset(self):
         self.value = strftime(self.fmt)
