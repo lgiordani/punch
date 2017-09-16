@@ -2,6 +2,11 @@
 History
 =======
 
+1.4.1 (2017-09-16)
+------------------
+
+* Minor fixes to the date part representation
+
 1.4.0 (2017-06-07)
 ------------------
 
