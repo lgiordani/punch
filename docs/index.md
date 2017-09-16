@@ -39,7 +39,7 @@ Punch may be invoked with the following command line options
 * `--verbose`: Verbosely prints information about the execution.
 * `--version`: Prints the Punch version and project information.
 * `--init`: Creates each of the `punch_config.py` and `punch_version.py` files if it does not already exist.
-* `-s`, `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file.
+* `-s`, `--simulate`: Just pretends to increase the version, printing sensible variable values without altering any file (implies --verbose).
 
 ## Usage examples
 
