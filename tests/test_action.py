@@ -7,6 +7,11 @@ from punch import version_part as vp
 from punch import action
 
 
+def test_action_type2class():
+    assert action.action_type2class('conditional_reset') == \
+        action.ConditionalResetAction
+
+
 def test_conditional_reset_init_with_no_field():
     with pytest.raises(TypeError):
         action.ConditionalResetAction()

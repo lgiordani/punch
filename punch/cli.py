@@ -11,6 +11,7 @@ from punch import replacer as rep
 from punch import vcs_configuration as vcsc
 from punch import version as ver
 from punch import action as act
+from punch import helpers as hlp
 from punch.vcs_repositories import exceptions as rex
 from punch.vcs_repositories import git_flow_repo as gfr
 from punch.vcs_repositories import git_repo as gr
@@ -77,6 +78,8 @@ def main(original_args=None):
     parser.add_argument('-p', '--part', action='store')
     parser.add_argument('--set-part', action='store')
     parser.add_argument('-a', '--action', action='store')
+    parser.add_argument('--action-options', action='store')
+    parser.add_argument('--action-flags', action='store')
     parser.add_argument('--reset-on-set', action='store_true')
     parser.add_argument('--verbose', action='store_true',
                         help="Be verbose")
@@ -152,21 +155,31 @@ def main(original_args=None):
     current_version = ver.Version.from_file(args.version_file, config.version)
     new_version = current_version.copy()
 
+    if args.part:
+        args.action = "punch:increase"
+        args.action_options = "part={}".format(args.part)
+
+    if args.set_part:
+        args.action = "punch:set"
+        args.action_options = args.set_part
+
     if args.action:
         action_dict = config.actions[args.action]
+
+        if args.action_options:
+            action_dict.update(hlp.optstr2dict(args.action_options))
+
         action = act.Action.from_dict(action_dict)
         new_version = action.process_version(new_version)
     else:
-        if args.part:
-            new_version.inc(args.part)
-
-        if args.set_part:
-            if args.reset_on_set:
-                part, value = args.set_part.split('=')
-                new_version.set_and_reset(part, value)
-            else:
-                set_dict = dict(i.split('=') for i in args.set_part.split(','))
-                new_version.set(set_dict)
+        pass
+        # if args.set_part:
+        #     if args.reset_on_set:
+        #         part, value = args.set_part.split('=')
+        #         new_version.set_and_reset(part, value)
+        #     else:
+        #         set_dict = dict(i.split('=') for i in args.set_part.split(','))
+        #         new_version.set(set_dict)
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \

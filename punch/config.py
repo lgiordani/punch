@@ -64,3 +64,14 @@ class PunchConfig(object):
             self.actions = configuration_module.ACTIONS
         except AttributeError:
             self.actions = {}
+
+        self.actions.update(
+            {
+                'punch:increase': {
+                    'type': 'increase_part'
+                },
+                'punch:set': {
+                    'type': 'set_part'
+                }
+            }
+        )

@@ -42,7 +42,7 @@ VERSION = [
 """
 
 
-def test_action_refresh(script_runner, test_environment):
+def test_action_conditional_reset(script_runner, test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 2016.04.1.")
 
     test_environment.ensure_file_is_present("punch_version.py",

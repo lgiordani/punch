@@ -291,9 +291,8 @@ def test_read_empty_actions(temp_empty_dir, config_file_content,
 
     cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
-    expected_value = {}
-
-    assert cf.actions == expected_value
+    assert 'punch:increase' in cf.actions
+    assert 'punch:set' in cf.actions
 
 
 def test_read_actions(temp_empty_dir, config_file_content_with_actions,
@@ -307,12 +306,6 @@ def test_read_actions(temp_empty_dir, config_file_content_with_actions,
 
     cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
-    expected_value = {
-        'mbuild': {
-            'type': 'refresh',
-            'refresh_fields': ['year', 'month'],
-            'fallback_field': 'build'
-        }
-    }
-
-    assert cf.actions == expected_value
+    assert 'punch:increase' in cf.actions
+    assert 'punch:set' in cf.actions
+    assert 'mbuild' in cf.actions
