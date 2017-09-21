@@ -28,3 +28,16 @@ def import_file(filepath):
         spec.loader.exec_module(module)
 
     return module
+
+
+def optstr2dict(optstr, convert_boolean=False):
+    def process_string(tup, convert_boolean=False):
+        if not convert_boolean:
+            return tup
+
+        return (tup[0], tup[1].lower() == 'true')
+
+    return dict(
+        process_string(i.split('='), convert_boolean)
+        for i in optstr.split(',')
+    )
