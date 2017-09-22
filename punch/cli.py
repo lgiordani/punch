@@ -171,15 +171,6 @@ def main(original_args=None):
 
         action = act.Action.from_dict(action_dict)
         new_version = action.process_version(new_version)
-    else:
-        pass
-        # if args.set_part:
-        #     if args.reset_on_set:
-        #         part, value = args.set_part.split('=')
-        #         new_version.set_and_reset(part, value)
-        #     else:
-        #         set_dict = dict(i.split('=') for i in args.set_part.split(','))
-        #         new_version.set(set_dict)
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \
