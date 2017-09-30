@@ -3,6 +3,7 @@ import jinja2
 
 
 class FileConfiguration(object):
+
     def __init__(self, filepath, local_variables, global_variables=None):
         self.config = {}
         if global_variables:
@@ -12,7 +13,7 @@ class FileConfiguration(object):
         env = jinja2.Environment(undefined=jinja2.DebugUndefined)
         for key, value in local_variables.items():
             if six.PY2:
-                value = value.decode('utf8')
+                value = value.decode('utf8')  # pragma: no cover
 
             template = env.from_string(value)
             new_local_variables[key] = template.render(

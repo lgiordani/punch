@@ -1,0 +1,10 @@
+class SetPartAction:
+
+    def __init__(self, adict):
+        self.parts = adict
+
+    def process_version(self, version):
+        new_version = version.copy()
+        new_version.set(self.parts)
+
+        return new_version

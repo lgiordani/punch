@@ -5,14 +5,49 @@ from punch import config as pc
 
 
 @pytest.fixture
-def config_file_content():
+def config_file_content_without_globals_without_files():
     return """
 __config_version__ = 1
 
-# http://semver.org/
-GLOBALS = {
-    'serializer': '{{major}}.{{minor}}.{{patch}}'
-}
+
+VERSION = [
+    {
+        'name': 'major',
+        'type': 'integer'
+    },
+    {
+        'name': 'minor',
+        'type': 'integer'
+    },
+    {
+        'name': 'patch',
+        'type': 'integer'
+    }
+]
+"""
+
+
+@pytest.fixture
+def config_file_content_without_globals_without_version():
+    return """
+__config_version__ = 1
+
+
+FILES = [
+    'pkg/__init__.py',
+    {
+        'path': 'version.txt',
+        'serializer': '{{major}}.{{minor}}'
+    }
+]
+"""
+
+
+@pytest.fixture
+def config_file_content_without_globals():
+    return """
+__config_version__ = 1
+
 
 FILES = [
     'pkg/__init__.py',
@@ -36,6 +71,16 @@ VERSION = [
         'type': 'integer'
     }
 ]
+"""
+
+
+@pytest.fixture
+def config_file_content(config_file_content_without_globals):
+    return config_file_content_without_globals + """
+# http://semver.org/
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}'
+}
 """
 
 
@@ -171,6 +216,25 @@ def test_read_plain_variables(temp_empty_dir, config_file_content,
     assert cf.__config_version__ == 1
 
 
+def test_read_global_variables_without_globals(
+        temp_empty_dir,
+        config_file_content_without_globals,
+        config_file_name, version_file_content,
+        version_file_name):
+    clean_previous_imports()
+
+    write_file(
+        temp_empty_dir,
+        config_file_content_without_globals,
+        config_file_name
+    )
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    assert cf.globals == {}
+
+
 def test_read_global_variables(temp_empty_dir, config_file_content,
                                config_file_name, version_file_content,
                                version_file_name):
@@ -188,6 +252,22 @@ def test_read_global_variables(temp_empty_dir, config_file_content,
     assert cf.globals == expected_dict
 
 
+def test_read_files_missing_files(
+        temp_empty_dir, config_file_content_without_globals_without_files,
+        config_file_name, version_file_content, version_file_name):
+    clean_previous_imports()
+
+    write_file(
+        temp_empty_dir,
+        config_file_content_without_globals_without_files,
+        config_file_name
+    )
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    with pytest.raises(ValueError):
+        pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+
 def test_read_files(temp_empty_dir, config_file_content, config_file_name,
                     version_file_content, version_file_name):
     clean_previous_imports()
@@ -199,6 +279,22 @@ def test_read_files(temp_empty_dir, config_file_content, config_file_name,
 
     assert len(cf.files) == 2
     assert [fc.path for fc in cf.files] == ['pkg/__init__.py', 'version.txt']
+
+
+def test_read_version_missing_version(
+        temp_empty_dir, config_file_content_without_globals_without_version,
+        config_file_name, version_file_content, version_file_name):
+    clean_previous_imports()
+
+    write_file(
+        temp_empty_dir,
+        config_file_content_without_globals_without_version,
+        config_file_name
+    )
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    with pytest.raises(ValueError):
+        pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
 
 
 def test_read_version(temp_empty_dir, config_file_content, config_file_name,

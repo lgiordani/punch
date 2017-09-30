@@ -10,7 +10,7 @@ from punch import file_updater as fu
 from punch import replacer as rep
 from punch import vcs_configuration as vcsc
 from punch import version as ver
-from punch import action as act
+from punch import action_register as ar
 from punch import helpers as hlp
 from punch.vcs_repositories import exceptions as rex
 from punch.vcs_repositories import git_flow_repo as gfr
@@ -42,7 +42,9 @@ VERSION = ['major', 'minor', 'patch']
 
 VCS = {
     'name': 'git',
-    'commit_message': "Version updated from {{ current_version }} to {{ new_version }}",
+    'commit_message': (
+        "Version updated from {{ current_version }}",
+        " to {{ new_version }}"),
 }
 """
 
@@ -165,11 +167,13 @@ def main(original_args=None):
 
     if args.action:
         action_dict = config.actions[args.action]
+        action_name = action_dict.pop('type')
 
         if args.action_options:
             action_dict.update(hlp.optstr2dict(args.action_options))
 
-        action = act.Action.from_dict(action_dict)
+        action_class = ar.ActionRegister.get(action_name)
+        action = action_class(action_dict)
         new_version = action.process_version(new_version)
 
     global_replacer = rep.Replacer(config.globals['serializer'])

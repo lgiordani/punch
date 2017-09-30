@@ -13,7 +13,8 @@ config_file_content = """
 __config_version__ = 1
 
 GLOBALS = {
-    'serializer': "{{ major }}.{{ minor }}.{{ patch }}+{{ '{0:03d}'.format(build) }}"
+    'serializer': "{{ major }}.{{ minor }}.{{ patch }}" + \
+        "+{{ '{0:03d}'.format(build) }}"
 }
 
 FILES = ["README.md"]

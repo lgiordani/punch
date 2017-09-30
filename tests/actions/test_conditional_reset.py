@@ -1,37 +1,36 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 from punch import version as ver
 from punch import version_part as vp
-from punch import action
+from punch.actions import conditional_reset
 
 
-def test_action_type2class():
-    assert action.action_type2class('conditional_reset') == \
-        action.ConditionalResetAction
+def test_init():
+    action_dict = {
+        'field': 'afield'
+    }
+
+    action = conditional_reset.ConditionalResetAction(action_dict)
+
+    assert action.field == 'afield'
+    assert action.update_fields is None
+
+
+def test_init_with_update_fields():
+    action_dict = {
+        'field': 'afield',
+        'update_fields': ['field1', 'field2']
+    }
+
+    action = conditional_reset.ConditionalResetAction(action_dict)
+
+    assert action.field == 'afield'
+    assert action.update_fields == ['field1', 'field2']
 
 
 def test_conditional_reset_init_with_no_field():
-    with pytest.raises(TypeError):
-        action.ConditionalResetAction()
-
-
-def test_conditional_reset_init_field():
-    a = action.ConditionalResetAction('a')
-    assert a.field == 'a'
-
-
-def test_conditional_reset_init_field_explicit():
-    a = action.ConditionalResetAction(field='a')
-    assert a.field == 'a'
-
-
-def test_conditional_reset_init_accepts_update_fields():
-    a = action.ConditionalResetAction(
-        field='a', update_fields=['b', 'c'])
-    assert a.field == 'a'
-    assert a.update_fields == ['b', 'c']
+    with pytest.raises(KeyError):
+        conditional_reset.ConditionalResetAction({})
 
 
 def test_conditional_reset_process_version_checks_all_update_fields(mocker):
@@ -44,10 +43,10 @@ def test_conditional_reset_process_version_checks_all_update_fields(mocker):
     v.add_part(part_month)
     v.add_part(part_build)
 
-    a = action.ConditionalResetAction(
-        field='build',
-        update_fields=['year', 'month']
-    )
+    a = conditional_reset.ConditionalResetAction({
+        'field': 'build',
+        'update_fields': ['year', 'month']
+    })
 
     a.process_version(v)
 
@@ -65,10 +64,10 @@ def test_conditional_reset_process_version_calls_reset_on_field(mocker):
     v.add_part(part_month)
     v.add_part(part_build)
 
-    a = action.ConditionalResetAction(
-        field='build',
-        update_fields=['year', 'month']
-    )
+    a = conditional_reset.ConditionalResetAction({
+        'field': 'build',
+        'update_fields': ['year', 'month']
+    })
 
     a.process_version(v)
 
@@ -85,10 +84,10 @@ def test_conditional_reset_process_version_calls_increment_on_field(mocker):
     v.add_part(part_year)
     v.add_part(part_build)
 
-    a = action.ConditionalResetAction(
-        field='build',
-        update_fields=['year']
-    )
+    a = conditional_reset.ConditionalResetAction({
+        'field': 'build',
+        'update_fields': ['year']
+    })
 
     a.process_version(v)
 

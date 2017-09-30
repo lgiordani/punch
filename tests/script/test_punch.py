@@ -1,5 +1,3 @@
-import subprocess
-
 import pytest
 
 pytestmark = pytest.mark.slow
@@ -19,5 +17,3 @@ def test_punch_version_flag(test_environment):
     """
 
     test_environment.compare_output(expected_output, ["punch", "--version"])
-
-

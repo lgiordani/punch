@@ -34,7 +34,7 @@ def test_set_part(test_environment):
         config_file_content
     )
 
-    test_environment.output([
+    test_environment.call([
         "punch",
         "--action", "punch:set",
         "--action-options", "major=3"
