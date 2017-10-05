@@ -2,6 +2,11 @@
 History
 =======
 
+1.4.2 (2017-10-05)
+------------------
+
+* Fixed error with months and days ending with 0
+
 1.4.1 (2017-09-16)
 ------------------
 

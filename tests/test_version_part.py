@@ -255,6 +255,12 @@ def test_strftime_short_month_is_not_padded(mocker):
     assert vpart.strftime('MM') == '4'
 
 
+def test_strftime_month_is_not_stripped_on_the_right(mocker):
+    mock_strftime = mocker.patch('punch.version_part._strftime')
+    mock_strftime.return_value = '10'
+    assert vpart.strftime('MM') == '10'
+
+
 def test_strftime_zero_padded_short_month(mocker):
     mock_strftime = mocker.patch('punch.version_part._strftime')
     vpart.strftime('0M')
@@ -277,6 +283,12 @@ def test_strftime_short_day_is_not_padded(mocker):
     mock_strftime = mocker.patch('punch.version_part._strftime')
     mock_strftime.return_value = '04'
     assert vpart.strftime('DD') == '4'
+
+
+def test_strftime_day_is_not_stripped_on_the_right(mocker):
+    mock_strftime = mocker.patch('punch.version_part._strftime')
+    mock_strftime.return_value = '10'
+    assert vpart.strftime('DD') == '10'
 
 
 def test_strftime_zero_padded_short_day(mocker):

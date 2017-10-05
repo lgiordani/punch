@@ -50,7 +50,7 @@ def test_update_major(test_environment):
 
     system_month = subprocess.check_output(['date', '+%m'])
     system_month = system_month.decode('utf8').\
-        replace('\n', '').replace('0', '')
+        replace('\n', '').lstrip('0')
 
     test_environment.call(["punch", "--part", "major"])
 
@@ -69,7 +69,7 @@ def test_update_minor(test_environment):
 
     system_month = subprocess.check_output(['date', '+%m'])
     system_month = system_month.decode(
-        'utf8').replace('\n', '').replace('0', '')
+        'utf8').replace('\n', '').lstrip('0')
 
     test_environment.call(["punch", "--part", "minor"])
 
