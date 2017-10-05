@@ -40,7 +40,7 @@ def strftime(fmt):
     value = _strftime(newfmt['fmt'])
 
     if newfmt['strip']:
-        return value.strip('0')
+        return value.lstrip('0')
 
     return value
 
