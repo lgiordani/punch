@@ -11,7 +11,7 @@ class HgRepo(vr.VCSRepo):
     DEFAULT_BRANCH = 'default'
 
     def __init__(self, working_path, config_obj):
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             super(HgRepo, self).__init__(working_path, config_obj)
         else:
             super().__init__(working_path, config_obj)
@@ -108,7 +108,7 @@ class HgRepo(vr.VCSRepo):
                 " Tag names cannot be just digits")
 
     def _check_system(self):
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             super(HgRepo, self)._check_system()
         else:
             super()._check_system()
