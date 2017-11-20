@@ -7,7 +7,7 @@ from punch.vcs_repositories import vcs_repo as vr
 class GitRepo(vr.VCSRepo):
 
     def __init__(self, working_path, config_obj):
-        if six.PY2:  # pragma: no cover
+        if six.PY2:
             super(GitRepo, self).__init__(working_path, config_obj)
         else:
             super().__init__(working_path, config_obj)
@@ -26,7 +26,7 @@ class GitRepo(vr.VCSRepo):
                 "Tag names cannot contain spaces")
 
     def _check_system(self):
-        if six.PY2:  # pragma: no cover
+        if six.PY2:
             super(GitRepo, self)._check_system()
         else:
             super()._check_system()
@@ -120,7 +120,7 @@ class GitRepo(vr.VCSRepo):
         else:
             self._run([self.command, "tag", tag_value])
 
-    def post_finish_release(self):  # pragma: no cover
+    def post_finish_release(self):
         pass
 
     def tag(self, tag_name):

@@ -24,13 +24,13 @@ class VCSRepo(object):
     def _check_system(self):
         null_commands = self.commands + ["--help"]
 
-        if six.PY2:  # pragma: no cover
+        if six.PY2:
             not_found_exception = IOError
         else:
             not_found_exception = FileNotFoundError
 
         try:
-            if six.PY2:  # pragma: no cover
+            if six.PY2:
                 subprocess.check_output(null_commands)
             else:
                 subprocess.check_call(null_commands, stdout=subprocess.DEVNULL)
@@ -64,14 +64,14 @@ class VCSRepo(object):
 
         return stdout.decode('utf8')
 
-    def pre_start_release(self):  # pragma: no cover
+    def pre_start_release(self):
         pass
 
-    def start_release(self):  # pragma: no cover
+    def start_release(self):
         pass
 
-    def finish_release(self):  # pragma: no cover
+    def finish_release(self):
         pass
 
-    def post_finish_release(self):  # pragma: no cover
+    def post_finish_release(self):
         pass

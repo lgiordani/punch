@@ -12,7 +12,7 @@ from punch.vcs_repositories.exceptions import (
 class GitFlowRepo(gr.GitRepo):
 
     def __init__(self, working_path, config_obj):
-        if six.PY2:  # pragma: no cover
+        if six.PY2:
             super(GitFlowRepo, self).__init__(working_path, config_obj)
         else:
             super().__init__(working_path, config_obj)
@@ -91,5 +91,5 @@ class GitFlowRepo(gr.GitRepo):
                 self.config_obj.options['new_version']
             ])
 
-    def post_finish_release(self):  # pragma: no cover
+    def post_finish_release(self):
         pass
