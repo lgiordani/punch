@@ -30,7 +30,7 @@ class Replacer(object):
         )[0]
 
     def replace(self, text, current_version, new_version):
-        if six.PY2:  # pragma: no cover
+        if six.PY2:
             text = text.decode('utf8')
 
         new_text = text
