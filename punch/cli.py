@@ -168,8 +168,21 @@ def main(original_args=None):
         args.action_options = args.set_part
 
     if args.action:
-        action_dict = config.actions[args.action]
-        action_name = action_dict.pop('type')
+        try:
+            action_dict = config.actions[args.action]
+        except KeyError:
+            print(
+                "The requested action {} is not defined.".format(
+                    args.action
+                )
+            )
+            sys.exit(0)
+
+        try:
+            action_name = action_dict.pop('type')
+        except KeyError:
+            print("The action configuration is missing the 'type' field.")
+            sys.exit(0)
 
         if args.action_options:
             action_dict.update(hlp.optstr2dict(args.action_options))
