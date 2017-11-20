@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, absolute_import, division
+
 import collections
 from punch import version_part as vpart
 from punch.helpers import import_file

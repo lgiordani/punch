@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 import collections
 from punch import file_configuration as fc
 from punch.helpers import import_file

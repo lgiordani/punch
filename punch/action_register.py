@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 from punch.actions import increase_part
 from punch.actions import set_part
 from punch.actions import conditional_reset
