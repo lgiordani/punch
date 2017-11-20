@@ -1,9 +1,11 @@
+from __future__ import print_function, absolute_import, division
+
 import six
 import collections
 from jinja2 import Template
 
 
-class Replacer:
+class Replacer(object):
     def __init__(self, serializers):
 
         if isinstance(serializers, collections.MutableSequence):
