@@ -1,4 +1,4 @@
-class SetPartAction:
+class SetPartAction(object):
 
     def __init__(self, adict):
         self.parts = adict

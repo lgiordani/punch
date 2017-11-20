@@ -3,7 +3,7 @@ from punch.actions import set_part
 from punch.actions import conditional_reset
 
 
-class ActionRegister:
+class ActionRegister(object):
     _register = {}
 
     @classmethod

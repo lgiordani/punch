@@ -1,4 +1,4 @@
-class IncreasePartAction:
+class IncreasePartAction(object):
 
     def __init__(self, adict):
         self.part = adict['part']

@@ -1,4 +1,4 @@
-class ConditionalResetAction:
+class ConditionalResetAction(object):
 
     def __init__(self, adict):
         self.field = adict['field']
