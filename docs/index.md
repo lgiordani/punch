@@ -138,9 +138,7 @@ patch = 12
 
 The default name of the config file is `punch_config.py`, but this may be changed with the `--config-file` switch.
 
-The config file contains 4 mandatory variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_file__` variable
-shall always be equal to `1` and provides a way to introduce later new versions of the configuration file without breaking the
-backward compatibility.
+The config file contains 4 mandatory variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_version__` variable shall always be equal to `1` and provides a way to introduce later new versions of the configuration file without breaking the backward compatibility.
 
 The optional variables are: `VCS`.
 
@@ -207,7 +205,7 @@ the first search pattern becomes `Full version: 1.4.6` and its replacement patte
 
 #### Other global variables
 
-You may define any variable in the GLOBALS dictionary and use it later where a Jinja2 temple is available, for example in the `commit_message` of the `VCS` variable.
+You may define any variable in the GLOBALS dictionary and use it later where a Jinja2 template is available, for example in the `commit_message` of the `VCS` variable.
 
 For example
 
@@ -355,7 +353,7 @@ The 'hg' VCS adapter provides support for projects managed with Mercurial. The o
 
 ### Actions
 
-Sometimes complex workflows are required, especially when `date` parts are involved. Those fields come from an external source (the system clock), and their updated status is thus generally speaking unpredictable. You can obviously say at each execution if the field will be updated or not, but the link between the command line options and the updates performed by Punch.
+Sometimes complex workflows are required, especially when `date` parts are involved. Those fields come from an external source (the system clock), and their updated status is thus generally speaking unpredictable. You can obviously say at each execution if the field will be updated or not, but the link between the command line options and the updates performed by Punch is in general not evident.
 
 Consider a configuration like the following
 
@@ -382,7 +380,7 @@ This captures a situation where `build`, which is hierarchically lower than `yea
 
 As mentioned before, this happens because date version parts are updated from an external source, which is unpredictable.
 
-Punch allows then to define actions, that is specific workflows that cannot be captured by the standard syntax. The only possible action type at the moment is `refresh`.
+Punch allows then to define actions, that is specific workflows that cannot be captured by the standard syntax. The only possible action type at the moment is `conditional_reset`.
 
 Actions are defined by an `ACTIONS` list in the config file, with the following syntax
 
@@ -395,7 +393,7 @@ ACTIONS = {
 }
 ```
 
-where `action_name` is a free name that represents the action in your specific setup and `action_type` can only be `refresh` at the moment. The dictionary can contain other keys required or supported by the specific action type.
+where `action_name` is a free name that represents the action in your specific setup and `action_type` can only be `conditional_reset` at the moment. The dictionary can contain other keys required or supported by the specific action type.
 
 #### Conditional reset action
 
@@ -409,9 +407,12 @@ ACTIONS = {
 }
 ```
 
-The conditional reset action workflow is the following. Update all the fields listed in `update_fields`. If the full version changed reset `field`, otherwise increment it.
+The conditional reset action workflow is the following.
 
-So for the above configuration if the current version is `2017.01.4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01.5` (`year` and `month` do not change, so `build` is incremented), while on the 01 February 2017 it will create version `2017.02.0` (`build` is reset.
+1. Update all the fields listed in `update_fields`.
+2. If the full version changed then reset `field`, otherwise just increment it.
+
+So for the above configuration if the current version is `2017.01-4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01-5` (`year` and `month` do not change, so `build` is incremented), while on the 01 February 2017 it will create version `2017.02-0` (`build` is reset.
 
 ## Examples
 
