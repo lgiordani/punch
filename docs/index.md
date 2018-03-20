@@ -138,9 +138,7 @@ patch = 12
 
 The default name of the config file is `punch_config.py`, but this may be changed with the `--config-file` switch.
 
-The config file contains 4 mandatory variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_file__` variable
-shall always be equal to `1` and provides a way to introduce later new versions of the configuration file without breaking the
-backward compatibility.
+The config file contains 4 mandatory variables: `__config_version__`, `GLOBALS`, `FILES`, and `VERSION`. The `__config_version__` variable shall always be equal to `1` and provides a way to introduce later new versions of the configuration file without breaking the backward compatibility.
 
 The optional variables are: `VCS`.
 
