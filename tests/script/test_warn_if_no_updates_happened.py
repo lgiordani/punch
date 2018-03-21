@@ -18,15 +18,12 @@ GLOBALS = {
 FILES = ["VERSION"]
 
 VERSION = ['major', 'minor', 'patch']
-
-VCS = {
-    'name': 'git',
-}
 """
 
 
 def test_update_major(test_environment):
-    test_environment.ensure_file_is_present("VERSION", "0.2.0")
+    # This is not matching the version_file_content on purpose
+    test_environment.ensure_file_is_present("VERSION", "0.1.0")
 
     test_environment.ensure_file_is_present(
         "punch_version.py",
@@ -38,18 +35,8 @@ def test_update_major(test_environment):
         config_file_content
     )
 
-    test_environment.output(["git", "init"])
+    out = test_environment.output(["punch", "--part", "minor"])
 
-    test_environment.output(["git", "add", "punch_config.py"])
-
-    test_environment.output(["git", "commit", "-m", "some message"])
-
-    test_environment.ensure_file_is_present("untracked_file")
-
-    test_environment.call(["punch", "--part", "minor"])
-
-    out = test_environment.output(
-        ["git", "ls-tree", "-r", "master", "--name-only"]
-    )
-
-    assert "untracked_file" not in out
+    assert test_environment.get_file_content("VERSION") == "0.1.0"
+    assert "Warning" in out
+    assert "VERSION" in out

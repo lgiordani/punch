@@ -42,5 +42,12 @@ class FileUpdater(object):
         if six.PY2:
             new_file_content = new_file_content.encode('utf8')
 
+        if new_file_content == old_file_content:
+            raise ValueError(
+                "Cannot find any match for version {} in file {}".format(
+                    current_version, self.file_configuration.path
+                )
+            )
+
         with open(self.file_configuration.path, 'w') as f:
             f.write(new_file_content)
