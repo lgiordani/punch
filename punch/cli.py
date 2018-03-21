@@ -277,7 +277,12 @@ def main(original_args=None):
 
         for file_configuration in config.files:
             updater = fu.FileUpdater(file_configuration)
-            updater.update(current_version.as_dict(), new_version.as_dict())
+            try:
+                updater.update(
+                    current_version.as_dict(), new_version.as_dict()
+                )
+            except ValueError as e:
+                print("Warning:", e)
 
         with open(args.version_file, 'w') as f:
             for i in new_version.keys:
