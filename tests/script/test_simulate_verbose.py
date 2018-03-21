@@ -103,6 +103,7 @@ Configured files
   * 1.0.0 -> 2.0.0
 """.format(version=punch.__version__)
 
+
 def test_simulate_and_verbose(test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
 

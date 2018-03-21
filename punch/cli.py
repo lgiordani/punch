@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function, absolute_import, division
+
 import argparse
 import sys
 
@@ -10,7 +12,8 @@ from punch import file_updater as fu
 from punch import replacer as rep
 from punch import vcs_configuration as vcsc
 from punch import version as ver
-from punch import action as act
+from punch import action_register as ar
+from punch import helpers as hlp
 from punch.vcs_repositories import exceptions as rex
 from punch.vcs_repositories import git_flow_repo as gfr
 from punch.vcs_repositories import git_repo as gr
@@ -41,7 +44,9 @@ VERSION = ['major', 'minor', 'patch']
 
 VCS = {
     'name': 'git',
-    'commit_message': "Version updated from {{ current_version }} to {{ new_version }}",
+    'commit_message': (
+        "Version updated from {{ current_version }}",
+        " to {{ new_version }}"),
 }
 """
 
@@ -77,6 +82,8 @@ def main(original_args=None):
     parser.add_argument('-p', '--part', action='store')
     parser.add_argument('--set-part', action='store')
     parser.add_argument('-a', '--action', action='store')
+    parser.add_argument('--action-options', action='store')
+    parser.add_argument('--action-flags', action='store')
     parser.add_argument('--reset-on-set', action='store_true')
     parser.add_argument('--verbose', action='store_true',
                         help="Be verbose")
@@ -152,21 +159,37 @@ def main(original_args=None):
     current_version = ver.Version.from_file(args.version_file, config.version)
     new_version = current_version.copy()
 
-    if args.action:
-        action_dict = config.actions[args.action]
-        action = act.Action.from_dict(action_dict)
-        new_version = action.process_version(new_version)
-    else:
-        if args.part:
-            new_version.inc(args.part)
+    if args.part:
+        args.action = "punch:increase"
+        args.action_options = "part={}".format(args.part)
 
-        if args.set_part:
-            if args.reset_on_set:
-                part, value = args.set_part.split('=')
-                new_version.set_and_reset(part, value)
-            else:
-                set_dict = dict(i.split('=') for i in args.set_part.split(','))
-                new_version.set(set_dict)
+    if args.set_part:
+        args.action = "punch:set"
+        args.action_options = args.set_part
+
+    if args.action:
+        try:
+            action_dict = config.actions[args.action]
+        except KeyError:
+            print(
+                "The requested action {} is not defined.".format(
+                    args.action
+                )
+            )
+            sys.exit(0)
+
+        try:
+            action_name = action_dict.pop('type')
+        except KeyError:
+            print("The action configuration is missing the 'type' field.")
+            sys.exit(0)
+
+        if args.action_options:
+            action_dict.update(hlp.optstr2dict(args.action_options))
+
+        action_class = ar.ActionRegister.get(action_name)
+        action = action_class(action_dict)
+        new_version = action.process_version(new_version)
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \
@@ -254,7 +277,12 @@ def main(original_args=None):
 
         for file_configuration in config.files:
             updater = fu.FileUpdater(file_configuration)
-            updater.update(current_version.as_dict(), new_version.as_dict())
+            try:
+                updater.update(
+                    current_version.as_dict(), new_version.as_dict()
+                )
+            except ValueError as e:
+                print("Warning:", e)
 
         with open(args.version_file, 'w') as f:
             for i in new_version.keys:

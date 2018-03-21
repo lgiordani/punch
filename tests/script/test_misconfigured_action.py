@@ -20,7 +20,6 @@ FILES = ["README.md"]
 
 ACTIONS = {
     'mbuild': {
-        'type': 'conditional_reset',
         'field': 'build',
         'update_fields': ['year', 'month']
     }
@@ -42,7 +41,7 @@ VERSION = [
 """
 
 
-def test_action_refresh(script_runner, test_environment):
+def test_missing_action_type(script_runner, test_environment):
     test_environment.ensure_file_is_present("README.md", "Version 2016.04.1.")
 
     test_environment.ensure_file_is_present("punch_version.py",
@@ -57,8 +56,6 @@ def test_action_refresh(script_runner, test_environment):
     system_month = subprocess.check_output(['date', '+%m'])
     system_month = system_month.decode('utf8').replace('\n', '')
 
-    ret = test_environment.call(['punch', '--action', 'mbuild'])
+    out = test_environment.output(['punch', '--action', 'mbuild'])
 
-    assert not ret.stderr
-    assert test_environment.get_file_content("README.md") == \
-        "Version {}.{}.0.".format(system_year, system_month)
+    assert "KeyError: 'type'" not in out

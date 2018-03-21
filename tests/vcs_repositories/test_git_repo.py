@@ -144,7 +144,7 @@ def test_finish_release_without_changes(temp_git_dir, empty_vcs_configuration):
     assert 'b' not in repo.get_tags()
 
 
-def test_finish_release_with_message(temp_git_dir):
+def test_finish_release_with_message(temp_git_dir, safe_devnull):
     release_name = "1.0"
     commit_message = "A commit message"
     config = vc.VCSConfiguration(
@@ -161,6 +161,13 @@ def test_finish_release_with_message(temp_git_dir):
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
+
     repo.finish_release()
 
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir,
@@ -172,7 +179,7 @@ def test_finish_release_with_message(temp_git_dir):
     assert release_name not in repo.get_branches()
 
 
-def test_release_without_release_branch(temp_git_dir):
+def test_release_without_release_branch(temp_git_dir, safe_devnull):
     release_name = "1.0"
     commit_message = "A commit message"
     config = vc.VCSConfiguration(
@@ -189,6 +196,13 @@ def test_release_without_release_branch(temp_git_dir):
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
+
     repo.finish_release()
 
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir,
@@ -200,7 +214,7 @@ def test_release_without_release_branch(temp_git_dir):
     assert release_name not in repo.get_branches()
 
 
-def test_release_with_explicit_release_branch(temp_git_dir):
+def test_release_with_explicit_release_branch(temp_git_dir, safe_devnull):
     release_name = "1.0"
     commit_message = "A commit message"
     config = vc.VCSConfiguration(
@@ -217,6 +231,13 @@ def test_release_with_explicit_release_branch(temp_git_dir):
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
 
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
+
     repo.finish_release()
 
     p = subprocess.Popen(["git", "log"], cwd=temp_git_dir,
@@ -228,7 +249,7 @@ def test_release_with_explicit_release_branch(temp_git_dir):
     assert release_name not in repo.get_branches()
 
 
-def test_finish_release_with_custom_tag(temp_git_dir):
+def test_finish_release_with_custom_tag(temp_git_dir, safe_devnull):
     release_name = "1.0"
     commit_message = "A commit message"
     tag = "Version_{}".format(release_name)
@@ -245,6 +266,13 @@ def test_finish_release_with_custom_tag(temp_git_dir):
 
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
+
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
 
     repo.finish_release()
 
@@ -266,7 +294,7 @@ def test_finish_release_custom_tag_cannot_contain_spaces(temp_git_dir):
         gr.GitRepo(temp_git_dir, config)
 
 
-def test_finish_release_with_annotated_tag(temp_git_dir):
+def test_finish_release_with_annotated_tag(temp_git_dir, safe_devnull):
     release_name = "1.0"
     commit_message = "A commit message"
     annotation_message = "An annotation message"
@@ -286,6 +314,13 @@ def test_finish_release_with_annotated_tag(temp_git_dir):
 
     with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
         f.writelines([release_name])
+
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
 
     repo.finish_release()
 

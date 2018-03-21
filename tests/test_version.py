@@ -219,6 +219,33 @@ def test_read_complete_version_from_file(temp_empty_dir, version_mmp):
     assert version.parts['patch'].value == 1
 
 
+def test_read_version_from_file_invalid_data(temp_empty_dir, version_mmp):
+    clean_previous_imports()
+
+    version_filepath = os.path.join(temp_empty_dir, 'punch_version.py')
+
+    with open(version_filepath, 'w') as f:
+        f.writelines(["major = 4\n", "minor = 3\n"])
+
+    version_description = [
+        {
+            'name': 'major',
+            'type': 'integer'
+        },
+        {
+            'name': 'minor',
+            'type': 'integer'
+        },
+        {
+            'name': 'patch',
+            'type': 'integer'
+        }
+    ]
+
+    with pytest.raises(ValueError):
+        ver.Version.from_file(version_filepath, version_description)
+
+
 def test_read_simplified_version_from_file(temp_empty_dir, version_mmp):
     clean_previous_imports()
 

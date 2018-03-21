@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 import os
 import six
 from punch.vcs_repositories import exceptions as e
@@ -80,7 +82,7 @@ class GitRepo(vr.VCSRepo):
     def finish_release(self):
         branch = self.get_current_branch()
 
-        self._run([self.command, "add", "."])
+        # self._run([self.command, "add", "."])
 
         output = self._run([self.command, "status"])
 

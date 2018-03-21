@@ -1,3 +1,5 @@
+from __future__ import print_function, absolute_import, division
+
 import collections
 from punch import file_configuration as fc
 from punch.helpers import import_file
@@ -64,3 +66,14 @@ class PunchConfig(object):
             self.actions = configuration_module.ACTIONS
         except AttributeError:
             self.actions = {}
+
+        self.actions.update(
+            {
+                'punch:increase': {
+                    'type': 'increase_part'
+                },
+                'punch:set': {
+                    'type': 'set_part'
+                }
+            }
+        )
