@@ -112,8 +112,8 @@ def test_write_version_file(temp_empty_dir, version_mm):
     # print(content)
 
     expected_content = [
-        "major = '{}'\n".format('2018'),
-        "minor = '{}'\n".format('04'),
+        "major = '2018'\n",
+        "minor = '04'\n",
     ]
 
     assert content == expected_content
