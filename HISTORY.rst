@@ -2,6 +2,13 @@
 History
 =======
 
+1.4.3 (2018-03-21)
+------------------
+
+* Fixed issue #23: Print a warning when no match is found in controlled files
+* Fixed issue #27: Possible typo in docs
+* Fixed issue #29: punch silently adds and commits unrelated untracked files to git
+
 1.4.2 (2017-10-05)
 ------------------
 
