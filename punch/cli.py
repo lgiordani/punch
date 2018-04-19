@@ -284,12 +284,8 @@ def main(original_args=None):
             except ValueError as e:
                 print("Warning:", e)
 
-        with open(args.version_file, 'w') as f:
-            for i in new_version.keys:
-                f.write('{name} = {value}\n'.format(
-                    name=new_version.parts[i].name,
-                    value=new_version.parts[i].value
-                ))
+        # Write the updated version info to the version file.
+        new_version.to_file(args.version_file)
 
         if vcs_configuration is not None:
             uc.finish_release()
