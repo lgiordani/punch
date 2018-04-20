@@ -22,7 +22,7 @@ test_requirements = [
 
 setup(
     name='punch.py',
-    version='1.4.4',
+    version='1.4.5',
     description="Update your version while having a drink",
     long_description=readme + '\n\n' + history,
     author="Leonardo Giordani",
