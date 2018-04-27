@@ -9,6 +9,52 @@ patch = 0
 """
 
 
+def test_check_no_silent_addition_happens(test_environment):
+    config_file_content = """
+    __config_version__ = 1
+
+    GLOBALS = {
+        'serializer': '{{major}}.{{minor}}.{{patch}}',
+    }
+
+    FILES = ["VERSION"]
+
+    VERSION = ['major', 'minor', 'patch']
+
+    VCS = {
+        'name': 'git',
+    }
+    """
+
+    test_environment.ensure_file_is_present("VERSION", "0.2.0")
+
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
+
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
+
+    test_environment.output(["git", "init"])
+
+    test_environment.output(["git", "add", "punch_config.py"])
+
+    test_environment.output(["git", "commit", "-m", "some message"])
+
+    test_environment.ensure_file_is_present("untracked_file")
+
+    test_environment.call(["punch", "--part", "minor"])
+
+    out = test_environment.output(
+        ["git", "ls-tree", "-r", "master", "--name-only"]
+    )
+
+    assert "untracked_file" not in out
+
+
 def test_check_punch_git_relevant_files_are_always_added(test_environment):
     config_file_content = """
     __config_version__ = 1
