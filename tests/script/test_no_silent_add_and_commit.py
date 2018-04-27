@@ -25,7 +25,7 @@ VCS = {
 """
 
 
-def test_update_major(test_environment):
+def test_check_no_silent_addition_happens(test_environment):
     test_environment.ensure_file_is_present("VERSION", "0.2.0")
 
     test_environment.ensure_file_is_present(
