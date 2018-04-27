@@ -166,7 +166,8 @@ def test_finish_release_with_changes(
         temp_gitflow_dir, empty_vcs_configuration):
     release_name = empty_vcs_configuration.options['new_version']
 
-    repo = gfr.GitFlowRepo(temp_gitflow_dir, empty_vcs_configuration)
+    repo = gfr.GitFlowRepo(
+        temp_gitflow_dir, empty_vcs_configuration, ['version.txt'])
     repo.pre_start_release()
     repo.start_release()
 

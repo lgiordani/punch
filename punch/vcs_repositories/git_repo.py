@@ -8,11 +8,12 @@ from punch.vcs_repositories import vcs_repo as vr
 
 class GitRepo(vr.VCSRepo):
 
-    def __init__(self, working_path, config_obj):
+    def __init__(self, working_path, config_obj, files_to_commit=None):
         if six.PY2:
-            super(GitRepo, self).__init__(working_path, config_obj)
+            super(GitRepo, self).__init__(
+                working_path, config_obj, files_to_commit)
         else:
-            super().__init__(working_path, config_obj)
+            super().__init__(working_path, config_obj, files_to_commit)
 
         self.make_release_branch = self.config_obj.options.get(
             'make_release_branch',
@@ -82,7 +83,9 @@ class GitRepo(vr.VCSRepo):
     def finish_release(self):
         branch = self.get_current_branch()
 
-        # self._run([self.command, "add", "."])
+        command = [self.command, "add"]
+        command.extend(self.files_to_commit)
+        self._run(command)
 
         output = self._run([self.command, "status"])
 

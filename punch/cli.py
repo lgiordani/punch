@@ -244,6 +244,10 @@ def main(original_args=None):
             print("Options:", vcs_configuration.options)
 
     if not args.simulate:
+        files_to_commit = [f.path for f in config.files]
+        files_to_commit.append(args.config_file)
+        files_to_commit.append(args.version_file)
+
         if vcs_configuration is not None:
             if vcs_configuration.name == 'git':
                 repo_class = gr.GitRepo
@@ -258,7 +262,11 @@ def main(original_args=None):
                 )
 
             try:
-                repo = repo_class(os.getcwd(), vcs_configuration)
+                repo = repo_class(
+                    os.getcwd(),
+                    vcs_configuration,
+                    files_to_commit
+                )
             except rex.RepositorySystemError as exc:
                 fatal_error(
                     "An error occurred while initializing" +
