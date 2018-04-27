@@ -70,6 +70,7 @@ class GitFlowRepo(gr.GitRepo):
         branch = self.get_current_branch()
 
         command = [self.command, "add"]
+        command.extend(self.config_obj.include_files)
         command.extend(self.files_to_commit)
         self._run(command)
 
