@@ -139,3 +139,100 @@ def test_check_punch_git_flow_relevant_files_are_always_added(
     ret = test_environment.call(["punch", "--part", "minor"])
 
     assert ret.success
+
+
+def test_git_add_specific_file_to_commit(test_environment):
+    config_file_content = """
+    __config_version__ = 1
+
+    GLOBALS = {
+        'serializer': '{{major}}.{{minor}}.{{patch}}',
+    }
+
+    FILES = ["VERSION"]
+
+    VERSION = ['major', 'minor', 'patch']
+
+    VCS = {
+        'name': 'git',
+        'include_files': ['HISTORY.rst']
+    }
+    """
+
+    test_environment.ensure_file_is_present("VERSION", "0.2.0")
+
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
+
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
+
+    test_environment.ensure_file_is_present("HISTORY.rst")
+
+    test_environment.call(["git", "init"])
+
+    test_environment.call(["git", "add", "punch_config.py"])
+
+    test_environment.call(["git", "commit", "-m", "some message"])
+
+    test_environment.call(["punch", "--part", "minor"])
+
+    out = test_environment.output(
+        ["git", "ls-tree", "-r", "master", "--name-only"]
+    )
+
+    assert "HISTORY.rst" in out
+
+
+def test_git_flow_add_specific_file_to_commit(test_environment):
+    config_file_content = """
+    __config_version__ = 1
+
+    GLOBALS = {
+        'serializer': '{{major}}.{{minor}}.{{patch}}',
+    }
+
+    FILES = ["VERSION"]
+
+    VERSION = ['major', 'minor', 'patch']
+
+    VCS = {
+        'name': 'git-flow',
+        'include_files': ['HISTORY.rst']
+    }
+    """
+
+    test_environment.ensure_file_is_present("VERSION", "0.2.0")
+
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
+
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_content
+    )
+
+    test_environment.ensure_file_is_present("HISTORY.rst")
+
+    test_environment.call(["git", "init"])
+    test_environment.call(["git", "flow", "init", "-d"])
+
+    test_environment.call(["git", "add", "punch_config.py"])
+    test_environment.call(["git", "add", "punch_version.py"])
+    test_environment.call(["git", "add", "VERSION"])
+
+    test_environment.call(["git", "commit", "-m", "Initial version"])
+
+    test_environment.call(["punch", "--part", "minor"])
+
+    out = test_environment.output(
+        ["git", "ls-tree", "-r", "master", "--name-only"]
+    )
+
+    assert "HISTORY.rst" in out
