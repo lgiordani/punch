@@ -13,11 +13,12 @@ from punch.vcs_repositories.exceptions import (
 
 class GitFlowRepo(gr.GitRepo):
 
-    def __init__(self, working_path, config_obj):
+    def __init__(self, working_path, config_obj, files_to_commit=None):
         if six.PY2:
-            super(GitFlowRepo, self).__init__(working_path, config_obj)
+            super(GitFlowRepo, self).__init__(
+                working_path, config_obj, files_to_commit)
         else:
-            super().__init__(working_path, config_obj)
+            super().__init__(working_path, config_obj, files_to_commit)
 
     def _set_command(self):
         self.commands = ['git', 'flow']
@@ -68,7 +69,9 @@ class GitFlowRepo(gr.GitRepo):
     def finish_release(self):
         branch = self.get_current_branch()
 
-        self._run([self.command, "add", "."])
+        command = [self.command, "add"]
+        command.extend(self.files_to_commit)
+        self._run(command)
 
         output = self._run([self.command, "status"])
         if "nothing to commit, working directory clean" in output or \

@@ -8,9 +8,11 @@ from punch.vcs_repositories.exceptions import RepositorySystemError
 
 class VCSRepo(object):
 
-    def __init__(self, working_path, config_obj):
+    def __init__(self, working_path, config_obj, files_to_commit=None):
         self.working_path = working_path
         self.config_obj = config_obj
+
+        self.files_to_commit = files_to_commit or []
 
         self._check_config()
         self._set_command()
