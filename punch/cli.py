@@ -45,8 +45,8 @@ VERSION = ['major', 'minor', 'patch']
 VCS = {
     'name': 'git',
     'commit_message': (
-        "Version updated from {{ current_version }}",
-        " to {{ new_version }}"),
+        "Version updated from {{ current_version }}"
+        " to {{ new_version }}")
 }
 """
 
