@@ -330,6 +330,7 @@ Other keys accepted by the `VCS` dictionary are
 * `commit_message`: a Jinja2 template with the message used to commit the version advancement. (default: `"Version updated {{ current_version }} -> {{ new_version }}"`
 * `finish_release`: a boolean which tells the VCS to commit the changes. (default: `True`)
 * `options`: a **dictionary** of VCS-specific options (see the relevant section below)
+* `include_files`: a list of files to include in the commit (see the relevant section below)
 
 #### git
 
@@ -350,6 +351,29 @@ The `git-flow` VCS adapter follows the well-known git-flow workflow, so the rele
 The 'hg' VCS adapter provides support for projects managed with Mercurial. The options suported by this adapter are:
 
 * `'branch'`: the name of the newly created branch (default: `default`)
+
+#### Include files
+
+By default punch adds in a commit its config file, its version file, and all the files listed in the `FILES` variable of the config file. If you need to add other files that you plan to change manually outside of the punch workflow you can specify them with the `include_files` key of the `VCS` dictionary. For example
+
+``` python
+    __config_version__ = 1
+
+    GLOBALS = {
+        'serializer': '{{major}}.{{minor}}.{{patch}}',
+    }
+
+    FILES = ["version.txt"]
+
+    VERSION = ['major', 'minor', 'patch']
+
+    VCS = {
+        'name': 'git',
+        'include_files': ['HISTORY.rst']
+    }
+```
+
+manages the version contained in the file `version.txt`, but tries to add in the commit the file `HISTORY.rst` as well.
 
 ### Actions
 
