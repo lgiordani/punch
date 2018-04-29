@@ -20,6 +20,11 @@ class GitRepo(vr.VCSRepo):
             True
         )
 
+        self.target_branch = self.config_obj.options.get(
+            'target_branch',
+            'master'
+        )
+
     def _check_config(self):
         # Tag names cannot contain spaces
         tag = self.config_obj.options.get('tag', '')
@@ -60,16 +65,22 @@ class GitRepo(vr.VCSRepo):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise e.RepositoryStatusError(
-                "Cannot checkout master while repository" +
-                " contains uncommitted changes")
+                "Cannot checkout the target branch while repository" +
+                " contains uncommitted changes"
+            )
 
-        self._run([self.command, "checkout", "master"])
+        self._run([self.command, "checkout", self.target_branch])
 
         branch = self.get_current_branch()
 
-        if branch != "master":
+        if branch != self.target_branch:
             raise e.RepositoryStatusError(
-                "Current branch shall be master but is {}".format(branch))
+                "Current branch should be {} (the target branch), " +
+                "but is instead {}".format(
+                    self.target_branch,
+                    branch,
+                )
+            )
 
     def start_release(self):
         if self.make_release_branch:
@@ -93,7 +104,7 @@ class GitRepo(vr.VCSRepo):
         if ("nothing to commit, working directory clean" in output or
                 "nothing to commit, working tree clean" in output) and \
                 self.make_release_branch:
-            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "checkout", self.target_branch])
             self._run([self.command, "branch", "-d", branch])
             return
 
@@ -103,7 +114,7 @@ class GitRepo(vr.VCSRepo):
         self._run(command_line)
 
         if self.make_release_branch:
-            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "checkout", self.target_branch])
             self._run([self.command, "merge", branch])
             self._run([self.command, "branch", "-d", branch])
 

@@ -20,7 +20,7 @@ pip install punch.py
 ```
 
 To start working with Punch you need a configuration file and a version file. You may ask Punch to create the two files for you with reasonable starting values with the flag `--init`
- 
+
 ``` sh
 punch --init
 ```
@@ -48,7 +48,7 @@ Punch may be invoked with the following command line options
 Create the two `punch_config.py` and `punch_version.py` files if they are not existing.
 
 `punch --init`
- 
+
 ### Standard invocation
 
 Increase the `minor` part and reset the following ones (e.g. `1.0.0 --> 1.1.0`)
@@ -71,7 +71,7 @@ Increase the `major` part, then reset the following ones. Finally set the `minor
 
 Set the `minor` part to `23` and reset the following parts (e.g. `1.2.3 --> 1.23.0`)
 
-`punch --set-part minor=23 --reset-on-set` 
+`punch --set-part minor=23 --reset-on-set`
 
 ## The punch workflow
 
@@ -126,7 +126,7 @@ The default name of the version file is `punch_version.py`, but this may be chan
 
 The version file is a Python valid file that contains a variable declaration for each part of the version described in the config file (see below). **This file will be overwritten by Punch each time it runs**, so avoid inserting here Python code different from the required variables.
 
-An example of the content of this file for a `major.minor.patch` version is 
+An example of the content of this file for a `major.minor.patch` version is
 
 ``` python
 major = 2
@@ -306,7 +306,7 @@ The following list describes the different types of parts you may use and their 
 * `value_list`: a list of values. When incrementing the last value the field goes back to the first.
     - `allowed_values`: [mandatory] The list of allowed values for this field (e.g. `['alpha`, `beta`])
 * `date`: part of the current date (aka `datetime.now()`). When incrementing the current date is always used.
-    - `fmt`: [mandatory] The formatted date string. This uses the Python `strftime()` function, so any string can contain the directives accepted by this function (see [this reference](http://strftime.org/) or [the official docuemntation](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)). Also, some shortcuts from the [CalVer](http://calver.org/) versioning convention have been introduced. The description can be found [here](http://calver.org/#scheme). If `fmt` is just one of those punch will provide the correct value, but those shortcuts cannot be used in a more complex string. 
+    - `fmt`: [mandatory] The formatted date string. This uses the Python `strftime()` function, so any string can contain the directives accepted by this function (see [this reference](http://strftime.org/) or [the official docuemntation](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)). Also, some shortcuts from the [CalVer](http://calver.org/) versioning convention have been introduced. The description can be found [here](http://calver.org/#scheme). If `fmt` is just one of those punch will provide the correct value, but those shortcuts cannot be used in a more complex string.
 
 ### VCS
 
@@ -319,9 +319,9 @@ dictionary encompassing the 'name' variable with the name of the VCS of choice. 
 * 'hg' (Mercurial)
 
 The `VCS` variable is a **dictionary** which must contain the `'name'` key with the name of the adapter of choice (available values are listed above).
- 
+
 This dictionary is processed using Jinja2 and with a dictionary of variables that contains all global variables and the following sepcial variables:
- 
+
  * `current_version`: is the serialized value of the current version. In case of multiple serializers the first one is used.
  * `new_version`: is the serialized value of the new version. In case of multiple serializers the first one is used.
 
@@ -335,10 +335,11 @@ Other keys accepted by the `VCS` dictionary are
 #### git
 
 The `git` VCS adapter provides support for project managed through Git. The adapter automatically commits the version advancement and tags the resulting repository status.
- 
+
 The options supported by this adapter are:
 
-* `'make_release_branch'`: creates a dedicated release branch to commit the version advancement, then merges it into master. (default: `True`)
+* `'target_branch'`: the release will be merged into this branch. (default: `'master'`)
+* `'make_release_branch'`: creates a dedicated release branch to commit the version advancement, then merges it into the target branch. (default: `True`)
 * `'annotate_tags` and `'annotation_message'`: tags the repository status after committing the release update with an annotated tag and the given annotation message. (defaults: `False` and `"Version {{ new_version }}"`)
 * `'tag'`: the name of the tag (default: the value of the `new_version` variable)
 
@@ -614,4 +615,3 @@ This package was created with [Cookiecutter](https://github.com/audreyr/cookiecu
 This project has been heavily inspired by [bumpversion](https://github.com/peritus/bumpversion), and I want to thank [Filip Noetzel](https://github.com/peritus), the author of that project for his work and the inspiring ideas.
 
 Mercurial support thanks to [Michele d'Amico](https://github.com/la10736).
-
