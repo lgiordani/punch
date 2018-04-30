@@ -33,6 +33,13 @@ def vcs_config_dict_with_include_files():
 
 
 @pytest.fixture
+def vcs_config_dict_with_include_all_files():
+    d = vcs_config_dict()
+    d['include_all_files'] = True
+    return d
+
+
+@pytest.fixture
 def special_variables():
     return {
         'current_version': '1.2.3',
@@ -79,6 +86,22 @@ def test_vcs_configuration_from_string_with_include_files(
     assert vcsconf.include_files == ['HISTORY.rst']
 
 
+def test_vcs_configuration_from_string_with_include_all_files(
+        vcs_config_dict_with_include_all_files,
+        global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration(
+        vcs_config_dict_with_include_all_files['name'],
+        vcs_config_dict_with_include_all_files['options'],
+        global_variables,
+        special_variables,
+        vcs_config_dict_with_include_all_files['commit_message'],
+        include_all_files=vcs_config_dict_with_include_all_files[
+            'include_all_files']
+    )
+
+    assert vcsconf.include_all_files is True
+
+
 def test_vcs_configuration_from_dict(
         vcs_config_dict, global_variables, special_variables):
     vcsconf = vc.VCSConfiguration.from_dict(
@@ -112,6 +135,18 @@ def test_vcs_configuration_from_dict_with_include_files(
     )
 
     assert vcsconf.include_files == ['HISTORY.rst']
+
+
+def test_vcs_configuration_from_dict_with_include_all_files(
+        vcs_config_dict_with_include_all_files,
+        global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration.from_dict(
+        vcs_config_dict_with_include_all_files,
+        global_variables,
+        special_variables
+    )
+
+    assert vcsconf.include_all_files is True
 
 
 def test_vcs_configuration_from_dict_without_commit_message(
