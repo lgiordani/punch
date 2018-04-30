@@ -331,6 +331,7 @@ Other keys accepted by the `VCS` dictionary are
 * `finish_release`: a boolean which tells the VCS to commit the changes. (default: `True`)
 * `options`: a **dictionary** of VCS-specific options (see the relevant section below)
 * `include_files`: a list of files to include in the commit (see the relevant section below)
+* `include_all_files`: a boolean flag that when se includes all untracked files in the commit (see the relevant section below)
 
 #### git
 
@@ -375,6 +376,25 @@ By default punch adds in a commit its config file, its version file, and all the
 ```
 
 manages the version contained in the file `version.txt`, but tries to add in the commit the file `HISTORY.rst` as well.
+
+If you want to configure punch to include automatically all the untracked files in the commit you can set the `include_all_files` flag to `True`
+
+``` python
+    __config_version__ = 1
+
+    GLOBALS = {
+        'serializer': '{{major}}.{{minor}}.{{patch}}',
+    }
+
+    FILES = ["version.txt"]
+
+    VERSION = ['major', 'minor', 'patch']
+
+    VCS = {
+        'name': 'git',
+        'include_all_files': True
+    }
+```
 
 ### Actions
 
