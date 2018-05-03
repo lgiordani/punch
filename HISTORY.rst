@@ -2,11 +2,11 @@
 History
 =======
 
-1.4.6 (2018-04-)
+1.4.6 (2018-05-03)
 ------------------
 
 * Fixed issue #31: Punch doesn't add files to commits + make file additions configurable
-
+* Fixed part of issue #34: [git VCS] Additional branch options (by joshua-s)
 
 1.4.5 (2018-04-20)
 ------------------
