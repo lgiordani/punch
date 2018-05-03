@@ -12,7 +12,7 @@ def global_variables():
 
 
 @pytest.fixture
-def vcs_configuration_dict():
+def vcs_config_dict():
     return {
         'name': 'git',
         'commit_message': "Version updated to {{ new_version }}",
@@ -26,6 +26,20 @@ def vcs_configuration_dict():
 
 
 @pytest.fixture
+def vcs_config_dict_with_include_files():
+    d = vcs_config_dict()
+    d['include_files'] = ['HISTORY.rst']
+    return d
+
+
+@pytest.fixture
+def vcs_config_dict_with_include_all_files():
+    d = vcs_config_dict()
+    d['include_all_files'] = True
+    return d
+
+
+@pytest.fixture
 def special_variables():
     return {
         'current_version': '1.2.3',
@@ -34,12 +48,12 @@ def special_variables():
 
 
 def test_vcs_configuration_from_string(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcsconf = vc.VCSConfiguration(vcs_configuration_dict['name'],
-                                  vcs_configuration_dict['options'],
+        vcs_config_dict, global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration(vcs_config_dict['name'],
+                                  vcs_config_dict['options'],
                                   global_variables,
                                   special_variables,
-                                  vcs_configuration_dict['commit_message']
+                                  vcs_config_dict['commit_message']
                                   )
 
     expected_options = {
@@ -52,14 +66,46 @@ def test_vcs_configuration_from_string(
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.include_files == []
     assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 
+def test_vcs_configuration_from_string_with_include_files(
+        vcs_config_dict_with_include_files,
+        global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration(
+        vcs_config_dict_with_include_files['name'],
+        vcs_config_dict_with_include_files['options'],
+        global_variables,
+        special_variables,
+        vcs_config_dict_with_include_files['commit_message'],
+        include_files=vcs_config_dict_with_include_files['include_files']
+    )
+
+    assert vcsconf.include_files == ['HISTORY.rst']
+
+
+def test_vcs_configuration_from_string_with_include_all_files(
+        vcs_config_dict_with_include_all_files,
+        global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration(
+        vcs_config_dict_with_include_all_files['name'],
+        vcs_config_dict_with_include_all_files['options'],
+        global_variables,
+        special_variables,
+        vcs_config_dict_with_include_all_files['commit_message'],
+        include_all_files=vcs_config_dict_with_include_all_files[
+            'include_all_files']
+    )
+
+    assert vcsconf.include_all_files is True
+
+
 def test_vcs_configuration_from_dict(
-        vcs_configuration_dict, global_variables, special_variables):
+        vcs_config_dict, global_variables, special_variables):
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -74,15 +120,40 @@ def test_vcs_configuration_from_dict(
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.include_files == []
     assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 
-def test_vcs_configuration_from_dict_without_commit_message(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict.pop('commit_message')
+def test_vcs_configuration_from_dict_with_include_files(
+        vcs_config_dict_with_include_files,
+        global_variables, special_variables):
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict_with_include_files,
+        global_variables,
+        special_variables
+    )
+
+    assert vcsconf.include_files == ['HISTORY.rst']
+
+
+def test_vcs_configuration_from_dict_with_include_all_files(
+        vcs_config_dict_with_include_all_files,
+        global_variables, special_variables):
+    vcsconf = vc.VCSConfiguration.from_dict(
+        vcs_config_dict_with_include_all_files,
+        global_variables,
+        special_variables
+    )
+
+    assert vcsconf.include_all_files is True
+
+
+def test_vcs_configuration_from_dict_without_commit_message(
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict.pop('commit_message')
+    vcsconf = vc.VCSConfiguration.from_dict(
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -97,15 +168,16 @@ def test_vcs_configuration_from_dict_without_commit_message(
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated 1.2.3 -> 1.3.0"
+    assert vcsconf.include_files == []
     assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 
 def test_vcs_configuration_from_dict_without_finish_release(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict.pop('finish_release')
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict.pop('finish_release')
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -120,15 +192,16 @@ def test_vcs_configuration_from_dict_without_finish_release(
 
     assert vcsconf.name == 'git'
     assert vcsconf.commit_message == "Version updated to 1.3.0"
+    assert vcsconf.include_files == []
     assert vcsconf.finish_release is True
     assert vcsconf.options == expected_options
 
 
 def test_vcs_configuration_from_dict_without_options(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict.pop('options')
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict.pop('options')
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -139,11 +212,11 @@ def test_vcs_configuration_from_dict_without_options(
 
 
 def test_vcs_configuration_from_dict_can_use_global_variables(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict['commit_message'] = "Mark: {{ mark }}"
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict['commit_message'] = "Mark: {{ mark }}"
 
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -152,12 +225,12 @@ def test_vcs_configuration_from_dict_can_use_global_variables(
 
 
 def test_vcs_configuration_from_dict_special_variables_take_precedence(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict['commit_message'] = "{{ current_version }}"
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict['commit_message'] = "{{ current_version }}"
     global_variables['current_version'] = "5.0.0"
 
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )
@@ -166,11 +239,11 @@ def test_vcs_configuration_from_dict_special_variables_take_precedence(
 
 
 def test_vcs_configuration_from_dict_options_templates_are_processed(
-        vcs_configuration_dict, global_variables, special_variables):
-    vcs_configuration_dict['options']['annotation_message'] = \
+        vcs_config_dict, global_variables, special_variables):
+    vcs_config_dict['options']['annotation_message'] = \
         "Updated {{ current_version}} -> {{ new_version }}"
     vcsconf = vc.VCSConfiguration.from_dict(
-        vcs_configuration_dict,
+        vcs_config_dict,
         global_variables,
         special_variables
     )

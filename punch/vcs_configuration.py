@@ -8,7 +8,8 @@ from jinja2 import Template
 class VCSConfiguration(object):
 
     def __init__(self, name, options, global_variables, special_variables,
-                 commit_message=None, finish_release=True):
+                 commit_message=None, finish_release=True,
+                 include_files=None, include_all_files=False):
         self.name = name
 
         if commit_message is None:
@@ -35,6 +36,9 @@ class VCSConfiguration(object):
 
         self.options.update(special_variables)
 
+        self.include_files = include_files or []
+        self.include_all_files = include_all_files
+
     @classmethod
     def from_dict(cls, vcs_configuration_dict,
                   global_variables, special_variables):
@@ -47,5 +51,11 @@ class VCSConfiguration(object):
                 'commit_message', None),
             vcs_configuration_dict.get(
                 'finish_release', True
+            ),
+            vcs_configuration_dict.get(
+                'include_files', None
+            ),
+            vcs_configuration_dict.get(
+                'include_all_files', False
             )
         )

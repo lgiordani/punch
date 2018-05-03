@@ -12,11 +12,12 @@ from punch.vcs_repositories import exceptions as e
 class HgRepo(vr.VCSRepo):
     DEFAULT_BRANCH = 'default'
 
-    def __init__(self, working_path, config_obj):
+    def __init__(self, working_path, config_obj, files_to_commit=None):
         if six.PY2:
-            super(HgRepo, self).__init__(working_path, config_obj)
+            super(HgRepo, self).__init__(
+                working_path, config_obj,files_to_commit)
         else:
-            super().__init__(working_path, config_obj)
+            super().__init__(working_path, config_obj, files_to_commit)
 
         self.branch = self.config_obj.options.get('branch', 'default')
         self._recorded_branch = None

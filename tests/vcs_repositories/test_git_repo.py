@@ -34,9 +34,44 @@ def temp_git_dir(temp_empty_git_dir, safe_devnull):
 
 
 @pytest.fixture
+def temp_git_dir_develop(temp_empty_git_dir, safe_devnull):
+    subprocess.check_call(
+        ["git", "checkout", "-b", "develop"],
+        cwd=temp_empty_git_dir,
+        stdout=safe_devnull,
+    )
+
+    with open(os.path.join(temp_empty_git_dir, "README.md"), "w") as f:
+        f.writelines(["# Test file", "This is just a test file for punch"])
+
+    subprocess.check_call(["git", "add", "README.md"],
+                          cwd=temp_empty_git_dir, stdout=safe_devnull)
+    subprocess.check_call(["git", "commit", "-m", "Initial addition"],
+                          cwd=temp_empty_git_dir,
+                          stdout=safe_devnull)
+
+    return temp_empty_git_dir
+
+
+@pytest.fixture
 def empty_vcs_configuration():
     return vc.VCSConfiguration('git', {}, {},
                                {'current_version': 'a', 'new_version': 'b'})
+
+
+@pytest.fixture
+def develop_vcs_configuration():
+    return vc.VCSConfiguration(
+        'git',
+        {
+            'target_branch': 'develop',
+        },
+        {},
+        {
+            'current_version': 'a',
+            'new_version':  'b',
+        }
+    )
 
 
 def test_get_current_branch(temp_git_dir, empty_vcs_configuration):
@@ -69,6 +104,20 @@ def test_pre_start_release(temp_git_dir, empty_vcs_configuration):
     repo.pre_start_release()
 
     assert repo.get_current_branch() == 'master'
+
+
+def test_pre_start_release_develop(
+    temp_git_dir_develop,
+    develop_vcs_configuration,
+):
+    # With develop branch as target_branch
+    repo = gr.GitRepo(
+        temp_git_dir_develop,
+        develop_vcs_configuration,
+    )
+    repo.pre_start_release()
+
+    assert repo.get_current_branch() == 'develop'
 
 
 def test_pre_start_release_starting_from_different_branch(
@@ -130,6 +179,22 @@ def test_start_release(temp_git_dir, empty_vcs_configuration):
     repo.pre_start_release()
     repo.start_release()
     assert repo.get_current_branch() == "b"
+
+
+def test_finish_release_develop(
+    temp_git_dir_develop,
+    develop_vcs_configuration,
+):
+    repo = gr.GitRepo(
+        temp_git_dir_develop,
+        develop_vcs_configuration,
+    )
+
+    repo.pre_start_release()
+    repo.start_release()
+    repo.finish_release()
+
+    assert repo.get_current_branch() == "develop"
 
 
 def test_finish_release_without_changes(temp_git_dir, empty_vcs_configuration):

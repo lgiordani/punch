@@ -8,15 +8,21 @@ from punch.vcs_repositories import vcs_repo as vr
 
 class GitRepo(vr.VCSRepo):
 
-    def __init__(self, working_path, config_obj):
+    def __init__(self, working_path, config_obj, files_to_commit=None):
         if six.PY2:
-            super(GitRepo, self).__init__(working_path, config_obj)
+            super(GitRepo, self).__init__(
+                working_path, config_obj, files_to_commit)
         else:
-            super().__init__(working_path, config_obj)
+            super().__init__(working_path, config_obj, files_to_commit)
 
         self.make_release_branch = self.config_obj.options.get(
             'make_release_branch',
             True
+        )
+
+        self.target_branch = self.config_obj.options.get(
+            'target_branch',
+            'master'
         )
 
     def _check_config(self):
@@ -59,16 +65,22 @@ class GitRepo(vr.VCSRepo):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise e.RepositoryStatusError(
-                "Cannot checkout master while repository" +
-                " contains uncommitted changes")
+                "Cannot checkout the target branch while repository" +
+                " contains uncommitted changes"
+            )
 
-        self._run([self.command, "checkout", "master"])
+        self._run([self.command, "checkout", self.target_branch])
 
         branch = self.get_current_branch()
 
-        if branch != "master":
+        if branch != self.target_branch:
             raise e.RepositoryStatusError(
-                "Current branch shall be master but is {}".format(branch))
+                "Current branch should be {} (the target branch), " +
+                "but is instead {}".format(
+                    self.target_branch,
+                    branch,
+                )
+            )
 
     def start_release(self):
         if self.make_release_branch:
@@ -82,14 +94,21 @@ class GitRepo(vr.VCSRepo):
     def finish_release(self):
         branch = self.get_current_branch()
 
-        # self._run([self.command, "add", "."])
+        command = [self.command, "add"]
+
+        if self.config_obj.include_all_files:
+            command.append(".")
+        else:
+            command.extend(self.config_obj.include_files)
+            command.extend(self.files_to_commit)
+        self._run(command)
 
         output = self._run([self.command, "status"])
 
         if ("nothing to commit, working directory clean" in output or
                 "nothing to commit, working tree clean" in output) and \
                 self.make_release_branch:
-            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "checkout", self.target_branch])
             self._run([self.command, "branch", "-d", branch])
             return
 
@@ -99,7 +118,7 @@ class GitRepo(vr.VCSRepo):
         self._run(command_line)
 
         if self.make_release_branch:
-            self._run([self.command, "checkout", "master"])
+            self._run([self.command, "checkout", self.target_branch])
             self._run([self.command, "merge", branch])
             self._run([self.command, "branch", "-d", branch])
 
