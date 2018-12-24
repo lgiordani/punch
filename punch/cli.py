@@ -154,9 +154,8 @@ def main(original_args=None):
             exc
         )
 
-    if not args.simulate:
-        if len(config.files) == 0:
-            fatal_error("You didn't configure any file")
+    if len(config.files) == 0:
+        fatal_error("You didn't configure any file")
 
     current_version = ver.Version.from_file(args.version_file, config.version)
     new_version = current_version.copy()
