@@ -71,6 +71,16 @@ def show_version_updates(version_changes):
         print("  * {} -> {}".format(current, new))
 
 
+def init_config_files():
+    if not os.path.exists(default_config_file_name):
+        with open(default_config_file_name, 'w') as f:
+            f.write(default_config_file_content)
+
+    if not os.path.exists(default_version_file_name):
+        with open(default_version_file_name, 'w') as f:
+            f.write(default_version_file_content)
+
+
 def main(original_args=None):
     parser = argparse.ArgumentParser(
         description="Manages file content with versions."
@@ -123,14 +133,7 @@ def main(original_args=None):
         args.verbose = True
 
     if args.init is True:
-        if not os.path.exists(default_config_file_name):
-            with open(default_config_file_name, 'w') as f:
-                f.write(default_config_file_content)
-
-        if not os.path.exists(default_version_file_name):
-            with open(default_version_file_name, 'w') as f:
-                f.write(default_version_file_content)
-
+        init_config_files()
         sys.exit(0)
 
     if not any([args.part, args.set_part, args.action]):
