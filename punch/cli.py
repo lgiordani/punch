@@ -129,12 +129,12 @@ def main(original_args=None):
         print("Documentation: http://punch.readthedocs.io/en/latest/")
         sys.exit(0)
 
-    if args.simulate:
-        args.verbose = True
-
     if args.init is True:
         init_config_files()
         sys.exit(0)
+
+    if args.simulate:
+        args.verbose = True
 
     if not any([args.part, args.set_part, args.action]):
         fatal_error("You must specify one of --part, --set-part, or --action")
@@ -145,9 +145,6 @@ def main(original_args=None):
             fatal_error(
                 "If you specify --reset-on-set you may set only one value"
             )
-
-    if args.verbose:
-        print("## Punch version {}".format(punch.__version__))
 
     try:
         config = cfr.PunchConfig(args.config_file)
@@ -160,9 +157,6 @@ def main(original_args=None):
     if len(config.files) == 0:
         fatal_error("You didn't configure any file")
 
-    current_version = ver.Version.from_file(args.version_file, config.version)
-    new_version = current_version.copy()
-
     if args.part:
         args.action = "punch:increase"
         args.action_options = "part={}".format(args.part)
@@ -171,29 +165,31 @@ def main(original_args=None):
         args.action = "punch:set"
         args.action_options = args.set_part
 
-    if args.action:
-        try:
-            action_dict = config.actions[args.action]
-        except KeyError:
-            print(
-                "The requested action {} is not defined.".format(
-                    args.action
-                )
+    if args.action and args.action not in config.actions:
+        fatal_error("The requested action {} is not defined.".format(
+                args.action
             )
-            sys.exit(0)
+        )
 
-        try:
-            action_name = action_dict.pop('type')
-        except KeyError:
-            print("The action configuration is missing the 'type' field.")
-            sys.exit(0)
+    if args.verbose:
+        print("## Punch version {}".format(punch.__version__))
 
-        if args.action_options:
-            action_dict.update(hlp.optstr2dict(args.action_options))
+    current_version = ver.Version.from_file(args.version_file, config.version)
+    new_version = current_version.copy()
 
-        action_class = ar.ActionRegister.get(action_name)
-        action = action_class(action_dict)
-        new_version = action.process_version(new_version)
+    action_dict = config.actions[args.action]
+
+    try:
+        action_name = action_dict.pop('type')
+    except KeyError:
+        fatal_error("The action configuration is missing the 'type' field.")
+
+    if args.action_options:
+        action_dict.update(hlp.optstr2dict(args.action_options))
+
+    action_class = ar.ActionRegister.get(action_name)
+    action = action_class(action_dict)
+    new_version = action.process_version(new_version)
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \
