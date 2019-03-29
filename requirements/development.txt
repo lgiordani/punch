@@ -1,4 +1,4 @@
--r production.txt
+-r testing.txt
 
 wheel
 mkdocs
