@@ -1,6 +1,11 @@
-import mock
+import six
 
 from punch.vcs_use_cases import tag
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
 
 
 def test_pre_tag():
