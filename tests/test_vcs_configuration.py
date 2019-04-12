@@ -26,17 +26,15 @@ def vcs_config_dict():
 
 
 @pytest.fixture
-def vcs_config_dict_with_include_files():
-    d = vcs_config_dict()
-    d['include_files'] = ['HISTORY.rst']
-    return d
+def vcs_config_dict_with_include_files(vcs_config_dict):
+    vcs_config_dict['include_files'] = ['HISTORY.rst']
+    return vcs_config_dict
 
 
 @pytest.fixture
-def vcs_config_dict_with_include_all_files():
-    d = vcs_config_dict()
-    d['include_all_files'] = True
-    return d
+def vcs_config_dict_with_include_all_files(vcs_config_dict):
+    vcs_config_dict['include_all_files'] = True
+    return vcs_config_dict
 
 
 @pytest.fixture

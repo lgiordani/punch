@@ -1,5 +1,11 @@
-import mock
+import six
+
 from punch.vcs_use_cases import use_case
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
 
 
 def test_delegate_all():

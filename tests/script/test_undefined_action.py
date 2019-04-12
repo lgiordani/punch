@@ -34,11 +34,10 @@ def test_use_undefined_action(test_environment):
         config_file_content
     )
 
-    out = test_environment.output([
+    out = test_environment.call([
         "punch",
         "--action", "punch:foobar",
         "--action-options", "part=major"
     ])
 
-    assert 'KeyError: punch:foobar' not in out
-    assert 'punch:foobar' in out
+    assert out.returncode == 1

@@ -5,6 +5,7 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
+  - "3.6"
 
 before_install:
   - sudo apt-get install -qq git
@@ -12,7 +13,7 @@ before_install:
 
 # command to install dependencies
 install:
-  - pip install -r requirements/testing.txt
+  - pip install -U -r requirements/testing.txt
   - pip install .
 
 # command to run tests

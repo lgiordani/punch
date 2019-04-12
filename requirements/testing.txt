@@ -1,4 +1,4 @@
--r development.txt
+-r production.txt
 
 pytest
 tox

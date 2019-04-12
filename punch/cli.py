@@ -15,9 +15,12 @@ from punch import version as ver
 from punch import action_register as ar
 from punch import helpers as hlp
 from punch.vcs_repositories import exceptions as rex
+from punch.vcs_repositories import novcs_repo as nr
 from punch.vcs_repositories import git_flow_repo as gfr
 from punch.vcs_repositories import git_repo as gr
-from punch.vcs_use_cases import release as ruc
+from punch.vcs_repositories import hg_repo as hgr
+from punch.vcs_use_cases import vcs_start_release as vsruc
+from punch.vcs_use_cases import vcs_finish_release as vfruc
 
 
 def fatal_error(message, exception=None):
@@ -28,6 +31,26 @@ def fatal_error(message, exception=None):
             str(exception)
         ))
     sys.exit(1)
+
+
+def select_vcs_repo_class(vcs_configuration):
+    if vcs_configuration is None:
+        repo_class = nr.NoVCSRepo
+    elif vcs_configuration.name == 'git':
+        repo_class = gr.GitRepo
+    elif vcs_configuration.name == 'git-flow':
+        repo_class = gfr.GitFlowRepo
+    elif vcs_configuration.name == 'hg':
+        repo_class = hgr.HgRepo
+    else:
+        fatal_error(
+            "The requested version control" +
+            " system {} is not supported.".format(
+                vcs_configuration.name
+            )
+        )
+
+    return repo_class
 
 
 default_config_file_name = "punch_config.py"
@@ -68,7 +91,17 @@ def show_version_parts(values):
 
 def show_version_updates(version_changes):
     for current, new in version_changes:
-        print("  * {} -> {}".format(current, new))
+        print("  - {} -> {}".format(current, new))
+
+
+def init_config_files():
+    if not os.path.exists(default_config_file_name):
+        with open(default_config_file_name, 'w') as f:
+            f.write(default_config_file_content)
+
+    if not os.path.exists(default_version_file_name):
+        with open(default_version_file_name, 'w') as f:
+            f.write(default_version_file_content)
 
 
 def main(original_args=None):
@@ -85,6 +118,8 @@ def main(original_args=None):
     parser.add_argument('--action-options', action='store')
     parser.add_argument('--action-flags', action='store')
     parser.add_argument('--reset-on-set', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='Ignore warnings')
     parser.add_argument('--verbose', action='store_true',
                         help="Be verbose")
     parser.add_argument('--version', action='store_true',
@@ -117,22 +152,22 @@ def main(original_args=None):
         print("Documentation: http://punch.readthedocs.io/en/latest/")
         sys.exit(0)
 
+    if args.init is True:
+        init_config_files()
+        sys.exit(0)
+
     if args.simulate:
         args.verbose = True
 
-    if args.init is True:
-        if not os.path.exists(default_config_file_name):
-            with open(default_config_file_name, 'w') as f:
-                f.write(default_config_file_content)
-
-        if not os.path.exists(default_version_file_name):
-            with open(default_version_file_name, 'w') as f:
-                f.write(default_version_file_content)
-
-        sys.exit(0)
-
     if not any([args.part, args.set_part, args.action]):
         fatal_error("You must specify one of --part, --set-part, or --action")
+
+    set_options = [
+        i is not None for i in [args.part, args.set_part, args.action]
+    ]
+    if sum(set_options) > 1:
+        fatal_error(
+            "You can only specify one of --part, --set-part, or --action")
 
     if args.set_part and args.reset_on_set:
         set_parts = args.set_part.split(',')
@@ -140,9 +175,6 @@ def main(original_args=None):
             fatal_error(
                 "If you specify --reset-on-set you may set only one value"
             )
-
-    if args.verbose:
-        print("## Punch version {}".format(punch.__version__))
 
     try:
         config = cfr.PunchConfig(args.config_file)
@@ -152,44 +184,40 @@ def main(original_args=None):
             exc
         )
 
-    if not args.simulate:
-        if len(config.files) == 0:
-            fatal_error("You didn't configure any file")
-
-    current_version = ver.Version.from_file(args.version_file, config.version)
-    new_version = current_version.copy()
+    if len(config.files) == 0:
+        fatal_error("You didn't configure any file")
 
     if args.part:
         args.action = "punch:increase"
         args.action_options = "part={}".format(args.part)
-
-    if args.set_part:
+    elif args.set_part:
         args.action = "punch:set"
         args.action_options = args.set_part
 
-    if args.action:
-        try:
-            action_dict = config.actions[args.action]
-        except KeyError:
-            print(
-                "The requested action {} is not defined.".format(
-                    args.action
-                )
-            )
-            sys.exit(0)
+    if args.action and args.action not in config.actions:
+        fatal_error("The requested action {} is not defined.".format(
+            args.action
+        )
+        )
 
-        try:
-            action_name = action_dict.pop('type')
-        except KeyError:
-            print("The action configuration is missing the 'type' field.")
-            sys.exit(0)
+    if args.verbose:
+        print("## Punch version {}".format(punch.__version__))
 
-        if args.action_options:
-            action_dict.update(hlp.optstr2dict(args.action_options))
+    action_dict = config.actions[args.action]
 
-        action_class = ar.ActionRegister.get(action_name)
-        action = action_class(action_dict)
-        new_version = action.process_version(new_version)
+    try:
+        action_name = action_dict.pop('type')
+    except KeyError:
+        fatal_error("The action configuration is missing the 'type' field.")
+
+    if args.action_options:
+        action_dict.update(hlp.optstr2dict(args.action_options))
+
+    action_class = ar.ActionRegister.get(action_name)
+    action = action_class(action_dict)
+
+    current_version = ver.Version.from_file(args.version_file, config.version)
+    new_version = action.process_version(current_version.copy())
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \
@@ -199,24 +227,42 @@ def main(original_args=None):
         )
 
     if config.vcs is not None:
-        special_variables = {
-            'current_version': current_version_string,
-            'new_version': new_version_string
-        }
-
         vcs_configuration = vcsc.VCSConfiguration.from_dict(
             config.vcs,
             config.globals,
-            special_variables
+            {
+                'current_version': current_version_string,
+                'new_version': new_version_string
+            }
         )
     else:
         vcs_configuration = None
 
+    # Prepare the files that have been changed by Punch
+    # Including the config and version file of Punch itself
+
+    files_to_commit = [f.path for f in config.files]
+    files_to_commit.append(args.config_file)
+    files_to_commit.append(args.version_file)
+
+    # Prepare the VCS repository
+    repo_class = select_vcs_repo_class(vcs_configuration)
+
+    # Initialise the VCS reposity class
+    try:
+        repo = repo_class(os.getcwd(), vcs_configuration, files_to_commit)
+    except rex.RepositorySystemError as exc:
+        fatal_error(
+            "An error occurred while initialising" +
+            " the version control repository",
+            exc
+        )
+
     if args.verbose:
-        print("\n* Current version")
+        print("\n# Current version")
         show_version_parts(current_version.values)
 
-        print("\n* New version")
+        print("\n# New version")
         show_version_parts(new_version.values)
 
         changes = global_replacer.run_all_serializers(
@@ -224,77 +270,46 @@ def main(original_args=None):
             new_version.as_dict()
         )
 
-        print("\n* Global version updates")
+        print("\n# Global version updates")
         show_version_updates(changes)
 
-        print("\nConfigured files")
+        print("\n# Configured files")
         for file_configuration in config.files:
             updater = fu.FileUpdater(file_configuration)
-            print("* {}:".format(file_configuration.path))
+            print("+ {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
                 new_version.as_dict()
             )
             show_version_updates(changes)
 
-        if vcs_configuration is not None:
-            print("\nVersion control configuration")
-            print("Name:", vcs_configuration.name)
-            print("Commit message", vcs_configuration.commit_message)
-            print("Options:", vcs_configuration.options)
+        # TODO: this should come form the repo
+        vcs_info = repo.get_info()
 
-    if not args.simulate:
-        files_to_commit = [f.path for f in config.files]
-        files_to_commit.append(args.config_file)
-        files_to_commit.append(args.version_file)
+        if len(vcs_info) != 0:
+            print("\n# VCS")
 
-        if vcs_configuration is not None:
-            if vcs_configuration.name == 'git':
-                repo_class = gr.GitRepo
-            elif vcs_configuration.name == 'git-flow':
-                repo_class = gfr.GitFlowRepo
-            else:
-                fatal_error(
-                    "The requested version control" +
-                    " system {} is not supported.".format(
-                        vcs_configuration.name
-                    )
-                )
+            for key, value in repo.get_info():
+                print('+ {}: {}'.format(key, value))
 
-            try:
-                repo = repo_class(
-                    os.getcwd(),
-                    vcs_configuration,
-                    files_to_commit
-                )
-            except rex.RepositorySystemError as exc:
-                fatal_error(
-                    "An error occurred while initializing" +
-                    " the version control repository",
-                    exc
-                )
-        else:
-            repo = None
+    if args.simulate:
+        sys.exit(0)
 
-        if vcs_configuration is not None:
-            # TODO: Create a fake UseCase to allow running this
-            # without a repo and outside this nasty if
-            uc = ruc.VCSReleaseUseCase(repo)
-            uc.pre_start_release()
-            uc.start_release()
+    uc = vsruc.VCSStartReleaseUseCase(repo)
+    uc.execute()
 
-        for file_configuration in config.files:
-            updater = fu.FileUpdater(file_configuration)
-            try:
-                updater.update(
-                    current_version.as_dict(), new_version.as_dict()
-                )
-            except ValueError as e:
+    for file_configuration in config.files:
+        updater = fu.FileUpdater(file_configuration)
+        try:
+            updater.update(
+                current_version.as_dict(), new_version.as_dict()
+            )
+        except ValueError as e:
+            if not args.quiet:
                 print("Warning:", e)
 
-        # Write the updated version info to the version file.
-        new_version.to_file(args.version_file)
+    # Write the updated version info to the version file.
+    new_version.to_file(args.version_file)
 
-        if vcs_configuration is not None:
-            uc.finish_release()
-            uc.post_finish_release()
+    uc = vfruc.VCSFinishReleaseUseCase(repo)
+    uc.execute()

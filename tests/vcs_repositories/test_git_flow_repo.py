@@ -185,3 +185,12 @@ def test_tag(temp_gitflow_dir, empty_vcs_configuration):
     repo.tag("just_a_tag")
 
     assert "just_a_tag" in repo.get_tags()
+
+
+def test_get_info(temp_gitflow_dir, empty_vcs_configuration):
+    repo = gfr.GitFlowRepo(temp_gitflow_dir, empty_vcs_configuration)
+
+    assert repo.get_info() == [
+        ("Commit message", "Version updated a -> b"),
+        ("Release branch", 'release/b'),
+    ]

@@ -2,6 +2,15 @@
 History
 =======
 
+1.6.0 (2019-04-12)
+------------------
+
+* Merged PR #37: Adds a --quiet option to suppress all warnings
+* Added VCS information to --simulate
+* Tests updated to use latest pytest features and to remove deprecated features
+* Fixed the requirements setup (development.txt now inherits testing.txt)
+* Internal structure improvements to ease the development of new features like enhanced actions
+
 1.5.0 (2018-05-03)
 ------------------
 
