@@ -56,6 +56,6 @@ def test_missing_action_type(script_runner, test_environment):
     system_month = subprocess.check_output(['date', '+%m'])
     system_month = system_month.decode('utf8').replace('\n', '')
 
-    out = test_environment.output(['punch', '--action', 'mbuild'])
+    out = test_environment.call(['punch', '--action', 'mbuild'])
 
-    assert "KeyError: 'type'" not in out
+    assert out.returncode == 1
