@@ -15,9 +15,12 @@ from punch import version as ver
 from punch import action_register as ar
 from punch import helpers as hlp
 from punch.vcs_repositories import exceptions as rex
+from punch.vcs_repositories import novcs_repo as nr
 from punch.vcs_repositories import git_flow_repo as gfr
 from punch.vcs_repositories import git_repo as gr
-from punch.vcs_use_cases import release as ruc
+from punch.vcs_repositories import hg_repo as hgr
+from punch.vcs_use_cases import vcs_start_release as vsruc
+from punch.vcs_use_cases import vcs_finish_release as vfruc
 
 
 def fatal_error(message, exception=None):
@@ -28,6 +31,26 @@ def fatal_error(message, exception=None):
             str(exception)
         ))
     sys.exit(1)
+
+
+def select_vcs_repo_class(vcs_configuration):
+    if vcs_configuration is None:
+        repo_class = nr.NoVCSRepo
+    elif vcs_configuration.name == 'git':
+        repo_class = gr.GitRepo
+    elif vcs_configuration.name == 'git-flow':
+        repo_class = gfr.GitFlowRepo
+    elif vcs_configuration.name == 'hg':
+        repo_class = hgr.HgRepo
+    else:
+        fatal_error(
+            "The requested version control" +
+            " system {} is not supported.".format(
+                vcs_configuration.name
+            )
+        )
+
+    return repo_class
 
 
 default_config_file_name = "punch_config.py"
@@ -68,7 +91,7 @@ def show_version_parts(values):
 
 def show_version_updates(version_changes):
     for current, new in version_changes:
-        print("  * {} -> {}".format(current, new))
+        print("  - {} -> {}".format(current, new))
 
 
 def init_config_files():
@@ -209,11 +232,31 @@ def main(original_args=None):
     else:
         vcs_configuration = None
 
+    # Prepare the files that have been changed by Punch
+    # Including the config and version file of Punch itself
+
+    files_to_commit = [f.path for f in config.files]
+    files_to_commit.append(args.config_file)
+    files_to_commit.append(args.version_file)
+
+    # Prepare the VCS repository
+    repo_class = select_vcs_repo_class(vcs_configuration)
+
+    # Initialise the VCS reposity class
+    try:
+        repo = repo_class(os.getcwd(), vcs_configuration, files_to_commit)
+    except rex.RepositorySystemError as exc:
+        fatal_error(
+            "An error occurred while initialising" +
+            " the version control repository",
+            exc
+        )
+
     if args.verbose:
-        print("\n* Current version")
+        print("\n# Current version")
         show_version_parts(current_version.values)
 
-        print("\n* New version")
+        print("\n# New version")
         show_version_parts(new_version.values)
 
         changes = global_replacer.run_all_serializers(
@@ -221,66 +264,33 @@ def main(original_args=None):
             new_version.as_dict()
         )
 
-        print("\n* Global version updates")
+        print("\n# Global version updates")
         show_version_updates(changes)
 
-        print("\nConfigured files")
+        print("\n# Configured files")
         for file_configuration in config.files:
             updater = fu.FileUpdater(file_configuration)
-            print("* {}:".format(file_configuration.path))
+            print("+ {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
                 new_version.as_dict()
             )
             show_version_updates(changes)
 
-        if vcs_configuration is not None:
-            print("\nVersion control configuration")
-            print("Name:", vcs_configuration.name)
-            print("Commit message", vcs_configuration.commit_message)
-            print("Options:", vcs_configuration.options)
+        # TODO: this should come form the repo
+        vcs_info = repo.get_info()
+
+        if len(vcs_info) != 0:
+            print("\n# VCS")
+
+            for key, value in repo.get_info():
+                print('+ {}: {}'.format(key, value))
 
     if args.simulate:
         sys.exit(0)
 
-    files_to_commit = [f.path for f in config.files]
-    files_to_commit.append(args.config_file)
-    files_to_commit.append(args.version_file)
-
-    if vcs_configuration is not None:
-        if vcs_configuration.name == 'git':
-            repo_class = gr.GitRepo
-        elif vcs_configuration.name == 'git-flow':
-            repo_class = gfr.GitFlowRepo
-        else:
-            fatal_error(
-                "The requested version control" +
-                " system {} is not supported.".format(
-                    vcs_configuration.name
-                )
-            )
-
-        try:
-            repo = repo_class(
-                os.getcwd(),
-                vcs_configuration,
-                files_to_commit
-            )
-        except rex.RepositorySystemError as exc:
-            fatal_error(
-                "An error occurred while initializing" +
-                " the version control repository",
-                exc
-            )
-    else:
-        repo = None
-
-    if vcs_configuration is not None:
-        # TODO: Create a fake UseCase to allow running this
-        # without a repo and outside this nasty if
-        uc = ruc.VCSReleaseUseCase(repo)
-        uc.pre_start_release()
-        uc.start_release()
+    uc = vsruc.VCSStartReleaseUseCase(repo)
+    uc.execute()
 
     for file_configuration in config.files:
         updater = fu.FileUpdater(file_configuration)
@@ -295,6 +305,5 @@ def main(original_args=None):
     # Write the updated version info to the version file.
     new_version.to_file(args.version_file)
 
-    if vcs_configuration is not None:
-        uc.finish_release()
-        uc.post_finish_release()
+    uc = vfruc.VCSFinishReleaseUseCase(repo)
+    uc.execute()

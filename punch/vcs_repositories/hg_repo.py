@@ -105,7 +105,7 @@ class HgRepo(vr.VCSRepo):
             raise e.RepositoryConfigurationError(
                 """You specified "'tag': {}".""".format(tag) +
                 " Tag names cannot contain spaces")
-        if re.match("^\d+$", tag):
+        if re.match(r'^\d+$', tag):
             raise e.RepositoryConfigurationError(
                 """You specified "'tag': {}".""".format(tag) +
                 " Tag names cannot be just digits")
@@ -130,10 +130,15 @@ class HgRepo(vr.VCSRepo):
 
     @classmethod
     def _parse_branch_line(cls, line):
-        return re.match("(?P<tag>.+)\s+\d+:.+$", line).group("tag").strip()
+        return re.match(r'(?P<tag>.+)\s+\d+:.+$', line).group("tag").strip()
 
     def _configured_tag(self):
         try:
             return self.config_obj.options['tag']
         except KeyError:
             return self.config_obj.options['new_version']
+
+    def get_info(self):
+        return [
+            ("Commit message", self.config_obj.commit_message),
+        ]

@@ -20,6 +20,10 @@ class GitFlowRepo(gr.GitRepo):
         else:
             super().__init__(working_path, config_obj, files_to_commit)
 
+        self.release_branch = "release/{}".format(
+            self.config_obj.options['new_version']
+        )
+
     def _set_command(self):
         self.commands = ['git', 'flow']
         self.command = 'git'
@@ -103,3 +107,9 @@ class GitFlowRepo(gr.GitRepo):
 
     def post_finish_release(self):
         pass
+
+    def get_info(self):
+        return [
+            ("Commit message", self.config_obj.commit_message),
+            ("Release branch", self.release_branch),
+        ]

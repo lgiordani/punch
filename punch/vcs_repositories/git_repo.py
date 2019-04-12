@@ -20,10 +20,24 @@ class GitRepo(vr.VCSRepo):
             True
         )
 
+        self.release_branch = self.config_obj.options['new_version']
+
         self.target_branch = self.config_obj.options.get(
             'target_branch',
             'master'
         )
+
+        self.annotate_tags = self.config_obj.options.get(
+            'annotate_tags',
+            False
+        )
+
+        self.annotation_message = ''
+        if self.annotate_tags:
+            self.annotation_message = self.config_obj.options.get(
+                'annotation_message',
+                "Version {}".format(self.config_obj.options['new_version'])
+            )
 
     def _check_config(self):
         # Tag names cannot contain spaces
@@ -88,7 +102,7 @@ class GitRepo(vr.VCSRepo):
                 self.command,
                 "checkout",
                 "-b",
-                self.config_obj.options['new_version']
+                self.release_branch
             ])
 
     def finish_release(self):
@@ -125,7 +139,7 @@ class GitRepo(vr.VCSRepo):
         try:
             tag_value = self.config_obj.options['tag']
         except KeyError:
-            tag_value = self.config_obj.options['new_version']
+            tag_value = self.release_branch
 
         if self.config_obj.options.get('annotate_tags', False):
             annotation_message = self.config_obj.options.get(
@@ -146,3 +160,18 @@ class GitRepo(vr.VCSRepo):
 
     def tag(self, tag_name):
         self._run([self.command, "tag", tag_name])
+
+    def get_info(self):
+        return [
+            ("Commit message", self.config_obj.commit_message),
+            (
+                "Create release branch",
+                'yes' if self.make_release_branch else 'no'
+            ),
+            ("Release branch", self.release_branch),
+            (
+                "Annotate tags",
+                'yes' if self.annotate_tags else 'no'
+            ),
+            ("Annotation message", self.annotation_message),
+        ]

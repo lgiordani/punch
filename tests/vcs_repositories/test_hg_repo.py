@@ -307,3 +307,11 @@ def test_tag(temp_hg_dir, empty_vcs_configuration):
     repo.tag("just_a_tag")
 
     assert "just_a_tag" in repo.get_tags()
+
+
+def test_get_info(temp_hg_dir, empty_vcs_configuration):
+    repo = hr.HgRepo(temp_hg_dir, empty_vcs_configuration)
+
+    assert repo.get_info() == [
+        ("Commit message", "Version updated a -> b"),
+    ]

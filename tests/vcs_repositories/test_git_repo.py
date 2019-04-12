@@ -413,3 +413,15 @@ def test_tag(temp_git_dir, empty_vcs_configuration):
     repo.tag("just_a_tag")
 
     assert "just_a_tag" in repo.get_tags()
+
+
+def test_get_info(temp_git_dir, develop_vcs_configuration):
+    repo = gr.GitRepo(temp_git_dir, develop_vcs_configuration)
+
+    assert repo.get_info() == [
+        ("Commit message", "Version updated a -> b"),
+        ("Create release branch", 'yes'),
+        ("Release branch", 'b'),
+        ("Annotate tags", 'no'),
+        ("Annotation message", '')
+    ]
