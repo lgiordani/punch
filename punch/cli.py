@@ -162,6 +162,13 @@ def main(original_args=None):
     if not any([args.part, args.set_part, args.action]):
         fatal_error("You must specify one of --part, --set-part, or --action")
 
+    set_options = [
+        i is not None for i in [args.part, args.set_part, args.action]
+    ]
+    if sum(set_options) > 1:
+        fatal_error(
+            "You can only specify one of --part, --set-part, or --action")
+
     if args.set_part and args.reset_on_set:
         set_parts = args.set_part.split(',')
         if len(set_parts) > 1:
@@ -183,8 +190,7 @@ def main(original_args=None):
     if args.part:
         args.action = "punch:increase"
         args.action_options = "part={}".format(args.part)
-
-    if args.set_part:
+    elif args.set_part:
         args.action = "punch:set"
         args.action_options = args.set_part
 
