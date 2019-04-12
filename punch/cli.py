@@ -85,6 +85,8 @@ def main(original_args=None):
     parser.add_argument('--action-options', action='store')
     parser.add_argument('--action-flags', action='store')
     parser.add_argument('--reset-on-set', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='Ignore warnings')
     parser.add_argument('--verbose', action='store_true',
                         help="Be verbose")
     parser.add_argument('--version', action='store_true',
@@ -290,7 +292,8 @@ def main(original_args=None):
                     current_version.as_dict(), new_version.as_dict()
                 )
             except ValueError as e:
-                print("Warning:", e)
+                if not args.quiet:
+                    print("Warning:", e)
 
         # Write the updated version info to the version file.
         new_version.to_file(args.version_file)
