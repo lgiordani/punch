@@ -142,8 +142,7 @@ class GitRepo(vr.VCSRepo):
             tag_value = self.release_branch
 
         if self.config_obj.options.get('annotate_tags', False):
-            annotation_message = self.config_obj.options.get(
-                'annotation_message', "Version {{ new_version }}")
+            annotation_message = self.annotation_message
             self._run([
                 self.command,
                 "tag",
