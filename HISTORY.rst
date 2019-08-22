@@ -2,6 +2,17 @@
 History
 =======
 
+1.6.2 (2019-08-22)
+------------------
+
+* Updating the HISTORY file and considering that it is high time I come up with a solution
+  for files that require manual intervention when updating the version.
+
+1.6.1 (2019-08-22)
+------------------
+
+* Merged PR#38: Fixes the behavious of the standard annotation message
+
 1.6.0 (2019-04-12)
 ------------------
 
