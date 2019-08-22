@@ -407,6 +407,45 @@ def test_finish_release_with_annotated_tag(temp_git_dir, safe_devnull):
     assert release_name not in repo.get_branches()
 
 
+def test_finish_release_with_default_default_annotated_tag_message(temp_git_dir, safe_devnull):
+    release_name = "1.0"
+    commit_message = "A commit message"
+    annotation_message = "Version 1.0"
+
+    config = vc.VCSConfiguration(
+        'git',
+        {'annotate_tags': True},
+        global_variables={},
+        special_variables={'new_version': release_name},
+        commit_message=commit_message
+    )
+
+    repo = gr.GitRepo(temp_git_dir, config)
+    repo.pre_start_release()
+    repo.start_release()
+
+    with open(os.path.join(temp_git_dir, "version.txt"), "w") as f:
+        f.writelines([release_name])
+
+    subprocess.check_call(
+        ["git", "add", "version.txt"],
+        cwd=temp_git_dir,
+        stdout=safe_devnull,
+        stderr=safe_devnull
+    )
+
+    repo.finish_release()
+
+    p = subprocess.Popen(
+        ["git", "show", release_name],
+        cwd=temp_git_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    stdout, stderr = p.communicate()
+    assert annotation_message in stdout.decode('utf8')
+
+
 def test_tag(temp_git_dir, empty_vcs_configuration):
     repo = gr.GitRepo(temp_git_dir, empty_vcs_configuration)
 
