@@ -4,8 +4,8 @@ from __future__ import print_function, absolute_import, division
 
 import argparse
 import sys
-
 import os
+
 import punch
 from punch import config as cfr
 from punch import file_updater as fu
@@ -14,13 +14,13 @@ from punch import vcs_configuration as vcsc
 from punch import version as ver
 from punch import action_register as ar
 from punch import helpers as hlp
-from punch.vcs_repositories import exceptions as rex
-from punch.vcs_repositories import novcs_repo as nr
-from punch.vcs_repositories import git_flow_repo as gfr
-from punch.vcs_repositories import git_repo as gr
-from punch.vcs_repositories import hg_repo as hgr
-from punch.vcs_use_cases import vcs_start_release as vsruc
-from punch.vcs_use_cases import vcs_finish_release as vfruc
+from punch.vcs_repositories.exceptions import RepositorySystemError
+from punch.vcs_repositories.novcs_repo import NoVCSRepo
+from punch.vcs_repositories.git_flow_repo import GitFlowRepo
+from punch.vcs_repositories.git_repo import GitRepo
+from punch.vcs_repositories.hg_repo import HgRepo
+from punch.vcs_use_cases.vcs_start_release import VCSStartReleaseUseCase
+from punch.vcs_use_cases.vcs_finish_release import VCSFinishReleaseUseCase
 
 
 def fatal_error(message, exception=None):
@@ -35,13 +35,13 @@ def fatal_error(message, exception=None):
 
 def select_vcs_repo_class(vcs_configuration):
     if vcs_configuration is None:
-        repo_class = nr.NoVCSRepo
+        repo_class = NoVCSRepo
     elif vcs_configuration.name == 'git':
-        repo_class = gr.GitRepo
+        repo_class = GitRepo
     elif vcs_configuration.name == 'git-flow':
-        repo_class = gfr.GitFlowRepo
+        repo_class = GitFlowRepo
     elif vcs_configuration.name == 'hg':
-        repo_class = hgr.HgRepo
+        repo_class = HgRepo
     else:
         fatal_error(
             "The requested version control" +
@@ -221,7 +221,7 @@ def main(original_args=None):
 
     global_replacer = rep.Replacer(config.globals['serializer'])
     current_version_string, new_version_string = \
-        global_replacer.run_main_serializer(
+        global_replacer.run_first_serializer(
             current_version.as_dict(),
             new_version.as_dict()
         )
@@ -251,7 +251,7 @@ def main(original_args=None):
     # Initialise the VCS reposity class
     try:
         repo = repo_class(os.getcwd(), vcs_configuration, files_to_commit)
-    except rex.RepositorySystemError as exc:
+    except RepositorySystemError as exc:
         fatal_error(
             "An error occurred while initialising" +
             " the version control repository",
@@ -283,7 +283,6 @@ def main(original_args=None):
             )
             show_version_updates(changes)
 
-        # TODO: this should come form the repo
         vcs_info = repo.get_info()
 
         if len(vcs_info) != 0:
@@ -295,7 +294,7 @@ def main(original_args=None):
     if args.simulate:
         sys.exit(0)
 
-    uc = vsruc.VCSStartReleaseUseCase(repo)
+    uc = VCSStartReleaseUseCase(repo)
     uc.execute()
 
     for file_configuration in config.files:
@@ -311,5 +310,5 @@ def main(original_args=None):
     # Write the updated version info to the version file.
     new_version.to_file(args.version_file)
 
-    uc = vfruc.VCSFinishReleaseUseCase(repo)
+    uc = VCSFinishReleaseUseCase(repo)
     uc.execute()
