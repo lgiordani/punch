@@ -1,6 +1,6 @@
 from __future__ import print_function, absolute_import, division
 
-import collections
+from collections import abc
 from punch import file_configuration as fc
 from punch.helpers import import_file
 
@@ -42,7 +42,7 @@ class PunchConfig(object):
 
         self.files = []
         for file_configuration in files:
-            if isinstance(file_configuration, collections.Mapping):
+            if isinstance(file_configuration, abc.Mapping):
                 self.files.append(fc.FileConfiguration.from_dict(
                     file_configuration, self.globals))
             else:

@@ -2,7 +2,7 @@
 
 from __future__ import print_function, absolute_import, division
 
-import collections
+from collections import abc, OrderedDict
 from punch import version_part as vpart
 from punch.helpers import import_file
 
@@ -10,7 +10,7 @@ from punch.helpers import import_file
 class Version():
 
     def __init__(self):
-        self.parts = collections.OrderedDict()
+        self.parts = OrderedDict()
 
     @property
     def keys(self):
@@ -82,7 +82,7 @@ class Version():
         version = Version()
 
         for version_part in version_description:
-            if isinstance(version_part, collections.Mapping):
+            if isinstance(version_part, abc.Mapping):
                 version_part_name = version_part['name']
                 version_part['value'] = cls._get_version_part(
                     version_module, version_part, version_part_name)
