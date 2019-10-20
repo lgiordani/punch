@@ -1,6 +1,6 @@
 from __future__ import print_function, absolute_import, division
 
-import collections
+from collections import abc
 
 from jinja2 import Template
 
@@ -28,7 +28,7 @@ class VCSConfiguration(object):
 
         self.options = {}
         for key, value in options.items():
-            if isinstance(value, collections.Sequence):
+            if isinstance(value, abc.Sequence):
                 value_template = Template(value)
                 self.options[key] = value_template.render(**template_variables)
             else:

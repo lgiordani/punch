@@ -1,14 +1,14 @@
 from __future__ import print_function, absolute_import, division
 
 import six
-import collections
+from collections import abc
 from jinja2 import Template
 
 
 class Replacer(object):
     def __init__(self, serializers):
 
-        if isinstance(serializers, collections.MutableSequence):
+        if isinstance(serializers, abc.MutableSequence):
             self.serializers = serializers
         else:
             self.serializers = [serializers]
