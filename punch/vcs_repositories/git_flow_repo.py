@@ -51,8 +51,9 @@ class GitFlowRepo(gr.GitRepo):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise RepositoryStatusError(
-                "Cannot checkout master while repository" +
-                " contains uncommitted changes")
+                ("Cannot start release while repository "
+                 "contains uncommitted changes")
+            )
 
         self._run([self.command, "checkout", "develop"])
 
@@ -60,7 +61,7 @@ class GitFlowRepo(gr.GitRepo):
 
         if branch != "develop":
             raise RepositoryStatusError(
-                "Current branch shall be master but is {}".format(branch))
+                "Current branch shall be develop but is {}".format(branch))
 
     def start_release(self):
         self._run(

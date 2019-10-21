@@ -10,10 +10,10 @@ import punch
 from punch import config as cfr
 from punch import file_updater as fu
 from punch import replacer as rep
-from punch import vcs_configuration as vcsc
 from punch import version as ver
 from punch import action_register as ar
 from punch import helpers as hlp
+from punch.vcs_configuration import VCSConfiguration
 from punch.vcs_repositories.exceptions import RepositorySystemError
 from punch.vcs_repositories.novcs_repo import NoVCSRepo
 from punch.vcs_repositories.git_flow_repo import GitFlowRepo
@@ -227,7 +227,7 @@ def main(original_args=None):
         )
 
     if config.vcs is not None:
-        vcs_configuration = vcsc.VCSConfiguration.from_dict(
+        vcs_configuration = VCSConfiguration.from_dict(
             config.vcs,
             config.globals,
             {
@@ -253,8 +253,8 @@ def main(original_args=None):
         repo = repo_class(os.getcwd(), vcs_configuration, files_to_commit)
     except RepositorySystemError as exc:
         fatal_error(
-            "An error occurred while initialising" +
-            " the version control repository",
+            ("An error occurred while initialising "
+             "the version control repository"),
             exc
         )
 
