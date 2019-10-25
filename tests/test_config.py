@@ -115,6 +115,24 @@ VCS = {
 
 
 @pytest.fixture
+def config_file_content_with_vcs_and_serializer(config_file_content):
+    return config_file_content + """
+
+VCS_SERIALIZER = 'main'
+
+VCS = {
+    'name': 'git',
+    'commit_message': "Version updated to {{ new_version }}",
+    'options': {
+        'make_release_branch': False,
+        'annotate_tags': False,
+        'annotation_message': '',
+    }
+}
+"""
+
+
+@pytest.fixture
 def config_file_content_with_wrong_vcs(config_file_content):
     return config_file_content + """
 
@@ -126,6 +144,16 @@ VCS = {
         'annotation_message': '',
     }
 }
+"""
+
+
+@pytest.fixture
+def config_file_content_with_release_notes(config_file_content):
+    return config_file_content + """
+
+RELEASE_NOTES = [
+    ('HISTORY.rst', '^{{version}} (')
+]
 """
 
 
@@ -358,6 +386,33 @@ def test_read_vcs(temp_empty_dir, config_file_content_with_vcs,
     }
 
     assert cf.vcs == expected_dict
+    assert cf.vcs_serializer == '0'
+
+
+def test_read_vcs_with_serializer(
+        temp_empty_dir, config_file_content_with_vcs_and_serializer,
+        config_file_name, version_file_content,
+        version_file_name):
+    clean_previous_imports()
+
+    write_file(temp_empty_dir, config_file_content_with_vcs_and_serializer,
+               config_file_name)
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    expected_dict = {
+        'name': 'git',
+        'commit_message': "Version updated to {{ new_version }}",
+        'options': {
+            'make_release_branch': False,
+            'annotate_tags': False,
+            'annotation_message': '',
+        }
+    }
+
+    assert cf.vcs == expected_dict
+    assert cf.vcs_serializer == 'main'
 
 
 def test_read_vcs_missing_name(temp_empty_dir,
@@ -405,3 +460,37 @@ def test_read_actions(temp_empty_dir, config_file_content_with_actions,
     assert 'punch:increase' in cf.actions
     assert 'punch:set' in cf.actions
     assert 'mbuild' in cf.actions
+
+
+def test_read_release_notes(temp_empty_dir,
+                            config_file_content_with_release_notes,
+                            config_file_name, version_file_content,
+                            version_file_name):
+    clean_previous_imports()
+
+    write_file(temp_empty_dir, config_file_content_with_release_notes,
+               config_file_name)
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    expected = [
+        ('HISTORY.rst', '^{{version}} (')
+    ]
+
+    assert cf.release_notes == expected
+
+
+def test_read_release_notes_not_present(temp_empty_dir,
+                                        config_file_content,
+                                        config_file_name, version_file_content,
+                                        version_file_name):
+    clean_previous_imports()
+
+    write_file(temp_empty_dir, config_file_content,
+               config_file_name)
+    write_file(temp_empty_dir, version_file_content, version_file_name)
+
+    cf = pc.PunchConfig(os.path.join(temp_empty_dir, config_file_name))
+
+    assert cf.release_notes == []

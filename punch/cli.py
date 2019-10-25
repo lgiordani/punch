@@ -90,7 +90,7 @@ def show_version_parts(values):
 
 
 def show_version_updates(version_changes):
-    for current, new in version_changes:
+    for current, new in version_changes.values():
         print("  - {} -> {}".format(current, new))
 
 
@@ -220,14 +220,16 @@ def main(original_args=None):
     new_version = action.process_version(current_version.copy())
 
     global_replacer = rep.Replacer(config.globals['serializer'])
-    current_version_string, new_version_string = \
-        global_replacer.run_first_serializer(
-            current_version.as_dict(),
-            new_version.as_dict()
-        )
 
     if config.vcs is not None:
-        vcs_configuration = VCSConfiguration.from_dict(
+        current_version_string, new_version_string = \
+            global_replacer.run_serializer(
+                config.vcs_serializer,
+                current_version.as_dict(),
+                new_version.as_dict()
+            )
+
+        vcs_configuration = vcsc.VCSConfiguration.from_dict(
             config.vcs,
             config.globals,
             {
@@ -275,7 +277,7 @@ def main(original_args=None):
 
         print("\n# Configured files")
         for file_configuration in config.files:
-            updater = fu.FileUpdater(file_configuration)
+            updater = fu.FileUpdater(file_configuration, global_replacer)
             print("+ {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
@@ -298,7 +300,7 @@ def main(original_args=None):
     uc.execute()
 
     for file_configuration in config.files:
-        updater = fu.FileUpdater(file_configuration)
+        updater = fu.FileUpdater(file_configuration, global_replacer)
         try:
             updater.update(
                 current_version.as_dict(), new_version.as_dict()
