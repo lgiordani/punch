@@ -58,8 +58,9 @@ class HgRepo(vr.VCSRepo):
     def pre_start_release(self):
         if not self._is_clean():
             raise e.RepositoryStatusError(
-                "Cannot update default while repository" +
-                " contains uncommitted changes")
+                ("Cannot update default while repository "
+                 "contains uncommitted changes")
+            )
         self._recorded_branch = self.get_current_branch()
 
         self._change_branch(self.branch)
@@ -103,12 +104,14 @@ class HgRepo(vr.VCSRepo):
         tag = self.config_obj.options.get('tag', '')
         if ' ' in tag:
             raise e.RepositoryConfigurationError(
-                """You specified "'tag': {}".""".format(tag) +
-                " Tag names cannot contain spaces")
+                ("""You specified "'tag': {}". """
+                 "Tag names cannot contain spaces").format(tag)
+            )
         if re.match(r'^\d+$', tag):
             raise e.RepositoryConfigurationError(
-                """You specified "'tag': {}".""".format(tag) +
-                " Tag names cannot be just digits")
+                ("""You specified "'tag': {}". """
+                 "Tag names cannot be just digits").format(tag)
+            )
 
     def _check_system(self):
         if six.PY2:

@@ -44,8 +44,9 @@ class GitRepo(vr.VCSRepo):
         tag = self.config_obj.options.get('tag', '')
         if ' ' in tag:
             raise e.RepositoryConfigurationError(
-                """You specified "'tag': {}".""".format(tag) +
-                "Tag names cannot contain spaces")
+                ("""You specified "'tag': {}". """
+                 "Tag names cannot contain spaces").format(tag)
+            )
 
     def _check_system(self):
         if six.PY2:
@@ -55,8 +56,9 @@ class GitRepo(vr.VCSRepo):
 
         if not os.path.exists(os.path.join(self.working_path, '.git')):
             raise e.RepositorySystemError(
-                "The current directory {}".format(self.working_path) +
-                " is not a Git repository")
+                ("The current directory {} "
+                 "is not a Git repository").format(self.working_path)
+            )
 
     def _set_command(self):
         self.commands = ['git']
@@ -79,8 +81,8 @@ class GitRepo(vr.VCSRepo):
         output = self._run([self.command, "status"])
         if "Changes to be committed:" in output:
             raise e.RepositoryStatusError(
-                "Cannot checkout the target branch while repository" +
-                " contains uncommitted changes"
+                ("Cannot checkout the target branch while repository "
+                 "contains uncommitted changes")
             )
 
         self._run([self.command, "checkout", self.target_branch])
@@ -89,8 +91,8 @@ class GitRepo(vr.VCSRepo):
 
         if branch != self.target_branch:
             raise e.RepositoryStatusError(
-                "Current branch should be {} (the target branch), " +
-                "but is instead {}".format(
+                ("Current branch should be {} (the target branch), "
+                 "but is instead {}").format(
                     self.target_branch,
                     branch,
                 )

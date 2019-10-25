@@ -112,7 +112,7 @@ def test_get_main_version_change_with_multiple_serializers():
     ]
     rep = replacer.Replacer(serializers)
 
-    current, new = rep.run_main_serializer(current_version, new_version)
+    current, new = rep.run_first_serializer(current_version, new_version)
 
     assert current, new == (
         "__version__ = \"1.0.0\"", "__version__ = \"1.0.1\""

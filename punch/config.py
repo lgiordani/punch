@@ -19,14 +19,14 @@ class PunchConfig(object):
             self.__config_version__ = configuration_module.__config_version__
         except AttributeError:
             raise ValueError(
-                "Given config file is invalid:" +
-                " missing '__config_version__' variable"
+                ("Given config file is invalid: "
+                 "missing '__config_version__' variable")
             )
 
         if configuration_module.__config_version__ > 1:
             raise ConfigurationVersionError(
-                "Unsupported configuration file version" +
-                " {}".format(configuration_module.__config_version__)
+                ("Unsupported configuration file version "
+                 "{}".format(configuration_module.__config_version__))
             )
 
         try:
