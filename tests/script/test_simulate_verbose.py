@@ -40,6 +40,46 @@ VCS = {
 """
 
 
+config_file_vcs_with_named_serializers = """
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': {
+        'full': '{{major}}.{{minor}}.{{patch}}'
+    }
+}
+
+FILES = ["README.md"]
+
+VERSION = ['major', 'minor', 'patch']
+
+VCS_SERIALIZER = 'full'
+
+VCS = {
+    'name': 'git'
+}
+"""
+
+
+config_file_vcs_with_named_serializers_no_vcs_serializer = """
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': {
+        'full': '{{major}}.{{minor}}.{{patch}}'
+    }
+}
+
+FILES = ["README.md"]
+
+VERSION = ['major', 'minor', 'patch']
+
+VCS = {
+    'name': 'git'
+}
+"""
+
+
 config_file_content_with_git_flow = """
 __config_version__ = 1
 
@@ -229,6 +269,63 @@ def test_simulate_with_git(test_environment, verbose_output_with_git):
         version=punch.__version__,
         commit_message="Version updated 1.0.0 -> 2.0.0"
     )
+    assert test_environment.get_file_content("README.md") == "Version 1.0.0"
+
+
+def test_simulate_named_serializers(test_environment, verbose_output_with_git):
+    test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
+
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
+
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_vcs_with_named_serializers
+    )
+
+    test_environment.output(["git", "init"])
+
+    ret = test_environment.call([
+        "punch",
+        "--simulate",
+        "--part",
+        "major"
+    ])
+
+    assert not ret.stderr
+    assert ret.stdout == verbose_output_with_git.format(
+        version=punch.__version__,
+        commit_message="Version updated 1.0.0 -> 2.0.0"
+    )
+    assert test_environment.get_file_content("README.md") == "Version 1.0.0"
+
+
+def test_simulate_named_serializers_no_vcs_serializer(
+        test_environment):
+    test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
+
+    test_environment.ensure_file_is_present(
+        "punch_version.py",
+        version_file_content
+    )
+
+    test_environment.ensure_file_is_present(
+        "punch_config.py",
+        config_file_vcs_with_named_serializers_no_vcs_serializer
+    )
+
+    test_environment.output(["git", "init"])
+
+    ret = test_environment.call([
+        "punch",
+        "--simulate",
+        "--part",
+        "major"
+    ])
+
+    assert ret.returncode == 1
     assert test_environment.get_file_content("README.md") == "Version 1.0.0"
 
 

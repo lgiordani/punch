@@ -56,6 +56,11 @@ class PunchConfig(object):
                 "Given config file is invalid: missing 'VERSION' attribute")
 
         try:
+            self.vcs_serializer = configuration_module.VCS_SERIALIZER
+        except AttributeError:
+            self.vcs_serializer = '0'
+
+        try:
             self.vcs = configuration_module.VCS
             if 'name' not in self.vcs.keys():
                 raise ValueError("Missing key 'name' in VCS configuration")
@@ -77,3 +82,8 @@ class PunchConfig(object):
                 }
             }
         )
+
+        try:
+            self.release_notes = configuration_module.RELEASE_NOTES
+        except AttributeError:
+            self.release_notes = []

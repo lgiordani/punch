@@ -12,13 +12,46 @@ from jinja2 import Template
 # the first with the second.
 
 
-class Replacer(object):
-    def __init__(self, serializers):
+class MissingSerializer(Exception):
+    """A class used to signal that the requested serializer is not present.
+    Usually this means that the serializers have been given as a dict
+    but no main serializer name option has been specified"""
+    pass
 
+
+class Replacer(object):
+    def __init__(self, serializers, main_serialize_name='0'):
+
+        # Serializers is a list
         if isinstance(serializers, abc.MutableSequence):
+            self.serializers = dict(
+                ((str(k), v) for k, v in enumerate(serializers))
+            )
+        # Serializers is a string
+        elif isinstance(serializers, abc.Sequence):
+            self.serializers = {
+                '0': serializers
+            }
+        # Serializers is a dictionary
+        elif isinstance(serializers, abc.Mapping):
             self.serializers = serializers
         else:
-            self.serializers = [serializers]
+            raise(TypeError(
+                ("serializers must be either a MutableSequence, "
+                 "a Sequence, or a Mapping.")
+            ))
+
+    def run_serializer(self, serializer_name,
+                       current_version_dict, new_version_dict):
+        try:
+            template = Template(self.serializers[serializer_name])
+        except KeyError:
+            raise MissingSerializer
+
+        return (
+            template.render(**current_version_dict),
+            template.render(**new_version_dict)
+        )
 
     def _run_serializer(
             self, serializer, current_version_dict, new_version_dict):
@@ -30,34 +63,43 @@ class Replacer(object):
         )
 
     def run_all_serializers(self, current_version_dict, new_version_dict):
-        summary = []
-        for serializer in self.serializers:
-            summary.append(
-                self._run_serializer(
-                    serializer, current_version_dict, new_version_dict
-                )
+        """
+        Renders all serializers and returns old and new versions.
+        This function runs all the provided serializers on the given current
+        version, and returns a dictionary where each element is a tuple
+        with the current and new version rendered according to the relative
+        serializer.
+        """
+
+        rendered_templates = {}
+        for name, serializer in self.serializers.items():
+            rendered_templates[name] = self.run_serializer(
+                name, current_version_dict, new_version_dict)
+
+        return rendered_templates
+
+    def run_main_serializer(self, current_version_dict, new_version_dict):
+        rendered_templates = {}
+        for serializer in [self.main_serializer]:
+            template = Template(serializer)
+
+            rendered_templates['main'] = (
+                template.render(**current_version_dict),
+                template.render(**new_version_dict)
             )
 
-        return summary
+        return rendered_templates['main']
 
-    def run_first_serializer(self, current_version_dict, new_version_dict):
-        return self._run_serializer(
-            self.serializers[0],
+    def replace(self, text, current_version_dict, new_version_dict):
+        if six.PY2:
+            text = text.decode('utf8')
+
+        templates = self.run_all_serializers(
             current_version_dict,
             new_version_dict
         )
 
-    def replace(self, text, current_version, new_version):
-        if six.PY2:
-            text = text.decode('utf8')
+        for name, templates in templates.items():
+            text = text.replace(templates[0], templates[1])
 
-        new_text = text
-        for serializer in self.serializers:
-            template = Template(serializer)
-
-            _search_pattern = template.render(**current_version)
-            _replace_pattern = template.render(**new_version)
-
-            new_text = new_text.replace(_search_pattern, _replace_pattern)
-
-        return new_text
+        return text

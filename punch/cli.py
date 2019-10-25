@@ -90,7 +90,7 @@ def show_version_parts(values):
 
 
 def show_version_updates(version_changes):
-    for current, new in version_changes:
+    for current, new in version_changes.values():
         print("  - {} -> {}".format(current, new))
 
 
@@ -195,9 +195,8 @@ def main(original_args=None):
         args.action_options = args.set_part
 
     if args.action and args.action not in config.actions:
-        fatal_error("The requested action {} is not defined.".format(
-            args.action
-        )
+        fatal_error(
+            "The requested action {} is not defined.".format(args.action)
         )
 
     if args.verbose:
@@ -220,13 +219,22 @@ def main(original_args=None):
     new_version = action.process_version(current_version.copy())
 
     global_replacer = rep.Replacer(config.globals['serializer'])
-    current_version_string, new_version_string = \
-        global_replacer.run_first_serializer(
-            current_version.as_dict(),
-            new_version.as_dict()
-        )
 
     if config.vcs is not None:
+        try:
+            current_version_string, new_version_string = \
+                global_replacer.run_serializer(
+                    config.vcs_serializer,
+                    current_version.as_dict(),
+                    new_version.as_dict()
+                )
+        except rep.MissingSerializer:
+            fatal_error(
+                "The requested serializer {} has not been declared".format(
+                    config.vcs_serializer
+                )
+            )
+
         vcs_configuration = VCSConfiguration.from_dict(
             config.vcs,
             config.globals,
@@ -275,7 +283,7 @@ def main(original_args=None):
 
         print("\n# Configured files")
         for file_configuration in config.files:
-            updater = fu.FileUpdater(file_configuration)
+            updater = fu.FileUpdater(file_configuration, global_replacer)
             print("+ {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
@@ -298,7 +306,7 @@ def main(original_args=None):
     uc.execute()
 
     for file_configuration in config.files:
-        updater = fu.FileUpdater(file_configuration)
+        updater = fu.FileUpdater(file_configuration, global_replacer)
         try:
             updater.update(
                 current_version.as_dict(), new_version.as_dict()

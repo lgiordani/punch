@@ -149,7 +149,7 @@ This file contains pure Pyhton, so feel free to fill it with the Python code you
 This variable is a **dictionary** containing variables that are globally valid during the whole execution of punch, if not overridden
 by local variables (see `FILES`, for example).
 
-* `serializer` can be a single string o a list of strings, and represents the templates used to search and replace the old version. Each string in `serializer` (or the single one if it is a string) is a [Jinja2](http://jinja.pocoo.org/) template which is rendered with the current version and the new version to get the search and replace patterns.
+* `serializer` represents the templates used to search and replace the old version. This can be **string**, a **list of strings** or a **dictionary**. Each serializer is a [Jinja2](http://jinja.pocoo.org/) template which is rendered with the current version and the new version to get the search and replace patterns. Expressing serializer with a dictionary allows you to give them a name and to refer to them in other parts of punch. for example when using a VCS.
 
 #### GLOBALS example 1
 
@@ -201,6 +201,22 @@ GLOBALS = {
 ```
 
 the first search pattern becomes `Full version: 1.4.6` and its replacement pattern is `Full version: 1.4.7`. The second search pattern will be `Short version: 1.4` and the replacement pattern will not change. This may be useful if you have different representation of the same version in a file, or if you want to specifically target uses of that version.
+
+
+#### GLOBALS example 5
+
+The previous configuration can be expressed with named serializers.
+
+``` python
+GLOBALS = {
+    'serializer': {
+        'full': 'Full version: {{ major }}.{{ minor }}.{{ patch }}',
+        'short': 'Short version: {{ major }}.{{ minor }}'
+     }
+}
+```
+
+This allows you to refer to the serializers in other parts of punch with a specific name.
 
 
 #### Other global variables
@@ -322,8 +338,10 @@ The `VCS` variable is a **dictionary** which must contain the `'name'` key with 
 
 This dictionary is processed using Jinja2 and with a dictionary of variables that contains all global variables and the following sepcial variables:
 
- * `current_version`: is the serialized value of the current version. In case of multiple serializers the first one is used.
- * `new_version`: is the serialized value of the new version. In case of multiple serializers the first one is used.
+ * `current_version`: is the serialized value of the current version.
+ * `new_version`: is the serialized value of the new version.
+
+If multiple serializers are provided in a list, the first one is used to create the versions for the VCS. If serializers are provided as a dictionary, you need to specify the `VCS_SERIALIZER` top level config variable, with the name of the chosen serializer.
 
 Other keys accepted by the `VCS` dictionary are
 
@@ -359,20 +377,20 @@ The 'hg' VCS adapter provides support for projects managed with Mercurial. The o
 By default punch adds in a commit its config file, its version file, and all the files listed in the `FILES` variable of the config file. If you need to add other files that you plan to change manually outside of the punch workflow you can specify them with the `include_files` key of the `VCS` dictionary. For example
 
 ``` python
-    __config_version__ = 1
+__config_version__ = 1
 
-    GLOBALS = {
-        'serializer': '{{major}}.{{minor}}.{{patch}}',
-    }
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
+}
 
-    FILES = ["version.txt"]
+FILES = ["version.txt"]
 
-    VERSION = ['major', 'minor', 'patch']
+VERSION = ['major', 'minor', 'patch']
 
-    VCS = {
-        'name': 'git',
-        'include_files': ['HISTORY.rst']
-    }
+VCS = {
+    'name': 'git',
+    'include_files': ['HISTORY.rst']
+}
 ```
 
 manages the version contained in the file `version.txt`, but tries to add in the commit the file `HISTORY.rst` as well.
@@ -380,20 +398,20 @@ manages the version contained in the file `version.txt`, but tries to add in the
 If you want to configure punch to include automatically all the untracked files in the commit you can set the `include_all_files` flag to `True`
 
 ``` python
-    __config_version__ = 1
+__config_version__ = 1
 
-    GLOBALS = {
-        'serializer': '{{major}}.{{minor}}.{{patch}}',
-    }
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
+}
 
-    FILES = ["version.txt"]
+FILES = ["version.txt"]
 
-    VERSION = ['major', 'minor', 'patch']
+VERSION = ['major', 'minor', 'patch']
 
-    VCS = {
-        'name': 'git',
-        'include_all_files': True
-    }
+VCS = {
+    'name': 'git',
+    'include_all_files': True
+}
 ```
 
 ### Actions
@@ -433,7 +451,7 @@ Actions are defined by an `ACTIONS` list in the config file, with the following 
 ACTIONS = {
     'action_name': {
         'type': 'action_type',
-        ...
+        # ...
     }
 }
 ```

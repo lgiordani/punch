@@ -3,15 +3,12 @@ from __future__ import print_function, absolute_import, division
 import os
 import six
 
-from punch import replacer
-
 
 class FileUpdater(object):
 
-    def __init__(self, file_configuration):
+    def __init__(self, file_configuration, replacer):
         self.file_configuration = file_configuration
-        self.replacer = replacer.Replacer(
-            file_configuration.config['serializer'])
+        self.replacer = replacer
 
     def get_summary(self, current_version, new_version):
         return self.replacer.run_all_serializers(current_version, new_version)
