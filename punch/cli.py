@@ -235,7 +235,7 @@ def main(original_args=None):
                 )
             )
 
-        vcs_configuration = vcsc.VCSConfiguration.from_dict(
+        vcs_configuration = VCSConfiguration.from_dict(
             config.vcs,
             config.globals,
             {
