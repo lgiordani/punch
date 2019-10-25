@@ -195,9 +195,8 @@ def main(original_args=None):
         args.action_options = args.set_part
 
     if args.action and args.action not in config.actions:
-        fatal_error("The requested action {} is not defined.".format(
-            args.action
-        )
+        fatal_error(
+            "The requested action {} is not defined.".format(args.action)
         )
 
     if args.verbose:
@@ -222,11 +221,18 @@ def main(original_args=None):
     global_replacer = rep.Replacer(config.globals['serializer'])
 
     if config.vcs is not None:
-        current_version_string, new_version_string = \
-            global_replacer.run_serializer(
-                config.vcs_serializer,
-                current_version.as_dict(),
-                new_version.as_dict()
+        try:
+            current_version_string, new_version_string = \
+                global_replacer.run_serializer(
+                    config.vcs_serializer,
+                    current_version.as_dict(),
+                    new_version.as_dict()
+                )
+        except rep.MissingSerializer:
+            fatal_error(
+                "The requested serializer {} has not been declared".format(
+                    config.vcs_serializer
+                )
             )
 
         vcs_configuration = vcsc.VCSConfiguration.from_dict(

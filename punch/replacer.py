@@ -12,8 +12,8 @@ from jinja2 import Template
 # the first with the second.
 
 
-class MissingMainSerializer(Exception):
-    """A class used to signal that the main serializer is not present.
+class MissingSerializer(Exception):
+    """A class used to signal that the requested serializer is not present.
     Usually this means that the serializers have been given as a dict
     but no main serializer name option has been specified"""
     pass
@@ -43,7 +43,10 @@ class Replacer(object):
 
     def run_serializer(self, serializer_name,
                        current_version_dict, new_version_dict):
-        template = Template(self.serializers[serializer_name])
+        try:
+            template = Template(self.serializers[serializer_name])
+        except KeyError:
+            raise MissingSerializer
 
         return (
             template.render(**current_version_dict),
