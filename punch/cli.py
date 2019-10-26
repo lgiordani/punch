@@ -5,6 +5,7 @@ from __future__ import print_function, absolute_import, division
 import argparse
 import sys
 import os
+import re
 
 import punch
 from punch import config as cfr
@@ -21,6 +22,8 @@ from punch.vcs_repositories.git_repo import GitRepo
 from punch.vcs_repositories.hg_repo import HgRepo
 from punch.vcs_use_cases.vcs_start_release import VCSStartReleaseUseCase
 from punch.vcs_use_cases.vcs_finish_release import VCSFinishReleaseUseCase
+
+from jinja2 import Template
 
 
 def fatal_error(message, exception=None):
@@ -266,17 +269,17 @@ def main(original_args=None):
             exc
         )
 
+    changes = global_replacer.run_all_serializers(
+        current_version.as_dict(),
+        new_version.as_dict()
+    )
+
     if args.verbose:
         print("\n# Current version")
         show_version_parts(current_version.values)
 
         print("\n# New version")
         show_version_parts(new_version.values)
-
-        changes = global_replacer.run_all_serializers(
-            current_version.as_dict(),
-            new_version.as_dict()
-        )
 
         print("\n# Global version updates")
         show_version_updates(changes)
@@ -301,6 +304,27 @@ def main(original_args=None):
 
     if args.simulate:
         sys.exit(0)
+
+    wrong_release_notes = []
+    new_versions = dict((n, v[1]) for n, v in changes.items())
+    for file_name, regex_template in config.release_notes:
+        template = Template(regex_template)
+        render = template.render(**new_versions)
+        with open(file_name, 'r') as f:
+            content = f.read()
+            if not re.search(render, content, re.MULTILINE):
+                wrong_release_notes.append((file_name, regex_template, render))
+
+        if len(wrong_release_notes):
+            print("The following files have been configured to contain "
+                  "release notes, but they don't have an entry that matches "
+                  "the new version that Punch is about to create.")
+            for file_name, regex_template, render in wrong_release_notes:
+                print("  *", file_name)
+                print("    - Template:", regex_template)
+                print("    - Rendered:", render)
+            fatal_error(
+                "Please update the files and commit them if you use a VCS")
 
     uc = VCSStartReleaseUseCase(repo)
     uc.execute()
