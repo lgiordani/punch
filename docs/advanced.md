@@ -82,3 +82,50 @@ The `conditional_reset` action work flow is the following
 
 So for the above configuration if the current version is `2017.01-4` on 31 January 2017 the command `punch --action mbuild` creates version `2017.01-5` (`year` and `month` do not change, so `build` is incremented), while on the 01 February 2017 it will create version `2017.02-0` (`month` changed and with it the full version, so `build` is reset).
 
+## Release notes
+
+Punch can check if your release notes are in sync with the version that will be created or not. If this option is enabled, Punch requires the release notes files to already contain the entry before the version is created. This was decided to avoid interrupting the flow, requiring a double execution of Punch, and generally making the work flow more complex (not to mention error management).
+
+You can specify the `RELEASE_NOTES` **list** in the configuration file, each entry of which is a tuple with a file name and a regular expression. The regular expression can (and probably should) mention one of the serializers.
+
+When Punch runs, it renders the regular expression string as a Jinja template, using the new version as rendered by the named serializer. Then it scans the associated file, looking for matches. If there are no matches, Punch exits with an error.
+
+Example:
+
+``` python
+__config_version__ = 1
+
+GLOBALS = {
+    'serializer': {
+        'semver': '{{major}}.{{minor}}.{{patch}}',
+    }
+}
+
+FILES = ["README.md"]
+
+VERSION = ['major', 'minor', 'patch']
+
+RELEASE_NOTES = [
+    ('HISTORY.rst', r'^{{semver}} \\(')
+]
+```
+
+In this example, if the new version returned by the `'semver'` serializer is `'2.0.0'`, Punch scans the `HISTORY.rst` file with the `r'^2.0.0 \\(` regular expression. If that file' content is something like
+
+```
+=======
+History
+=======
+
+1.0.0 (1980-01-01)
+------------------
+
+* Initial version
+
+2.0.0 (1980-01-01)
+------------------
+
+* Second version
+```
+
+Punch finds a match and continues, otherwise it interrupts the process before applying any change.
