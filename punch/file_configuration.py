@@ -17,6 +17,7 @@ class FileConfiguration(object):
             if six.PY2:
                 value = value.decode('utf8')  # pragma: nocover
 
+            print('###############', value)
             template = env.from_string(value)
             new_local_variables[key] = template.render(
                 GLOBALS=global_variables)
