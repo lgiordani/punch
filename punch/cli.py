@@ -286,7 +286,9 @@ def main(original_args=None):
 
         print("\n# Configured files")
         for file_configuration in config.files:
-            updater = fu.FileUpdater(file_configuration, global_replacer)
+            file_replacer = rep.Replacer(config.globals['serializer'])
+            file_replacer.update(file_configuration.config['serializer'])
+            updater = fu.FileUpdater(file_configuration, file_replacer)
             print("+ {}:".format(file_configuration.path))
             changes = updater.get_summary(
                 current_version.as_dict(),
@@ -330,7 +332,9 @@ def main(original_args=None):
     uc.execute()
 
     for file_configuration in config.files:
-        updater = fu.FileUpdater(file_configuration, global_replacer)
+        file_replacer = rep.Replacer(config.globals['serializer'])
+        file_replacer.update(file_configuration.config['serializer'])
+        updater = fu.FileUpdater(file_configuration, file_replacer)
         try:
             updater.update(
                 current_version.as_dict(), new_version.as_dict()

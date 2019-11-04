@@ -21,7 +21,10 @@ class MissingSerializer(Exception):
 
 class Replacer(object):
     def __init__(self, serializers, main_serialize_name='0'):
+        self.serializers = {}
+        self.update(serializers)
 
+    def update(self, serializers):
         # Serializers is a list
         if isinstance(serializers, abc.MutableSequence):
             self.serializers = dict(
@@ -34,7 +37,7 @@ class Replacer(object):
             }
         # Serializers is a dictionary
         elif isinstance(serializers, abc.Mapping):
-            self.serializers = serializers
+            self.serializers.update(serializers)
         else:
             raise(TypeError(
                 ("serializers must be either a MutableSequence, "
