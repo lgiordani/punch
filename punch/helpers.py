@@ -4,12 +4,12 @@ import sys
 
 
 def import_file(filepath):
-    if sys.version_info < (3, 0):
+    if sys.version_info < (3, 0):  # pragma: nocover
         import imp
 
         module = imp.load_source("punch_config", filepath)
 
-    elif sys.version_info < (3, 5):
+    elif sys.version_info < (3, 5):  # pragma: nocover
         from importlib.machinery import SourceFileLoader
 
         try:

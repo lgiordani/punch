@@ -15,7 +15,7 @@ class FileConfiguration(object):
         env = jinja2.Environment(undefined=jinja2.DebugUndefined)
         for key, value in local_variables.items():
             if six.PY2:
-                value = value.decode('utf8')
+                value = value.decode('utf8')  # pragma: nocover
 
             template = env.from_string(value)
             new_local_variables[key] = template.render(

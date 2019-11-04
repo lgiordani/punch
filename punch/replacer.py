@@ -56,15 +56,6 @@ class Replacer(object):
             template.render(**new_version_dict)
         )
 
-    def _run_serializer(
-            self, serializer, current_version_dict, new_version_dict):
-        template = Template(serializer)
-
-        return (
-            template.render(**current_version_dict),
-            template.render(**new_version_dict)
-        )
-
     def run_all_serializers(self, current_version_dict, new_version_dict):
         """
         Renders all serializers and returns old and new versions.
@@ -81,21 +72,9 @@ class Replacer(object):
 
         return rendered_templates
 
-    def run_main_serializer(self, current_version_dict, new_version_dict):
-        rendered_templates = {}
-        for serializer in [self.main_serializer]:
-            template = Template(serializer)
-
-            rendered_templates['main'] = (
-                template.render(**current_version_dict),
-                template.render(**new_version_dict)
-            )
-
-        return rendered_templates['main']
-
     def replace(self, text, current_version_dict, new_version_dict):
         if six.PY2:
-            text = text.decode('utf8')
+            text = text.decode('utf8')  # pragma: nocover
 
         templates = self.run_all_serializers(
             current_version_dict,

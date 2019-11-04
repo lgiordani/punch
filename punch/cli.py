@@ -274,6 +274,12 @@ def main(original_args=None):
         new_version.as_dict()
     )
 
+    file_updaters = []
+    for file_configuration in config.files:
+        file_replacer = rep.Replacer(config.globals['serializer'])
+        file_replacer.update(file_configuration.config['serializer'])
+        file_updaters.append(fu.FileUpdater(file_configuration, file_replacer))
+
     if args.verbose:
         print("\n# Current version")
         show_version_parts(current_version.values)
@@ -285,12 +291,9 @@ def main(original_args=None):
         show_version_updates(changes)
 
         print("\n# Configured files")
-        for file_configuration in config.files:
-            file_replacer = rep.Replacer(config.globals['serializer'])
-            file_replacer.update(file_configuration.config['serializer'])
-            updater = fu.FileUpdater(file_configuration, file_replacer)
+        for file_updater in file_updaters:
             print("+ {}:".format(file_configuration.path))
-            changes = updater.get_summary(
+            changes = file_updater.get_summary(
                 current_version.as_dict(),
                 new_version.as_dict()
             )
@@ -331,17 +334,14 @@ def main(original_args=None):
     uc = VCSStartReleaseUseCase(repo)
     uc.execute()
 
-    for file_configuration in config.files:
-        file_replacer = rep.Replacer(config.globals['serializer'])
-        file_replacer.update(file_configuration.config['serializer'])
-        updater = fu.FileUpdater(file_configuration, file_replacer)
-        try:
-            updater.update(
+    try:
+        for file_updater in file_updaters:
+            file_updater.update(
                 current_version.as_dict(), new_version.as_dict()
             )
-        except ValueError as e:
-            if not args.quiet:
-                print("Warning:", e)
+    except ValueError as e:
+        if not args.quiet:
+            print("Warning:", e)
 
     # Write the updated version info to the version file.
     new_version.to_file(args.version_file)
