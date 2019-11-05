@@ -39,7 +39,7 @@ FILES = [
             'semver': {
                 'search': 'Next Release',
                 'replace': '{{major}}.{{minor}}.{{patch}}'
-            }
+            },
         }
     }
 ]

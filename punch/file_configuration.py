@@ -1,8 +1,5 @@
 from __future__ import print_function, absolute_import, division
 
-import six
-import jinja2
-
 
 class FileConfiguration(object):
 
@@ -11,18 +8,7 @@ class FileConfiguration(object):
         if global_variables:
             self.config.update(global_variables)
 
-        new_local_variables = {}
-        env = jinja2.Environment(undefined=jinja2.DebugUndefined)
-        for key, value in local_variables.items():
-            if six.PY2:
-                value = value.decode('utf8')  # pragma: nocover
-
-            print('###############', value)
-            template = env.from_string(value)
-            new_local_variables[key] = template.render(
-                GLOBALS=global_variables)
-
-        self.config.update(new_local_variables)
+        self.config.update(local_variables)
         self.path = filepath
 
     @classmethod

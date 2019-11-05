@@ -7,6 +7,8 @@ import sys
 import os
 import re
 
+from jinja2 import Template
+
 import punch
 from punch import config as cfr
 from punch import file_updater as fu
@@ -22,8 +24,6 @@ from punch.vcs_repositories.git_repo import GitRepo
 from punch.vcs_repositories.hg_repo import HgRepo
 from punch.vcs_use_cases.vcs_start_release import VCSStartReleaseUseCase
 from punch.vcs_use_cases.vcs_finish_release import VCSFinishReleaseUseCase
-
-from jinja2 import Template
 
 
 def fatal_error(message, exception=None):
