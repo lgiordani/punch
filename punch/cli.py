@@ -196,16 +196,16 @@ def check_release_notes(config, changes):
             if not re.search(render, content, re.MULTILINE):
                 wrong_release_notes.append((file_name, regex_template, render))
 
-        if len(wrong_release_notes):
-            print("The following files have been configured to contain "
-                  "release notes, but they don't have an entry that matches "
-                  "the new version that Punch is about to create.")
-            for file_name, regex_template, render in wrong_release_notes:
-                print("  *", file_name)
-                print("    - Template:", regex_template)
-                print("    - Rendered:", render)
-            fatal_error(
-                "Please update the files and commit them if you use a VCS")
+    if len(wrong_release_notes):
+        print("The following files have been configured to contain "
+              "release notes, but they don't have an entry that matches "
+              "the new version that Punch is about to create.")
+        for file_name, regex_template, render in wrong_release_notes:
+            print("  *", file_name)
+            print("    - Template:", regex_template)
+            print("    - Rendered:", render)
+        fatal_error(
+            "Please update the files and commit them if you use a VCS")
 
 
 def main(original_args=None):
