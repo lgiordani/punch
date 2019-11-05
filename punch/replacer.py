@@ -47,13 +47,20 @@ class Replacer(object):
     def run_serializer(self, serializer_name,
                        current_version_dict, new_version_dict):
         try:
-            template = Template(self.serializers[serializer_name])
+            serializer = self.serializers[serializer_name]
         except KeyError:
             raise MissingSerializer
 
+        if isinstance(serializer, abc.Sequence):
+            search_template = Template(serializer)
+            replace_template = search_template
+        else:
+            search_template = Template(serializer['search'])
+            replace_template = Template(serializer['replace'])
+
         return (
-            template.render(**current_version_dict),
-            template.render(**new_version_dict)
+            search_template.render(**current_version_dict),
+            replace_template.render(**new_version_dict)
         )
 
     def run_all_serializers(self, current_version_dict, new_version_dict):
