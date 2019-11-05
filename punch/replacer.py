@@ -21,7 +21,10 @@ class MissingSerializer(Exception):
 
 class Replacer(object):
     def __init__(self, serializers, main_serialize_name='0'):
+        self.serializers = {}
+        self.update(serializers)
 
+    def update(self, serializers):
         # Serializers is a list
         if isinstance(serializers, abc.MutableSequence):
             self.serializers = dict(
@@ -34,7 +37,7 @@ class Replacer(object):
             }
         # Serializers is a dictionary
         elif isinstance(serializers, abc.Mapping):
-            self.serializers = serializers
+            self.serializers.update(serializers)
         else:
             raise(TypeError(
                 ("serializers must be either a MutableSequence, "
@@ -47,15 +50,6 @@ class Replacer(object):
             template = Template(self.serializers[serializer_name])
         except KeyError:
             raise MissingSerializer
-
-        return (
-            template.render(**current_version_dict),
-            template.render(**new_version_dict)
-        )
-
-    def _run_serializer(
-            self, serializer, current_version_dict, new_version_dict):
-        template = Template(serializer)
 
         return (
             template.render(**current_version_dict),
@@ -78,21 +72,9 @@ class Replacer(object):
 
         return rendered_templates
 
-    def run_main_serializer(self, current_version_dict, new_version_dict):
-        rendered_templates = {}
-        for serializer in [self.main_serializer]:
-            template = Template(serializer)
-
-            rendered_templates['main'] = (
-                template.render(**current_version_dict),
-                template.render(**new_version_dict)
-            )
-
-        return rendered_templates['main']
-
     def replace(self, text, current_version_dict, new_version_dict):
         if six.PY2:
-            text = text.decode('utf8')
+            text = text.decode('utf8')  # pragma: nocover
 
         templates = self.run_all_serializers(
             current_version_dict,

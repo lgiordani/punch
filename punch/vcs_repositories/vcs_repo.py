@@ -6,8 +6,7 @@ import six
 from punch.vcs_repositories.exceptions import RepositorySystemError
 
 
-class VCSRepo(object):
-
+class VCSRepo(object):  # pragma: nocover
     def __init__(self, working_path, config_obj, files_to_commit=None):
         self.working_path = working_path
         self.config_obj = config_obj

@@ -28,6 +28,18 @@ def test_process_single_serializer_string():
     }
 
 
+def test_update_single_serializer_string():
+    serializer = "__version__ = \"{{major}}.{{minor}}.{{patch}}\""
+
+    rep = replacer.Replacer(serializer)
+
+    rep.update("__version__ = \"{{major}}.{{minor}}\"")
+
+    assert rep.serializers == {
+        '0': "__version__ = \"{{major}}.{{minor}}\""
+    }
+
+
 def test_process_multiple_serializers_list():
     serializer = [
         "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
@@ -42,6 +54,25 @@ def test_process_multiple_serializers_list():
     }
 
 
+def test_update_multiple_serializers_list():
+    serializer = [
+        "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
+        "__api_abi__ = \"{{major}}.{{minor}}\""
+    ]
+
+    rep = replacer.Replacer(serializer)
+
+    rep.update([
+        "__version__ = \"{{major}}.{{minor}}\"",
+        "__major__ = \"{{major}}\""
+    ])
+
+    assert rep.serializers == {
+        '0': "__version__ = \"{{major}}.{{minor}}\"",
+        '1': "__major__ = \"{{major}}\""
+    }
+
+
 def test_process_multiple_serializers_dict():
     serializer = {
         'main': "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
@@ -53,6 +84,26 @@ def test_process_multiple_serializers_dict():
     assert rep.serializers == {
         'main': "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
         'apiabi': "__api_abi__ = \"{{major}}.{{minor}}\""
+    }
+
+
+def test_update_multiple_serializers_dict():
+    serializer = {
+        'main': "__version__ = \"{{major}}.{{minor}}.{{patch}}\"",
+        'apiabi': "__api_abi__ = \"{{major}}.{{minor}}\""
+    }
+
+    rep = replacer.Replacer(serializer, 'main')
+
+    rep.update({
+        'main': "__version__ = \"{{major}}.{{minor}}\"",
+        'major': "__major__ = \"{{major}}\""
+    })
+
+    assert rep.serializers == {
+        'main': "__version__ = \"{{major}}.{{minor}}\"",
+        'apiabi': "__api_abi__ = \"{{major}}.{{minor}}\"",
+        'major': "__major__ = \"{{major}}\""
     }
 
 

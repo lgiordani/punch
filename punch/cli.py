@@ -107,46 +107,7 @@ def init_config_files():
             f.write(default_version_file_content)
 
 
-def main(original_args=None):
-    parser = argparse.ArgumentParser(
-        description="Manages file content with versions."
-    )
-    parser.add_argument('-c', '--config-file', action='store',
-                        help="Config file", default=default_config_file_name)
-    parser.add_argument('-v', '--version-file', action='store',
-                        help="Version file", default=default_version_file_name)
-    parser.add_argument('-p', '--part', action='store')
-    parser.add_argument('--set-part', action='store')
-    parser.add_argument('-a', '--action', action='store')
-    parser.add_argument('--action-options', action='store')
-    parser.add_argument('--action-flags', action='store')
-    parser.add_argument('--reset-on-set', action='store_true')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Ignore warnings')
-    parser.add_argument('--verbose', action='store_true',
-                        help="Be verbose")
-    parser.add_argument('--version', action='store_true',
-                        help="Print the Punch version and project information")
-    parser.add_argument(
-        '--init',
-        action='store_true',
-        help="Writes default initialization files" +
-             " (does not overwrite existing ones)"
-    )
-    parser.add_argument(
-        '-s',
-        '--simulate',
-        action='store_true',
-        help="Simulates the version increment and" +
-             " prints a summary of the relevant data (implies --verbose)"
-    )
-
-    args = parser.parse_args()
-
-    # These are here just to avoid "can be not defined" messages by linters
-    config = None
-    repo = None
-
+def args_initialize(args):
     if args.version is True:
         print("Punch version {}".format(punch.__version__))
         print("Copyright (C) 2016 Leonardo Giordani")
@@ -162,6 +123,8 @@ def main(original_args=None):
     if args.simulate:
         args.verbose = True
 
+
+def args_check_options(args):
     if not any([args.part, args.set_part, args.action]):
         fatal_error("You must specify one of --part, --set-part, or --action")
 
@@ -202,9 +165,10 @@ def main(original_args=None):
             "The requested action {} is not defined.".format(args.action)
         )
 
-    if args.verbose:
-        print("## Punch version {}".format(punch.__version__))
+    return config
 
+
+def create_action(args, config):
     action_dict = config.actions[args.action]
 
     try:
@@ -218,10 +182,89 @@ def main(original_args=None):
     action_class = ar.ActionRegister.get(action_name)
     action = action_class(action_dict)
 
+    return action
+
+
+def check_release_notes(config, changes):
+    wrong_release_notes = []
+    new_versions = dict((n, v[1]) for n, v in changes.items())
+    for file_name, regex_template in config.release_notes:
+        template = Template(regex_template)
+        render = template.render(**new_versions)
+        with open(file_name, 'r') as f:
+            content = f.read()
+            if not re.search(render, content, re.MULTILINE):
+                wrong_release_notes.append((file_name, regex_template, render))
+
+        if len(wrong_release_notes):
+            print("The following files have been configured to contain "
+                  "release notes, but they don't have an entry that matches "
+                  "the new version that Punch is about to create.")
+            for file_name, regex_template, render in wrong_release_notes:
+                print("  *", file_name)
+                print("    - Template:", regex_template)
+                print("    - Rendered:", render)
+            fatal_error(
+                "Please update the files and commit them if you use a VCS")
+
+
+def main(original_args=None):
+    parser = argparse.ArgumentParser(
+        description="Manages file content with versions."
+    )
+    parser.add_argument('-c', '--config-file', action='store',
+                        help="Config file", default=default_config_file_name)
+    parser.add_argument('-v', '--version-file', action='store',
+                        help="Version file", default=default_version_file_name)
+    parser.add_argument('-p', '--part', action='store')
+    parser.add_argument('--set-part', action='store')
+    parser.add_argument('-a', '--action', action='store')
+    parser.add_argument('--action-options', action='store')
+    parser.add_argument('--action-flags', action='store')
+    parser.add_argument('--reset-on-set', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='Ignore warnings')
+    parser.add_argument('--verbose', action='store_true',
+                        help="Be verbose")
+    parser.add_argument('--version', action='store_true',
+                        help="Print the Punch version and project information")
+    parser.add_argument(
+        '--init',
+        action='store_true',
+        help="Writes default initialization files" +
+             " (does not overwrite existing ones)"
+    )
+    parser.add_argument(
+        '-s',
+        '--simulate',
+        action='store_true',
+        help="Simulates the version increment and" +
+             " prints a summary of the relevant data (implies --verbose)"
+    )
+
+    args = parser.parse_args()
+
+    # This is here just to avoid "can be not defined" messages by linters
+    repo = None
+
+    args_initialize(args)
+    config = args_check_options(args)
+
+    if args.verbose:
+        print("## Punch version {}".format(punch.__version__))
+
+    action = create_action(args, config)
+
     current_version = ver.Version.from_file(args.version_file, config.version)
-    new_version = action.process_version(current_version.copy())
+    new_version = action.process_version(current_version)
 
     global_replacer = rep.Replacer(config.globals['serializer'])
+
+    file_updaters = []
+    for file_configuration in config.files:
+        file_replacer = rep.Replacer(config.globals['serializer'])
+        file_replacer.update(file_configuration.config['serializer'])
+        file_updaters.append(fu.FileUpdater(file_configuration, file_replacer))
 
     if config.vcs is not None:
         try:
@@ -249,15 +292,13 @@ def main(original_args=None):
     else:
         vcs_configuration = None
 
-    # Prepare the files that have been changed by Punch
-    # Including the config and version file of Punch itself
-
-    files_to_commit = [f.path for f in config.files]
-    files_to_commit.append(args.config_file)
-    files_to_commit.append(args.version_file)
-
     # Prepare the VCS repository
     repo_class = select_vcs_repo_class(vcs_configuration)
+
+    # Prepare the files that have been changed by Punch
+    # Including the version file of Punch itself
+    files_to_commit = [f.path for f in config.files]
+    files_to_commit.append(args.version_file)
 
     # Initialise the VCS reposity class
     try:
@@ -285,10 +326,9 @@ def main(original_args=None):
         show_version_updates(changes)
 
         print("\n# Configured files")
-        for file_configuration in config.files:
-            updater = fu.FileUpdater(file_configuration, global_replacer)
+        for file_updater in file_updaters:
             print("+ {}:".format(file_configuration.path))
-            changes = updater.get_summary(
+            changes = file_updater.get_summary(
                 current_version.as_dict(),
                 new_version.as_dict()
             )
@@ -299,48 +339,26 @@ def main(original_args=None):
         if len(vcs_info) != 0:
             print("\n# VCS")
 
-            for key, value in repo.get_info():
+            for key, value in vcs_info:
                 print('+ {}: {}'.format(key, value))
 
     if args.simulate:
         sys.exit(0)
 
-    wrong_release_notes = []
-    new_versions = dict((n, v[1]) for n, v in changes.items())
-    for file_name, regex_template in config.release_notes:
-        template = Template(regex_template)
-        render = template.render(**new_versions)
-        with open(file_name, 'r') as f:
-            content = f.read()
-            if not re.search(render, content, re.MULTILINE):
-                wrong_release_notes.append((file_name, regex_template, render))
+    check_release_notes(config, changes)
 
-        if len(wrong_release_notes):
-            print("The following files have been configured to contain "
-                  "release notes, but they don't have an entry that matches "
-                  "the new version that Punch is about to create.")
-            for file_name, regex_template, render in wrong_release_notes:
-                print("  *", file_name)
-                print("    - Template:", regex_template)
-                print("    - Rendered:", render)
-            fatal_error(
-                "Please update the files and commit them if you use a VCS")
+    VCSStartReleaseUseCase(repo).execute()
 
-    uc = VCSStartReleaseUseCase(repo)
-    uc.execute()
-
-    for file_configuration in config.files:
-        updater = fu.FileUpdater(file_configuration, global_replacer)
-        try:
-            updater.update(
+    try:
+        for file_updater in file_updaters:
+            file_updater.update(
                 current_version.as_dict(), new_version.as_dict()
             )
-        except ValueError as e:
-            if not args.quiet:
-                print("Warning:", e)
+    except ValueError as e:
+        if not args.quiet:
+            print("Warning:", e)
 
     # Write the updated version info to the version file.
     new_version.to_file(args.version_file)
 
-    uc = VCSFinishReleaseUseCase(repo)
-    uc.execute()
+    VCSFinishReleaseUseCase(repo).execute()

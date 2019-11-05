@@ -16,7 +16,7 @@ class FileUpdater(object):
     def update(self, current_version, new_version):
         if not os.path.exists(self.file_configuration.path):
             if six.PY2:
-                raise IOError(
+                raise IOError(  # pragma: nocover
                     "The file {} does not exist".format(
                         self.file_configuration.path
                     )
@@ -38,7 +38,8 @@ class FileUpdater(object):
         )
 
         if six.PY2:
-            new_file_content = new_file_content.encode('utf8')
+            new_file_content = new_file_content.encode(
+                'utf8')  # pragma: nocover
 
         if new_file_content == old_file_content:
             raise ValueError(
