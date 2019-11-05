@@ -39,6 +39,24 @@ def test_file_configuration_from_string_local_variables_take_precedence(
     assert fconf.config['mark'] == 'just a mark'
 
 
+def test_file_configuration_from_string_cannot_include_global_variables(
+        global_variables):
+
+    local_variables = {
+        'serializer': '__version__ = {{GLOBALS.serializer}}'
+    }
+    fconf = fc.FileConfiguration(
+        'pkg/__init__.py',
+        local_variables,
+        global_variables
+    )
+
+    assert fconf.path == 'pkg/__init__.py'
+    assert fconf.config['serializer'] == \
+        '__version__ = {{GLOBALS.serializer}}'
+    assert fconf.config['mark'] == 'just a mark'
+
+
 def test_file_conf_fr_str_path_cannot_be_overridden_by_global_variables(
         local_variables, global_variables):
     global_variables['path'] = 'a/new/path'
