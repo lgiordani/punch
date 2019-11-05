@@ -3,6 +3,13 @@ import pytest
 
 pytestmark = pytest.mark.slow
 
+test_name = "Test Name"
+
+test_description = """
+Bla bla bla
+Multiple lines of bla bla
+"""
+
 system_year = subprocess.check_output(['date', '+%Y'])
 system_year = system_year.decode('utf8').replace('\n', '')
 
@@ -47,11 +54,19 @@ VERSION = [
 ]
 """
 
+test_files = {
+    'README.md': {
+        'original': "Version {}.{}.0.".format(system_year, system_month),
+        'expected': "Version {}.{}.1.".format(system_year, system_month)
+    }
+}
 
-def test_action_refresh(script_runner, test_environment):
+
+@pytest.mark.parametrize("test_file", ["README.md"])
+def test_action_refresh(script_runner, test_environment, test_file):
     test_environment.ensure_file_is_present(
-        "README.md",
-        "Version {}.{}.0.".format(system_year, system_month)
+        test_file,
+        test_files[test_file]['original']
     )
 
     test_environment.ensure_file_is_present("punch_version.py",
@@ -63,5 +78,5 @@ def test_action_refresh(script_runner, test_environment):
     ret = test_environment.call(['punch', '--action', 'mbuild'])
 
     assert not ret.stderr
-    assert test_environment.get_file_content("README.md") == \
-        "Version {}.{}.1.".format(system_year, system_month)
+    assert test_environment.get_file_content(test_file) == \
+        test_files[test_file]['expected']
