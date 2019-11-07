@@ -129,3 +129,40 @@ History
 ```
 
 Punch finds a match and continues, otherwise it interrupts the process before applying any change.
+
+Another way to manage release notes is to replace a fixed string that you already have in the release notes file, as described by the example in the Complex serializers section below.
+
+## Complex serializers
+
+Punch assumes that each serializer represents both the search and the replacement patterns, filling the given template respectively with the old and the new version. Sometimes this is not true, so you can express more complex configurations with this syntax
+
+``` python
+GLOBALS = {
+    'serializer': {
+        'semver': {
+            'search': 'Next Release',
+            'replace': '{{major}}.{{minor}}.{{patch}}'
+        }
+    },
+}
+```
+
+Where `search` is the pattern used to find the old version and `replace` is the pattern used to replace it. In this example the `search` pattern is a fixed string, but can use the usual Jinja2 syntax with the version fields. Complex serializers are supported in the configuration of single files as well
+
+``` python
+GLOBALS = {
+    'serializer': '{{major}}.{{minor}}.{{patch}}',
+}
+
+FILES = [
+    {
+        'path': "CHANGELOG.rst",
+        'serializer': {
+            'semver': {
+                'search': 'Next Release',
+                'replace': '{{major}}.{{minor}}.{{patch}}'
+            },
+        }
+    }
+]
+```

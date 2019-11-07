@@ -2,6 +2,19 @@
 History
 =======
 
+2.0.0 (2019-11-07)
+------------------
+
+* **DEPRECATION** Punch doesn't support `GLOBAL` variables in the `FILES` variable anymore. The values given to fields in the `FILES` section are now simple strings and are not processed through Jinja2 anymore.
+* Initial drop of Python 2.x: the CI process doesn't test Python2.x anymore.
+* Complete review of documentation: the docs have been split in multiple files to make it easier to find information and to understand the program.
+* Initial implementation of automatic documentation from tests. Integration tests can now be parsed to extract examples for the documentation. [See documentation: `Examples from tests`]
+* Named serializers: serializers now can be given a name through a dictionary syntax. With this change it becomes possible to select the serializer to use for the VCS. [See documentation: `Configuration > GLOBALS`]
+* Complex serializers: standard serializers use the same pattern both for the search and for the replace actions. With complex serializers you can define two different patterns, one for each action. [See documentation: `Advanced configuration > Complex serializers`]
+* The configuration of each file managed by Punch can override the global serializers or add new ones. [See documentation: `Configuration > FILES`]
+* Release notes: Punch can be configured to check if a pattern based on the new version is present in the managed files. This makes it simple to check if HISTORY files have been updated without requiring to interrupt the execution of the program and later restore it. [See documentation: `Advanced configuration > Release notes`]
+
+
 1.6.2 (2019-08-22)
 ------------------
 
@@ -11,7 +24,7 @@ History
 1.6.1 (2019-08-22)
 ------------------
 
-* Merged PR#38: Fixes the behavious of the standard annotation message
+* Merged PR#38: Fixes the behaviour of the standard annotation message
 
 1.6.0 (2019-04-12)
 ------------------
