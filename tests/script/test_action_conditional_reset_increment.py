@@ -3,11 +3,16 @@ import pytest
 
 pytestmark = pytest.mark.slow
 
-test_name = "Test Name"
+test_name = "Conditional Reset Action - Increment"
 
 test_description = """
-Bla bla bla
-Multiple lines of bla bla
+This configuraton implements a version number that includes the current date
+(`{{year}}.{{month}}`) and a `build`. The build gets reset every beginning
+of the month.
+
+The `conditional_reset` action can reset a field depending on what happens
+to other fields. In this case the `build` field depends on `year` and `month`,
+and since these are not updated, the former is incremented.
 """
 
 system_year = subprocess.check_output(['date', '+%Y'])

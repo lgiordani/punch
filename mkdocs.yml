@@ -5,4 +5,5 @@ nav:
     - Configuration: configuration.md
     - Advanced configuration: advanced.md
     - Examples: examples.md
+    - Examples from tests: test_examples.md
     - Internals: internals.md
