@@ -62,16 +62,32 @@ The optional variables are:
 
 * `VCS`
 
-This file contains pure Pyhton, so if you need to create some of its content programmatically feel free to do it. Punch uses only the value of the variables described here, any other code will be executed but will not affect the configuration.
+This file contains pure Python, so if you need to create some of its content programmatically feel free to do it. Punch uses only the value of the variables described here, any other code will be executed but will not affect the configuration.
 
 *A note on security*: configuration files that can contain code which is executed by the application are a very bad idea for servers, as they provide a potential way for attackers to execute code with a different privilege level. Punch is however a tool that developers use to work on their own project, and whoever can edit the configuration can already execute all the actions that Punch performs. This means that there is no threat in having a configuration file that contains code for Punch.
 
-## GLOBALS
+## Serializers
 
-This variable is a **dictionary** containing variables that are globally valid during the whole execution of Punch, if not overridden by local variables (see `FILES`, for example).
+Serializers are the templates used to search and replace the old version with the new one. They are filled with the values of the current version and the result is used by Punch to scan the controlled files. Whenever a match is found, Punch replaces it with the same template filled with the values of the new version.
 
-* `serializer` represents the templates used to search and replace the old version. This can be **string**, a **list of strings** or a **dictionary**. Each serializer is a [Jinja2](http://jinja.pocoo.org/) template which is rendered with the current version and the new version to get the search and replace patterns. Expressing serializer with a dictionary allows you to give them a name and to refer to them in other parts of Punch. for example when using a VCS.
-* You may define any variable in the GLOBALS dictionary and use it later where a Jinja2 template is available, for example in the `commit_message` of the `VCS` variable.
+So for example, Given a current version of 1.2.3 and a new version of 1.30, a serializer like `'version {{ major }}.{{ minor }}.{{ patch }}'` makes Punch search for the string `'version 1.2.3'` and replace it with `'version 1.3.0'`.
+
+Serializers can be found in different parts of the configuration file, but all share the same syntax. They can be
+
+* A **string** containing a single serializer, e.g. `'{{ major }}.{{ minor }}.{{ patch }}'`
+* A **list of strings**, each string being a serializer, e.g. `['{{ major }}.{{ minor }}.{{ patch }}', '{{ major }}.{{ minor }}']`
+* A **dictionary**, each entry being a serializer, e.g.
+```
+{
+    'full': '{{ major }}.{{ minor }}.{{ patch }}',
+    'short': '{{ major }}.{{ minor }}'
+}
+```
+
+
+The dictionary form is called "named serializer`, and the one shown here is its shorter form. A longer form of the named serializers is described in the Advanced configuration section. The reason behind named serializers is that this way you can choose which serializer you want to use for certain tasks (see the documentation of the `VCS_SERIALIZER` configuration option).
+
+Serializers are Jinja2 templates so you can access all the template functions that the engine provides.
 
 ### Example 1
 
@@ -167,7 +183,13 @@ GLOBALS = {
 
 This is the same configuration shown in the previous example, but it uses named serializers. This allows you to refer to the serializers with a specific name in other parts of the Punch configuration file.
 
-### Example 6
+## GLOBALS
+
+This variable is a **dictionary** containing variables that are globally valid during the whole execution of Punch, if not overridden by local variables (see `FILES`, for example).
+
+* `serializer` is the set of serializers declared globally (see the section about Serializers).
+
+Custom variables can be defined adding their name and value, and reused in other parts of the configuration file.
 
 ``` python
 GLOBALS = {
@@ -180,8 +202,6 @@ VCS = {
     'commit_message': "Version {{ new_version }} - {{ myvar }}"
 }
 ```
-
-This shows how custom variables can be used in other parts of the configuration file.
 
 ## FILES
 
