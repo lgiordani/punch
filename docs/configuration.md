@@ -70,7 +70,7 @@ This file contains pure Python, so if you need to create some of its content pro
 
 Serializers are the templates used to search and replace the old version with the new one. They are filled with the values of the current version and the result is used by Punch to scan the controlled files. Whenever a match is found, Punch replaces it with the same template filled with the values of the new version.
 
-So for example, Given a current version of 1.2.3 and a new version of 1.30, a serializer like `'version {{ major }}.{{ minor }}.{{ patch }}'` makes Punch search for the string `'version 1.2.3'` and replace it with `'version 1.3.0'`.
+So for example, Given a current version of 1.2.3 and a new version of 1.3.0, a serializer like `'version {{ major }}.{{ minor }}.{{ patch }}'` makes Punch search for the string `'version 1.2.3'` and replace it with `'version 1.3.0'`.
 
 Serializers can be found in different parts of the configuration file, but all share the same syntax. They can be
 
@@ -85,7 +85,7 @@ Serializers can be found in different parts of the configuration file, but all s
 ```
 
 
-The dictionary form is called "named serializer`, and the one shown here is its shorter form. A longer form of the named serializers is described in the Advanced configuration section. The reason behind named serializers is that this way you can choose which serializer you want to use for certain tasks (see the documentation of the `VCS_SERIALIZER` configuration option).
+The dictionary form is called "named serializer", and the one shown here is its shorter form. A longer form of the named serializers is described in the Advanced configuration section. The reason behind named serializers is that this way you can choose which serializer you want to use for certain tasks (see the documentation of the `VCS_SERIALIZER` configuration option).
 
 Serializers are Jinja2 templates so you can access all the template functions that the engine provides.
 
