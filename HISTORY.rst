@@ -2,7 +2,7 @@
 History
 =======
 
-2.0.0 (2019-11-07)
+2.0.0 (2019-11-21)
 ------------------
 
 * **DEPRECATION** Punch doesn't support `GLOBAL` variables in the `FILES` variable anymore. The values given to fields in the `FILES` section are now simple strings and are not processed through Jinja2 anymore.
