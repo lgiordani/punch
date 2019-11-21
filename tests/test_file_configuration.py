@@ -39,8 +39,9 @@ def test_file_configuration_from_string_local_variables_take_precedence(
     assert fconf.config['mark'] == 'just a mark'
 
 
-def test_file_configuration_from_string_can_include_global_variables(
+def test_file_configuration_from_string_cannot_include_global_variables(
         global_variables):
+
     local_variables = {
         'serializer': '__version__ = {{GLOBALS.serializer}}'
     }
@@ -52,7 +53,7 @@ def test_file_configuration_from_string_can_include_global_variables(
 
     assert fconf.path == 'pkg/__init__.py'
     assert fconf.config['serializer'] == \
-        '__version__ = {{ major }}.{{ minor }}.{{ patch }}'
+        '__version__ = {{GLOBALS.serializer}}'
     assert fconf.config['mark'] == 'just a mark'
 
 

@@ -3,9 +3,10 @@
 import os
 import pytest
 import six
+
 from punch import file_configuration as fc
 from punch import file_updater as fu
-
+from punch import replacer
 
 @pytest.fixture
 def temp_dir_with_version_file(temp_empty_dir):
@@ -51,7 +52,8 @@ def test_file_updater(temp_dir_with_version_file):
 
     file_config = fc.FileConfiguration(filepath, local_variables)
 
-    updater = fu.FileUpdater(file_config)
+    rep = replacer.Replacer(file_config.config['serializer'])
+    updater = fu.FileUpdater(file_config, rep)
     updater.update(current_version, new_version)
 
     with open(filepath, 'r') as f:
@@ -81,7 +83,8 @@ def test_file_updater_with_unicode_characters(
 
     file_config = fc.FileConfiguration(filepath, local_variables)
 
-    updater = fu.FileUpdater(file_config)
+    rep = replacer.Replacer(file_config.config['serializer'])
+    updater = fu.FileUpdater(file_config, rep)
     updater.update(current_version, new_version)
 
     with open(filepath, 'r') as f:
@@ -111,7 +114,8 @@ def test_file_updater_with_partial_serializer(
 
     file_config = fc.FileConfiguration(filepath, local_variables)
 
-    updater = fu.FileUpdater(file_config)
+    rep = replacer.Replacer(file_config.config['serializer'])
+    updater = fu.FileUpdater(file_config, rep)
     updater.update(current_version, new_version)
 
     with open(filepath, 'r') as f:
@@ -145,7 +149,8 @@ def test_file_updater_with_nonexisting_file(temp_empty_dir):
         expected_exception = FileNotFoundError
 
     with pytest.raises(expected_exception) as exc:
-        updater = fu.FileUpdater(file_config)
+        rep = replacer.Replacer(file_config.config['serializer'])
+        updater = fu.FileUpdater(file_config, rep)
         updater.update(current_version, new_version)
 
     assert str(exc.value) == "The file {} does not exist".format(
@@ -171,7 +176,8 @@ def test_file_updater_preview(temp_empty_dir):
         'patch': 0
     }
 
-    updater = fu.FileUpdater(file_config)
+    rep = replacer.Replacer(file_config.config['serializer'])
+    updater = fu.FileUpdater(file_config, rep)
     summary = updater.get_summary(current_version, new_version)
 
-    assert summary == [("__version__ = \"1.2\"", "__version__ = \"1.3\"")]
+    assert summary == {'0': ("__version__ = \"1.2\"", "__version__ = \"1.3\"")}

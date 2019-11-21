@@ -1,6 +1,6 @@
 from __future__ import print_function, absolute_import, division
 
-import collections
+from collections import abc
 from punch import file_configuration as fc
 from punch.helpers import import_file
 
@@ -19,14 +19,14 @@ class PunchConfig(object):
             self.__config_version__ = configuration_module.__config_version__
         except AttributeError:
             raise ValueError(
-                "Given config file is invalid:" +
-                " missing '__config_version__' variable"
+                ("Given config file is invalid: "
+                 "missing '__config_version__' variable")
             )
 
         if configuration_module.__config_version__ > 1:
             raise ConfigurationVersionError(
-                "Unsupported configuration file version" +
-                " {}".format(configuration_module.__config_version__)
+                ("Unsupported configuration file version "
+                 "{}".format(configuration_module.__config_version__))
             )
 
         try:
@@ -42,7 +42,7 @@ class PunchConfig(object):
 
         self.files = []
         for file_configuration in files:
-            if isinstance(file_configuration, collections.Mapping):
+            if isinstance(file_configuration, abc.Mapping):
                 self.files.append(fc.FileConfiguration.from_dict(
                     file_configuration, self.globals))
             else:
@@ -54,6 +54,11 @@ class PunchConfig(object):
         except AttributeError:
             raise ValueError(
                 "Given config file is invalid: missing 'VERSION' attribute")
+
+        try:
+            self.vcs_serializer = configuration_module.VCS_SERIALIZER
+        except AttributeError:
+            self.vcs_serializer = '0'
 
         try:
             self.vcs = configuration_module.VCS
@@ -77,3 +82,8 @@ class PunchConfig(object):
                 }
             }
         )
+
+        try:
+            self.release_notes = configuration_module.RELEASE_NOTES
+        except AttributeError:
+            self.release_notes = []

@@ -15,14 +15,19 @@ GLOBALS = {
     'serializer': '{{major}}.{{minor}}.{{patch}}',
 }
 
-FILES = ["README.md"]
+FILES = [
+    {
+        'path': "README.md",
+        'serializer': '{{major}}.{{minor}}'
+    }
+]
 
 VERSION = ['major', 'minor', 'patch']
 """
 
 
-def test_use_undefined_action(test_environment):
-    test_environment.ensure_file_is_present("README.md", "Version 1.0.0")
+def test_update_major(test_environment):
+    test_environment.ensure_file_is_present("README.md", "Version 1.0")
 
     test_environment.ensure_file_is_present(
         "punch_version.py",
@@ -34,10 +39,6 @@ def test_use_undefined_action(test_environment):
         config_file_content
     )
 
-    out = test_environment.call([
-        "punch",
-        "--action", "punch:foobar",
-        "--action-options", "part=major"
-    ])
+    test_environment.call(["punch", "--part", "major"])
 
-    assert out.returncode == 1
+    assert test_environment.get_file_content("README.md") == "Version 2.0"

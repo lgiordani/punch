@@ -3,6 +3,18 @@ import pytest
 
 pytestmark = pytest.mark.slow
 
+test_name = "Conditional Reset Action - Increment"
+
+test_description = """
+This configuraton implements a version number that includes the current date
+(`{{year}}.{{month}}`) and a `build`. The build gets reset every beginning
+of the month.
+
+The `conditional_reset` action can reset a field depending on what happens
+to other fields. In this case the `build` field depends on `year` and `month`,
+and since these are not updated, the former is incremented.
+"""
+
 system_year = subprocess.check_output(['date', '+%Y'])
 system_year = system_year.decode('utf8').replace('\n', '')
 
@@ -47,11 +59,19 @@ VERSION = [
 ]
 """
 
+test_files = {
+    'README.md': {
+        'original': "Version {}.{}.0.".format(system_year, system_month),
+        'expected': "Version {}.{}.1.".format(system_year, system_month)
+    }
+}
 
-def test_action_refresh(script_runner, test_environment):
+
+@pytest.mark.parametrize("test_file", ["README.md"])
+def test_action_refresh(script_runner, test_environment, test_file):
     test_environment.ensure_file_is_present(
-        "README.md",
-        "Version {}.{}.0.".format(system_year, system_month)
+        test_file,
+        test_files[test_file]['original']
     )
 
     test_environment.ensure_file_is_present("punch_version.py",
@@ -63,5 +83,5 @@ def test_action_refresh(script_runner, test_environment):
     ret = test_environment.call(['punch', '--action', 'mbuild'])
 
     assert not ret.stderr
-    assert test_environment.get_file_content("README.md") == \
-        "Version {}.{}.1.".format(system_year, system_month)
+    assert test_environment.get_file_content(test_file) == \
+        test_files[test_file]['expected']

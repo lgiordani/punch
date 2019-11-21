@@ -1,2 +1,9 @@
 site_name: Punch
 theme: readthedocs
+nav:
+    - Home: index.md
+    - Configuration: configuration.md
+    - Advanced configuration: advanced.md
+    - Examples: examples.md
+    - Examples from tests: test_examples.md
+    - Internals: internals.md
